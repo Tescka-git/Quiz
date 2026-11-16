@@ -124,8 +124,9 @@ Aucun besoin initial de Docker, PostgreSQL, comptes joueurs ou infrastructure cl
 |---|---|---|---|
 | **1. Formaliser les expériences et invariants** | Rendre les essais reproductibles avant d'implémenter. | Matrice appareils/navigateurs/réseaux, scénarios de panne et format de mesures. | Chaque essai précise état initial, manipulations et observations attendues. Invariants et mesures de performance sont séparés. |
 | **2. Expérience PWA ↔ Android sans Internet** | Vérifier immédiatement le principal risque de connectivité. | PWA préchargée avec Internet et serveur WebSocket Android minimal, sans moteur de quiz. | Sans accès Internet, la PWA démarre et tente un échange bidirectionnel. Chaque configuration est conclue par réussite, échec ou blocage identifié, avec preuves. Une réussite exige les protections normales du navigateur. |
-| **3. Expérience runtime et stockage Android** | Vérifier que le même code métier peut tourner sur Android et conserver un état. | Petit module TypeScript partagé exécuté sur Node.js et Android ; écriture SQLite transactionnelle sur les deux environnements. | Les mêmes entrées produisent les mêmes résultats ; un état validé est retrouvé après arrêt du processus. Contraintes de compilation et d'intégration documentées. |
-| **4. Initialiser le dépôt modulaire** | Créer les frontières de dépendances et commandes communes. | Workspaces, configurations TypeScript, compilation et commande de tests. | Tous les modules compilent ; le moteur fonctionne sans dépendance à Node.js, au navigateur ou à Android. |
+| **3a. Expérience de portabilité du moteur** | Isoler l'exécution des mêmes règles sans Node.js sur Android. | Artefact JavaScript unique et autonome, enveloppes Node.js/Android, empreintes et scénarios JSON. | Mêmes octets vérifiés par SHA-256 ; résultats identiques et conformes aux attentes après chaque commande. Aucune règle réécrite en Kotlin. |
+| **3b. Expérience de stockage Android** | Vérifier séparément la compatibilité et la durabilité SQLite. | Écritures transactionnelles sur Node.js et Android, tests d'interruption et rapport. | État validé retrouvé après arrêt du processus ; erreurs de commit sans confirmation. Ce résultat ne découle pas de la réussite de 3a. |
+| **4. Initialiser le dépôt modulaire** | Créer les frontières de dépendances et commandes communes. | Workspaces, configurations TypeScript, compilation, tests et contrôles d'import/graphe/artefact. | Compilation réussie ; moteur sans dépendance d'exécution externe ; tests négatifs faisant échouer les imports directs et indirects interdits. |
 | **5. Définir le protocole minimal** | Préparer connexion, commandes, confirmations et resynchronisation. | Schémas des messages, identifiants de session/joueur/soumission/tentative de question et tests. | Messages invalides rejetés ; retransmissions identifiables ; un joueur ne peut pas envoyer de commande d'animateur. |
 | **6. Implémenter le moteur minimal** | Valider les règles indépendamment du transport. | Session, QCM unique, pause/reprise, correction, score et classement. | Tests déterministes des limites temporelles, réponses définitives, pauses, scores et ex aequo. |
 | **7. Réaliser le stockage transactionnel** | Garantir conservation et unicité des réponses acceptées. | Schéma SQLite minimal, adaptateur Node.js et tests de conformité. | Réponse confirmée conservée au redémarrage ; retransmission sans réponse ni points supplémentaires ; aucun échec de commit ne produit de confirmation d'acceptation. |
@@ -205,3 +206,73 @@ Les premières décisions structurantes à faire valider sont le parcours sécur
 Un prototype minimal, des essais reproductibles et des mesures permettant un verdict par configuration : démontrée, utilisable sous conditions ou encore bloquée.
 
 Les décisions validées et leurs limites seront reportées dans les documents d'architecture et les questions ouvertes. La réalisation de toutes les fonctionnalités du produit n'est pas un critère de réussite de ce prototype.
+
+## 13. Complément validé : portabilité Android sans Node.js
+
+### Dépendances et frontières
+
+Le moteur ne possède aucune dépendance d'exécution externe, directe ou transitive. Il définit les commandes et résultats métier sans importer le protocole réseau. Les adaptateurs traduisent les messages réseau vers ces commandes. Les outils de développement ne sont pas inclus dans l'artefact.
+
+| Élément | Position | Compatibilité attendue |
+|---|---|---|
+| Règles TypeScript compilées et fonctions internes | Moteur | À démontrer sur le runtime Android retenu |
+| Objets, tableaux, chaînes, nombres, JSON et collections standard utilisées | Moteur | Dépend du support ECMAScript à vérifier |
+| Types métier | Moteur, effacés à la compilation | Aucune dépendance d'exécution |
+| TypeScript, Vite, Vitest, Playwright | Développement uniquement | Non nécessaires à l'exécution Android du moteur |
+| Zod et validation des messages | Adaptateurs d'entrée | Hors moteur ; compatibilité embarquée à vérifier seulement si l'adaptateur l'utilise |
+| `ws` | Adaptateur Node.js | Non requis sur Android |
+| SQLite et pilotes | Adaptateurs de stockage Node.js/Android | Compatibilité et durabilité à tester séparément |
+| Kotlin et pont JavaScript | Enveloppe Android | Runtime et pont encore à choisir |
+
+Contrat du moteur : **état + commande métier + contexte déterministe → nouvel état + résultat métier**. L'environnement fournit le temps logique autoritaire, les identifiants et, si nécessaire, une source de hasard contrôlée. Le moteur ne lit pas directement l'horloge et ne programme aucun temporisateur.
+
+Les API `process`, `Buffer`, `require`, `node:*`, `window`, `document`, `fetch`, `WebSocket`, stockage navigateur et ponts Android sont exclues du moteur, ainsi que les appels directs à `Date.now()` et `Math.random()`. Les états restent sérialisables, sans fonction ni objet natif. Les calculs et tris ne dépendent pas implicitement de la locale.
+
+L'orchestrateur sérialise les commandes d'une session. Un résultat métier admissible ne constitue pas encore une confirmation durable : celle-ci est envoyée après commit. Les droits d'animation dépendent de l'identité autorisée, jamais de la possession de l'appareil hôte.
+
+### Contrôles automatiques
+
+1. Compiler le moteur avec une configuration dédiée sans DOM ni types Node.js.
+2. Analyser syntaxiquement les imports et références globales ; refuser imports hors moteur, imports dynamiques, `require`, chargements construits et API interdites.
+3. Résoudre le graphe complet, alias et réexportations compris ; vérifier manifeste et verrouillage pour exclure les dépendances d'exécution externes directes et transitives.
+4. Inspecter le JavaScript produit : aucun import résiduel, helper ou polyfill externe implicite.
+5. Tester les contrôles avec des violations directes et indirectes pour vérifier leur échec effectif.
+6. Compléter ces contrôles statiques par l'exécution de l'artefact sur Android.
+
+Les outils précis de ces contrôles restent à sélectionner. Une recherche textuelle des imports `node:` ne suffit pas.
+
+### Expérience minimale 3a
+
+1. Compiler une seule fois le moteur en JavaScript autonome, sans chargeur Node.js ni dépendance externe.
+2. Calculer son empreinte SHA-256 et vérifier que les mêmes octets sont chargés sur les deux plateformes.
+3. Exécuter l'artefact sur Node.js et dans un runtime embarqué Android sans Node.js, sur appareil physique.
+4. Fournir les mêmes scénarios JSON, avec temps, identifiants et ordre des commandes imposés.
+5. Comparer les états et résultats normalisés après chaque commande avec les résultats attendus.
+
+Les enveloppes chargent l'artefact et transmettent entrées/sorties ; aucune règle métier n'est réécrite en Kotlin. Couvrir ouverture de question, réponses correcte/incorrecte/tardive, seconde soumission, retransmission, pause/refus/reprise, score, ex aequo et sérialisation/rechargement/poursuite.
+
+Critère : empreintes identiques, résultats identiques et corrects. Deux résultats identiques mais erronés ne valident pas le test. Cette sérialisation logique ne constitue pas une preuve de stockage durable.
+
+### Portée de la preuve et validations indépendantes
+
+| Validé par 3a si réussite | Reste à démontrer |
+|---|---|
+| Même moteur compilé sur les deux environnements testés | Compatibilité sur d'autres versions et appareils Android |
+| Absence de dépendance Node.js nécessaire aux scénarios exécutés | Serveur WebSocket et connexions simultanées |
+| Déterminisme et justesse des règles couvertes | HTTPS/WSS local, certificats et restrictions navigateur |
+| Passage des données via le pont Android | Durabilité SQLite et restauration après panne |
+| Sérialisation logique de l'état | Arrière-plan, verrouillage et veille |
+| Compatibilité des fonctionnalités JavaScript utilisées | PWA sans Internet et capacité à 30 joueurs |
+
+L'expérience 2 de PWA préchargée connectée sans Internet à un serveur Android reste indépendante et prioritaire. Les tâches 3a et 3b distinguent désormais portabilité du calcul et durabilité. L'intégration Android définitive dépend des conclusions de 2, 3a et 3b.
+
+### Décisions susceptibles de bloquer la portabilité
+
+- Runtime Android, pont natif et niveau ECMAScript cible non sélectionnés.
+- API standard manquantes : transformer la syntaxe ne les fournit pas automatiquement.
+- Format d'artefact imposant un chargeur spécifique ou deux compilations différentes.
+- Dépendances natives, API Node.js, helpers ou polyfills implicitement ajoutés.
+- État non sérialisable ou comportements dépendant de la locale et d'un ordre implicite.
+- Couplage du moteur à une WebView : une réussite au premier plan ne prouve pas la continuité en arrière-plan.
+
+Tout ajout futur d'une dépendance d'exécution du moteur exige une révision explicite de la contrainte et une nouvelle vérification. La portabilité demeure une hypothèse à démontrer, pas un résultat acquis.

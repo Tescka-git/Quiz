@@ -9,7 +9,11 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - **Hôte Android distinct de l'animateur** : tester le cas d'un téléphone hôte appartenant à un joueur, y compris écran verrouillé, batterie, veille et bascule d'applications.
 - **Fiabilité** : persistance des réponses confirmées, pause/reprise, reconnexion, restauration après interruption et cohérence des classements.
 - **Tests** : 30 clients simulés et 30 téléphones physiques ; instrumenter latence, jitter, pertes, synchronisation et temps de reconnexion avant de définir les seuils.
-- **Organisation** : décider de l'ordre des prototypes Node.js et Android ; les deux doivent partager les règles métier.
+- **Organisation validée** : expériences Android/PWA et portabilité du moteur dès le départ, indépendamment du prototype Node.js. Leur réalisation et leurs résultats restent à produire.
+- **Runtime Android sans Node.js** : sélectionner le runtime, son pont natif, le niveau ECMAScript cible et le format d'artefact après expérimentation. Aucun runtime n'est retenu à ce stade.
+- **Preuve de portabilité** : exécuter exactement le même artefact JavaScript autonome sur Node.js et Android, vérifier son empreinte et les résultats métier attendus. Cette preuve ne couvre ni réseau, ni durabilité, ni arrière-plan, ni fonctionnement PWA hors ligne.
+- **Contrôles du moteur** : sélectionner les outils d'analyse syntaxique et de graphe pour appliquer l'absence de dépendances d'exécution et d'API d'environnement, y compris via alias, réexportations, helpers ou polyfills.
+- **SQLite** : choisir et vérifier les adaptateurs Node.js/Android, leur compatibilité avec le runtime et les garanties transactionnelles/durables après interruption.
 
 ## Hébergement distant — non bloquant
 - Aucun hébergeur retenu. Tester d'abord sur PC personnel.
