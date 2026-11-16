@@ -2,7 +2,7 @@
 
 Application de quiz multijoueur, conviviale et personnalisable, avec modes individuel et équipe, animation de sessions et objectif de fonctionnement local sans Internet.
 
-**Statut :** conception fonctionnelle suffisamment avancée ; prototypes techniques à démarrer. **Kuikuiz** est un nom provisoire (Koumalox a été envisagé comme nom de code). Aucune disponibilité juridique n'est garantie.
+**Statut :** conception fonctionnelle suffisamment avancée ; prototypes techniques à démarrer. **Kuikuiz** est un nom provisoire. Aucune disponibilité juridique n'est garantie.
 
 ## Documentation
 - [`docs/SPECIFICATIONS.md`](docs/SPECIFICATIONS.md) : fonctionnalités et règles du jeu.

@@ -1,7 +1,7 @@
 # Kuikuiz — Cahier des charges et décisions de conception (v0.2)
 
 **Sauvegarde : 16 novembre 2026**  
-**Nom du produit :** Kuikuiz (favori provisoire, disponibilité juridique et commerciale à confirmer) ; Koumalox (nom de code possible)  
+**Nom du produit :** Kuikuiz (favori provisoire, disponibilité juridique et commerciale à confirmer)
 **Statut :** décisions fonctionnelles et principes d'architecture validés ; faisabilités techniques encore à éprouver.
 
 ## 1. Principes généraux
