@@ -7,6 +7,9 @@
     "node": ">=24"
   },
   "scripts": {
+    "dev:mock": "node tooling/engine-build.mjs && node apps/server-node/mock-server.mjs",
+    "test:mock": "node --test tests/integration/mock-server.test.mjs",
+    "test:mock:browser": "node tooling/test-mock-browser.mjs",
     "dev:diagnostic:https": "node tooling/serve-diagnostic.mjs --https",
     "prepare:tls": "node tooling/prepare-local-tls.mjs",
     "test:tls": "node --test tests/tls/*.test.mjs",
@@ -21,6 +24,10 @@
     "test:engine": "node --test tests/engine/*.test.mjs"
   },
   "devDependencies": {
+    "playwright-core": "1.65.1",
     "typescript": "6.0.3"
+  },
+  "dependencies": {
+    "ws": "8.23.0"
   }
 }

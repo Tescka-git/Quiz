@@ -1,0 +1,121 @@
+import {before,test} from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join,resolve} from 'node:path';
+import {once} from 'node:events';
+import {DatabaseSync} from 'node:sqlite';
+import WebSocket from 'ws';
+import {buildEngine} from '../../tooling/engine-build.mjs';
+import {createMockServer} from '../../apps/server-node/mock-server.mjs';
+
+before(()=>buildEngine());
+async function environment(t){
+  const directory=await mkdtemp(join(tmpdir(),'kuikuiz-game-'));
+  const filename=join(directory,'game.sqlite');let now=1000;const apps=[];
+  t.after(async()=>{for(const app of apps)await app.stop();const path=resolve(directory);
+    assert.ok(path.startsWith(resolve(tmpdir())+'\\kuikuiz-game-')||path.startsWith(resolve(tmpdir())+'/kuikuiz-game-'));await rm(directory,{recursive:true,force:true});});
+  async function start(){
+    const app=await createMockServer({filename,clock:()=>now,timers:false});apps.push(app);
+    app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
+    app.origin=`http://127.0.0.1:${app.server.address().port}`;return app;
+  }
+  return{filename,start,setNow:value=>{now=value;}};
+}
+async function client(t,app,hello){
+  const ws=new WebSocket(app.origin.replace('http:','ws:')+'/socket',{origin:app.origin});
+  const queue=[],listeners=[];
+  ws.on('message',data=>{const message=JSON.parse(data);const index=listeners.findIndex(x=>x.predicate(message));
+    if(index>=0){const listener=listeners.splice(index,1)[0];clearTimeout(listener.timeout);listener.resolve(message);}else queue.push(message);});
+  ws.on('error',()=>{});t.after(()=>ws.terminate());await once(ws,'open');
+  const result={ws,send:message=>ws.send(JSON.stringify({v:1,...message})),next(predicate){
+    const index=queue.findIndex(predicate);if(index>=0)return Promise.resolve(queue.splice(index,1)[0]);
+    return new Promise((resolve,reject)=>{const listener={predicate,resolve};listener.timeout=setTimeout(()=>{
+      const index=listeners.indexOf(listener);if(index>=0)listeners.splice(index,1);reject(new Error('Message attendu absent'));},2000);listeners.push(listener);});
+  }};
+  if(hello)result.send(hello);return result;
+}
+const state=(phase,answered)=>message=>message.type==='state'&&message.phase===phase&&(answered===undefined||message.answered===answered);
+async function room(t,app){
+  const response=await fetch(app.origin+'/api/rooms',{method:'POST',headers:{Origin:app.origin}});assert.equal(response.status,201);
+  const credentials=await response.json();const host=await client(t,app,{type:'host',...credentials});
+  await host.next(state('lobby'));return{credentials,host};
+}
+async function joinPlayer(t,app,code,name='Camille'){
+  const connection=await client(t,app,{type:'join',code,name});
+  const credentials=await connection.next(m=>m.type==='credentials');await connection.next(state('lobby'));
+  return{connection,credentials};
+}
+
+test('partie réseau complète : droits, pause, réponses durables, classement révélé au bon moment',async t=>{
+  const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
+  const {connection:p1}=await joinPlayer(t,app,credentials.code,'Camille');
+  const {connection:p2}=await joinPlayer(t,app,credentials.code,'Alex');
+  p1.send({type:'start'});assert.equal((await p1.next(m=>m.type==='error')).code,'forbidden');
+  host.send({type:'start'});const opened=await p1.next(state('open'));
+  assert.equal(opened.correctOption,undefined);assert.equal(opened.ranking,undefined);assert.equal(opened.ownAnswer,null);
+  env.setNow(2000);host.send({type:'pause'});await p2.next(state('paused'));
+  p2.send({type:'answer',submissionId:'p2',option:'venus'});
+  assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,false);
+  env.setNow(3000);host.send({type:'resume'});await p1.next(state('open'));
+  p1.send({type:'answer',submissionId:'p1',option:'mars',playerId:'someone-else',points:999999});
+  const accepted=await p1.next(m=>m.type==='answer-result');assert.equal(accepted.confirmed,true);assert.equal(accepted.answer,undefined);
+  await host.next(state('open',1));
+  p1.send({type:'answer',submissionId:'p1',option:'mars'});assert.equal((await p1.next(m=>m.type==='answer-result')).status,'duplicate');
+  p2.send({type:'answer',submissionId:'p2',option:'venus'});assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,true);
+  host.send({type:'reveal'});const revealed=await p1.next(state('closed',2));
+  assert.equal(revealed.correctOption,'mars');assert.deepEqual(revealed.ranking.map(r=>r.points),[1000,0]);
+  assert.deepEqual(revealed.ranking.map(r=>r.name),['Camille','Alex']);
+});
+
+test('reconnexion et redémarrage : réponse retrouvée, pause restaurée et aucun doublon',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  env.setNow(2500);player.send({type:'answer',submissionId:'stable',option:'mars'});
+  await host.next(state('open',1));player.ws.terminate();
+  await app.stop();env.setNow(10);app=await env.start();
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  const restored=await returning.next(state('paused',1));assert.equal(restored.ownAnswer.submissionId,'stable');
+  assert.equal(restored.remainingMs,28500);assert.equal(restored.ranking,undefined);
+  returning.send({type:'answer',submissionId:'stable',option:'mars'});
+  assert.equal((await returning.next(m=>m.type==='answer-result')).status,'duplicate');
+  const hostAgain=await client(t,app,{type:'host',roomId:credentials.roomId,token:credentials.token});
+  await hostAgain.next(state('paused'));
+  hostAgain.send({type:'reveal'});const final=await returning.next(state('closed',1));assert.equal(final.ranking[0].points,1000);
+});
+
+test('échec transactionnel : aucune confirmation réseau, puis retransmission explicite acceptée',async t=>{
+  const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
+  const {connection:player}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  const db=new DatabaseSync(env.filename);
+  try {
+  db.exec("CREATE TRIGGER fail_mock BEFORE UPDATE ON sessions BEGIN SELECT RAISE(ABORT,'injected'); END");
+  player.send({type:'answer',submissionId:'retry',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='error')).code,'storage-failed');
+  assert.equal(db.prepare('SELECT count(*) AS n FROM answers').get().n,0);
+  db.exec('DROP TRIGGER fail_mock');player.send({type:'answer',submissionId:'retry',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  }finally{db.close();}
+});
+
+test('protocole et entrées : origine, accès animateur, arrivée tardive et échéance',async t=>{
+  const env=await environment(t),app=await env.start();
+  assert.equal((await fetch(app.origin+'/api/rooms',{method:'POST'})).status,403);
+  assert.equal((await fetch(app.origin+'/.tools/mock/game.sqlite')).status,404);
+  assert.equal((await fetch(app.origin+'/animateur')).status,200);
+  const crossOrigin=new WebSocket(app.origin.replace('http:','ws:')+'/socket',{origin:'http://autre-origine.invalid'});
+  t.after(()=>crossOrigin.terminate());
+  const [originError]=await once(crossOrigin,'error');assert.match(originError.message,/403/);
+  const {host,credentials}=await room(t,app);
+  const thief=await client(t,app,{type:'host',roomId:credentials.roomId,token:'wrong'});
+  assert.equal((await thief.next(m=>m.type==='error')).code,'unauthorized');
+  const {connection:player}=await joinPlayer(t,app,credentials.code);
+  player.ws.send('{');assert.equal((await player.next(m=>m.type==='error')).code,'invalid-message');
+  host.send({type:'start'});await player.next(state('open'));
+  const late=await client(t,app,{type:'join',code:credentials.code,name:'Tardif'});
+  assert.equal((await late.next(m=>m.type==='error')).code,'already-started');
+  env.setNow(31000);player.send({type:'answer',submissionId:'too-late',option:'mars'});
+  const result=await player.next(m=>m.type==='answer-result');assert.equal(result.status,'late');assert.equal(result.confirmed,false);
+});

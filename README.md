@@ -17,6 +17,8 @@ Application de quiz multijoueur, conviviale et personnalisable, avec modes indiv
 
 ## Première étape
 
+La [première maquette jouable](docs/experiments/P15_MAQUETTE_JOUABLE.md) relie maintenant animateur, joueurs, moteur et SQLite sur le PC personnel : `npm.cmd run dev:mock`, puis **http://localhost:4180**. Elle propose une question, pause/reprise et classement ; l'accès depuis un téléphone vient ensuite.
+
 L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) est positive sur Pixel 7 pour l'arrêt forcé après commit, la reprise gelée, la retransmission sans doublon et une erreur SQL injectée. Le serveur WebSocket n'est pas encore assemblé avec ce stockage.
 
 La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. La durabilité sur Android et les confirmations réseau restent à valider.
