@@ -16,6 +16,8 @@ public final class MainActivity extends Activity {
         TextView title = new TextView(this); title.setText("Kuikuiz — Sonde WebSocket\nService avec notification. ws:// uniquement ; ni WSS ni stockage durable."); layout.addView(title);
         Button start = new Button(this); start.setText("Démarrer le serveur"); layout.addView(start);
         Button stop = new Button(this); stop.setText("Arrêter le serveur"); layout.addView(stop);
+        Button engine = new Button(this); engine.setText("Tester le moteur JavaScript"); layout.addView(engine);
+        engine.setOnClickListener(view -> startActivity(new Intent(this, EngineProbeActivity.class)));
         journal = new TextView(this); journal.setTextIsSelectable(true);
         ScrollView scroll = new ScrollView(this); scroll.addView(journal); layout.addView(scroll); setContentView(layout);
         start.setOnClickListener(view -> {

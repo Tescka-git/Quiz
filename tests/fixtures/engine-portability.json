@@ -1,0 +1,17 @@
+{
+  "description": "Question unique, pause et retransmission après clôture et sérialisation",
+  "question": { "id": "q1", "options": ["a", "b"], "correctOption": "a", "durationMs": 10000, "maxPoints": 1000, "scoring": "speed" },
+  "players": ["p1", "p2", "p3"],
+  "startNowMs": 1000,
+  "steps": [
+    { "nowMs": 3000, "command": { "type": "pause" }, "expectedStatus": "paused", "expectedElapsedMs": 2000 },
+    { "nowMs": 5000, "command": { "type": "answer", "playerId": "p1", "submissionId": "s1", "option": "a" }, "expectedStatus": "paused", "expectedElapsedMs": 2000 },
+    { "nowMs": 9000, "command": { "type": "resume" }, "expectedStatus": "resumed", "expectedElapsedMs": 2000 },
+    { "nowMs": 10000, "command": { "type": "answer", "playerId": "p1", "submissionId": "s1", "option": "a" }, "expectedStatus": "accepted-in-memory", "expectedElapsedMs": 3000, "expectedPoints": 790 },
+    { "nowMs": 10000, "command": { "type": "answer", "playerId": "p2", "submissionId": "s2", "option": "a" }, "expectedStatus": "accepted-in-memory", "expectedElapsedMs": 3000, "expectedPoints": 790 },
+    { "nowMs": 11000, "command": { "type": "close" }, "expectedStatus": "closed", "expectedElapsedMs": 4000 },
+    { "nowMs": 20000, "restoreBefore": true, "command": { "type": "answer", "playerId": "p1", "submissionId": "s1", "option": "a" }, "expectedStatus": "duplicate", "expectedElapsedMs": 4000, "expectedPoints": 790 }
+  ],
+  "expectedRanks": [1, 1, 3],
+  "expectedAnswerCount": 2
+}

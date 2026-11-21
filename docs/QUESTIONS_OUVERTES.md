@@ -11,7 +11,7 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - **Fiabilité** : persistance des réponses confirmées, pause/reprise, reconnexion, restauration après interruption et cohérence des classements.
 - **Tests** : 30 clients simulés et 30 téléphones physiques ; instrumenter latence, jitter, pertes, synchronisation et temps de reconnexion avant de définir les seuils.
 - **Organisation validée** : expériences Android/PWA et portabilité du moteur dès le départ, indépendamment du prototype Node.js. Leur réalisation et leurs résultats restent à produire.
-- **Runtime Android sans Node.js** : sélectionner le runtime, son pont natif, le niveau ECMAScript cible et le format d'artefact après expérimentation. Aucun runtime n'est retenu à ce stade.
+- **Runtime Android sans Node.js** : expérience AndroidX JavaScriptEngine 1.1.1 positive sur Pixel 7 / Android 17, même artefact et trace de sept étapes identiques à Node (voir `docs/experiments/P11_MOTEUR_ANDROID.md`). Compatibilité multi-appareils, intégration au service et choix final restent ouverts.
 - **Preuve de portabilité** : exécuter exactement le même artefact JavaScript autonome sur Node.js et Android, vérifier son empreinte et les résultats métier attendus. Cette preuve ne couvre ni réseau, ni durabilité, ni arrière-plan, ni fonctionnement PWA hors ligne.
 - **Contrôles du moteur** : sélectionner les outils d'analyse syntaxique et de graphe pour appliquer l'absence de dépendances d'exécution et d'API d'environnement, y compris via alias, réexportations, helpers ou polyfills.
 - **SQLite** : choisir et vérifier les adaptateurs Node.js/Android, leur compatibilité avec le runtime et les garanties transactionnelles/durables après interruption.
@@ -28,6 +28,7 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - PC professionnel : navigateur + serveur distant uniquement, sous réserve des politiques réseau.
 
 ## Fonctionnalités différées / choix ouverts
+- **Conventions du premier moteur** : confirmer la frontière exacte d'expiration (prototype : `t >= T` refusé) et la politique d'arrondi des scores (prototype : formule conservée sans arrondi). La cible ES2017 et le format script autonome restent expérimentaux jusqu'au test du runtime Android. Voir `packages/engine/README.md`.
 - **Hébergement local sur iOS / iPhone — différé** : Android reste la cible du premier prototype hôte. Étudier ultérieurement une enveloppe serveur iOS, l'exécution du même moteur compilé, le réseau local, le cycle de vie/arrière-plan et la chaîne de construction Apple. Aucune faisabilité ni implémentation iOS hôte n'est validée. Cette piste est distincte de la participation des joueurs sur iPhone via la PWA, qui reste prévue et à tester. Aucun choix du framework Next.js n'est introduit.
 - Méthode d'invitation des collaborateurs (compte, lien ou combinaison) : collaboration de priorité basse.
 - Formule de crédit partiel QCM : gérer les cas limites, notamment zéro mauvaise option possible.

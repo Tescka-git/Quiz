@@ -54,6 +54,8 @@ Le rapport exporté contient adresses et informations de navigateur : le conserv
 
 ## Jalon indépendant : portabilité du moteur
 
+Premier résultat positif sur Pixel 7 avec AndroidX JavaScriptEngine : même artefact et mêmes résultats sur le scénario commun, voir [P11](P11_MOTEUR_ANDROID.md). Ce résultat est limité à l'appareil/runtime et aux sept étapes testés ; il ne clôt pas les validations réseau et de durabilité.
+
 Créer ensuite un moteur TypeScript sans dépendance d'exécution et compiler un artefact unique. Exécuter les mêmes octets sur Node.js et dans un runtime Android sans Node.js ; comparer SHA-256 et résultats attendus après chaque commande. Le runtime est encore ouvert et son choix structurant devra être validé avant intégration définitive.
 
 Scénarios : réponse correcte/incorrecte/tardive, doublon, pause/reprise, score, ex aequo, sérialisation et poursuite. Temps et identifiants imposés. Aucune réécriture métier dans l'enveloppe native.
