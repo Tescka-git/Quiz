@@ -52,4 +52,4 @@ Le premier lancement prend plus de temps parce que les outils téléchargent leu
 
 ## Ce qui est déjà prouvé
 
-Nous avons compilé et installé la sonde, puis reçu un pong depuis le Pixel. Cela prouve ce petit parcours de construction et de transport local. Le moteur TypeScript, WSS, la durabilité et l'arrière-plan restent à démontrer. Voir [les schémas d'architecture](SCHEMAS_ARCHITECTURE.md) et [le compte rendu P7](experiments/P7_WEBSOCKET_PIXEL.md).
+Nous avons compilé et installé la sonde, puis reçu un pong depuis le Pixel. Cela prouve ce petit parcours de construction et de transport local. Le moteur TypeScript, WSS, la durabilité et l'arrière-plan restent à démontrer. Voir [les schémas d'architecture](SCHEMAS_ARCHITECTURE.md) et [le compte rendu P7](../experiments/P7_WEBSOCKET_PIXEL.md).

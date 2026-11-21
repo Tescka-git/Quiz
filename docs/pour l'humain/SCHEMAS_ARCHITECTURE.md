@@ -1,6 +1,6 @@
 # Kuikuiz — Comprendre l'architecture actuelle et cible
 
-**État de référence :** premier échange WebSocket Node.js PC ↔ Pixel réussi. Ces schémas expliquent l'organisation ; les choix techniques encore ouverts sont détaillés dans [l'architecture](ARCHITECTURE.md).
+**État de référence :** premier échange WebSocket Node.js PC ↔ Pixel réussi. Ces schémas expliquent l'organisation ; les choix techniques encore ouverts sont détaillés dans [l'architecture](../ARCHITECTURE.md).
 
 Les blocs marqués « cible » ne sont pas encore implémentés. Les schémas Mermaid peuvent être lus dans un aperçu Markdown compatible ; les paragraphes en donnent aussi la lecture.
 

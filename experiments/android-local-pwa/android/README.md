@@ -22,10 +22,18 @@ Pour isoler le transport depuis le PC, utiliser aussi `npm.cmd run probe:ping --
 
 ## Limites
 
-- Serveur au premier plan, écran maintenu allumé pendant l'essai ; aucun service d'arrière-plan démontré.
+- Depuis la version 0.2, serveur dans un service de premier plan `connectedDevice`, avec notification et arrêt explicite. Autoriser les notifications puis appuyer de nouveau sur Démarrer. Aucun réglage de batterie ni mécanisme de gel désactivé ; maintien prolongé et verrouillage restent à mesurer.
 - `ws://` uniquement. Une connexion depuis HTTPS peut être bloquée : relever l'erreur, ne pas désactiver les protections. Une réussite PC localhost ne valide pas la PWA HTTPS Android.
 - Écoute sur toutes les interfaces ; utiliser un réseau de confiance, arrêter après l'essai. Pas d'authentification ni de filtrage d'origine dans cette sonde jetable. Aucun contenu de quiz ni secret à transmettre.
 - Le contrôle de longueur des messages applicatifs n'est pas une protection complète contre un client hostile.
 - WSS et certificats, stockage durable, réseau sans Internet et 30 téléphones restent à tester.
 
 Références : [compatibilité AGP 8.9](https://developer.android.com/build/releases/agp-8-9-0-release-notes), [Java-WebSocket 1.6.0](https://github.com/TooTallNate/Java-WebSocket/tree/v1.6.0).
+
+## Service expérimental 0.2
+
+`MainActivity` ne possède plus le serveur ; elle démarre et arrête `ProbeService`. Fermer l'activité n'arrête pas le service. La notification fournit une action Arrêter ; le service n'est pas exporté et ne redémarre pas automatiquement après arrêt du processus (`START_NOT_STICKY`). Aucun démarrage au boot.
+
+Le type `connectedDevice` correspond ici aux échanges réseau avec les appareils clients. Les permissions `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE` et `CHANGE_NETWORK_STATE` sont déclarées ; cette dernière satisfait un prérequis documenté du type de service, sans modification effective de la configuration réseau dans la sonde. `POST_NOTIFICATIONS` est demandée à l'utilisateur pour rendre la notification visible. Référence : [types de services Android](https://developer.android.com/develop/background-work/services/fgs/service-types).
+
+Compilation et installation de la version 0.2 réussies sur le Pixel ; la validation des échanges lorsque Chrome est visible reste à exécuter. Le résultat initial P7 concerne la version 0.1.

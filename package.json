@@ -3,11 +3,19 @@
   "version": "0.0.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=24" },
+  "engines": {
+    "node": ">=24"
+  },
   "scripts": {
+    "dev:diagnostic:https": "node tooling/serve-diagnostic.mjs --https",
+    "prepare:tls": "node tooling/prepare-local-tls.mjs",
+    "test:tls": "node --test tests/tls/*.test.mjs",
     "probe:ping": "node tooling/ping-websocket.mjs",
     "doctor:android": "node tooling/android-doctor.mjs",
     "dev:diagnostic": "node tooling/serve-diagnostic.mjs",
     "test": "node --test tests/integration/*.test.mjs"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
   }
 }

@@ -5,6 +5,7 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 ## Faisabilité prioritaire
 - **Android hôte** : comment exécuter le moteur TypeScript commun avec un serveur WebSocket local ? Comparer les adaptateurs/environnements possibles et les restrictions du système.
 - **PWA préchargée et réseau local** : vérifier les restrictions HTTPS/WSS, certificats, contenus mixtes, service workers, Android et iOS ; ne pas supposer que la seule installation de la PWA suffit.
+- **Compatibilité navigateurs** : recette suivie dans `docs/experiments/CHECKLIST_NAVIGATEURS.md` : Chrome, Firefox et Samsung Browser sur Android ; Safari, Chrome et Firefox sur iOS. Firefox reste une cible, son incident TLS Pixel est différé mais doit être résolu avant déclaration de compatibilité. Versions minimales et fenêtre de support restent à définir.
 - **Point d'accès Android** : vérifier expérimentalement le nombre de clients admis et la stabilité avec 30 téléphones.
 - **Hôte Android distinct de l'animateur** : tester le cas d'un téléphone hôte appartenant à un joueur, y compris écran verrouillé, batterie, veille et bascule d'applications.
 - **Fiabilité** : persistance des réponses confirmées, pause/reprise, reconnexion, restauration après interruption et cohérence des classements.
@@ -27,6 +28,7 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - PC professionnel : navigateur + serveur distant uniquement, sous réserve des politiques réseau.
 
 ## Fonctionnalités différées / choix ouverts
+- **Hébergement local sur iOS / iPhone — différé** : Android reste la cible du premier prototype hôte. Étudier ultérieurement une enveloppe serveur iOS, l'exécution du même moteur compilé, le réseau local, le cycle de vie/arrière-plan et la chaîne de construction Apple. Aucune faisabilité ni implémentation iOS hôte n'est validée. Cette piste est distincte de la participation des joueurs sur iPhone via la PWA, qui reste prévue et à tester. Aucun choix du framework Next.js n'est introduit.
 - Méthode d'invitation des collaborateurs (compte, lien ou combinaison) : collaboration de priorité basse.
 - Formule de crédit partiel QCM : gérer les cas limites, notamment zéro mauvaise option possible.
 - Définir le périmètre précis du MVP jouable après validation des prototypes.

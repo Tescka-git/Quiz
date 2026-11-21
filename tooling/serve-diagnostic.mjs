@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createServer as createHttpsServer } from 'node:https';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -13,8 +14,8 @@ const routes = new Map([
   ['/icon.svg', ['icon.svg', 'image/svg+xml']],
 ]);
 
-export function createDiagnosticServer() {
-  return createServer(async (request, response) => {
+export function createDiagnosticServer(tls) {
+  const handler = async (request, response) => {
     const route = routes.get(new URL(request.url, 'http://localhost').pathname);
     if (!route || !['GET', 'HEAD'].includes(request.method)) {
       response.writeHead(404).end();
@@ -28,11 +29,27 @@ export function createDiagnosticServer() {
     } catch {
       response.writeHead(500).end('Ressource indisponible');
     }
-  });
+  };
+  return tls ? createHttpsServer({ ...tls, minVersion: 'TLSv1.2' }, handler) : createServer(handler);
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  createDiagnosticServer().listen(4173, '127.0.0.1', () => {
-    console.log('Diagnostic : http://localhost:4173 — PC uniquement, aucun hôte Android démarré.');
+  const secure = process.argv.includes('--https');
+  const tlsDirectory = new URL('../.tools/tls/', import.meta.url);
+  const tls = secure ? {
+    pfx: await readFile(new URL('pc.p12', tlsDirectory)),
+    passphrase: (await readFile(new URL('password.txt', tlsDirectory), 'utf8')).trim(),
+  } : undefined;
+  const port = secure ? 4174 : 4173;
+  const host = secure ? '0.0.0.0' : '127.0.0.1';
+  const server = createDiagnosticServer(tls);
+  if (secure) {
+    server.on('tlsClientError', (error) => console.log('Échec TLS client :', error.code || error.name));
+    server.on('secureConnection', () => console.log('Connexion TLS établie.'));
+  }
+  server.listen(port, host, () => {
+    console.log(secure
+      ? 'Diagnostic HTTPS sur le réseau local, port 4174. Autorité de test à approuver séparément ; aucun magasin de confiance modifié.'
+      : 'Diagnostic : http://localhost:4173 — PC uniquement, aucun hôte Android démarré.');
   });
 }

@@ -6,6 +6,7 @@
 - Moteur de jeu commun écrit en **TypeScript**, indépendant du mode d'hébergement ; partage des règles métier et du protocole, avec adaptateurs spécifiques selon l'environnement.
 - Hébergement distant sur serveur **Node.js** pour les joueurs connectés par LTE/4G/5G et Internet.
 - Hébergement local visé sur **téléphone Android de l'animateur**, avec composant serveur/adaptateur approprié ; faisabilité à vérifier expérimentalement.
+- Android reste la cible hôte du premier prototype. L'hébergement local sur iOS/iPhone est une piste différée, sans solution sélectionnée ni faisabilité démontrée. Les joueurs sur iPhone restent visés par la PWA ; ils n'ont pas besoin de l'application hôte Android. Voir `QUESTIONS_OUVERTES.md`.
 - Trois configurations : (1) point d'accès Wi-Fi du téléphone Android animateur sans Internet ; (2) routeur Wi-Fi externe sans Internet avec téléphone Android hébergeur ; (3) LTE/Internet avec serveur distant.
 - Communication temps réel par **WebSocket** ; attention aux restrictions des navigateurs pour une PWA HTTPS vers une adresse locale ws:// et à l'exigence de contexte sécurisé pour les service workers.
 - Les joueurs acceptent de **charger Kuikuiz une première fois avec Internet** avant une partie locale hors ligne. **Installation PWA recommandée mais facultative** ; contrôle automatique de préparation hors ligne.
