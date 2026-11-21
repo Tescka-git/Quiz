@@ -38,6 +38,31 @@
 - L'accès au serveur distant reste soumis aux règles de filtrage réseau de l'entreprise ; aucun contournement de ces règles n'est prévu.
 - L'idée d'un serveur Windows portable sur PC d'entreprise est **écartée du périmètre retenu**.
 
+### Variante validée : jeu local et projection via un relais distant
+
+Le PC peut aussi servir uniquement d'écran de projection pour une partie hébergée localement sur Android. Ce relais de projection est distinct du serveur distant qui héberge une partie Internet.
+
+```text
+Téléphones joueurs -- Wi-Fi du point d'accès --> Android : moteur et serveur local
+                                                        |
+                                                  Internet mobile
+                                                        |
+                                                        v
+                                                Relais de projection
+                                                        ^
+                                                        |
+                                              Internet entreprise
+                                                        |
+                                                PC web --> Projecteur
+```
+
+- L'hôte publie uniquement l'état autorisé pour l'écran commun ; pas de réponses individuelles destinées à être traitées par le relais, pas de règles métier ni de calcul des scores dans le relais.
+- Les échanges de projection sont sécurisés en HTTPS/WSS ; mécanismes d'accès, association à la session et protocole restent à choisir. Le rôle de projection ne donne aucun droit d'animation.
+- L'adaptateur de publication et le relais sont séparés du moteur. Une panne de publication ne bloque ni traitement local ni confirmation des réponses.
+- Prévoir un état de projection versionné et une resynchronisation vers le dernier état autorisé après reconnexion, sans réaffichage d'un état ancien reçu en retard. Signaler la perte de connexion côté écran.
+- Valider simultanément point d'accès Wi-Fi, serveur Android, connexion mobile sortante et accès depuis le navigateur d'entreprise, sans contournement des politiques réseau.
+- Ce scénario ajoute un relais Internet au besoin démontré, sans choisir d'hébergeur ni autoriser de déploiement. Il ne remplace pas les essais locaux sans Internet et ne garantit pas l'égalité des latences entre joueurs.
+
 ## 13. Hébergement distant de test — à approfondir
 - Aucun hébergeur ni serveur distant définitif n'est choisi à ce stade.
 - Le NAS personnel **Synology DS212j (256 Mo)** n'est **pas retenu** comme serveur de test : plateforme trop ancienne et limitée, particulièrement pour une exposition sur Internet.

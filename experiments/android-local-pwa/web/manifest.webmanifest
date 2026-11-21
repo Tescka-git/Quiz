@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "Kuikuiz — Diagnostic local",
+  "short_name": "Kuikuiz Test",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "theme_color": "#153b50",
+  "background_color": "#ffffff",
+  "icons": [{ "src": "./icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}

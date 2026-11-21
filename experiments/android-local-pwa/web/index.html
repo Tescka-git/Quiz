@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="fr">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#153b50">
+<link rel="manifest" href="./manifest.webmanifest">
+<title>Kuikuiz — Diagnostic local</title>
+<style>
+body { font: 1rem/1.6 system-ui; max-width: 48rem; margin: auto; padding: 1.5rem; color: #153b50; }
+input, button { font: inherit; padding: .6rem; margin: .3rem 0; }
+input { box-sizing: border-box; width: 100%; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #edf3f5; padding: 1rem; }
+</style>
+<h1>Diagnostic Android / PWA</h1>
+<p>Outil expérimental : aucun résultat ici ne valide à lui seul la faisabilité Android.</p>
+<p id="environment"></p>
+<button id="prepare">Préparer le cache hors ligne</button>
+<p id="cache" role="status">Cache non vérifié.</p>
+<label for="endpoint">Adresse du serveur WebSocket à tester</label>
+<input id="endpoint" type="url" placeholder="wss://adresse-hote:port" autocomplete="off">
+<button id="connect">Connecter</button>
+<button id="disconnect" disabled>Déconnecter</button>
+<button id="ping" disabled>Envoyer un ping</button>
+<button id="export">Exporter le rapport JSON</button>
+<h2>Observations</h2>
+<pre id="log" aria-live="polite"></pre>
+<script type="module" src="./app.js"></script>
+</html>

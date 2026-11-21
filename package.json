@@ -1,0 +1,13 @@
+{
+  "name": "kuikuiz",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=24" },
+  "scripts": {
+    "probe:ping": "node tooling/ping-websocket.mjs",
+    "doctor:android": "node tooling/android-doctor.mjs",
+    "dev:diagnostic": "node tooling/serve-diagnostic.mjs",
+    "test": "node --test tests/integration/*.test.mjs"
+  }
+}

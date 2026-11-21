@@ -1,6 +1,6 @@
 # Kuikuiz — Cahier des charges et décisions de conception (v0.2)
 
-**Sauvegarde : 16 novembre 2026**  
+**Sauvegarde : 21 novembre 2026**
 **Nom du produit :** Kuikuiz (favori provisoire, disponibilité juridique et commerciale à confirmer)
 **Statut :** décisions fonctionnelles et principes d'architecture validés ; faisabilités techniques encore à éprouver.
 
@@ -44,6 +44,19 @@
 - Pas de nouveau joueur après lancement ; reconnexion autorisée pour les joueurs déjà admis.
 - L'animateur peut exclure les joueurs dont le préchargement est incomplet avant le lancement ; ils ne peuvent plus rejoindre après le début.
 - Ambiances prédéfinies et effets sonores facultatifs, uniquement sur l'appareil de l'animateur ; coupure possible à tout moment.
+
+### 4.1. Projection sur un PC connecté au réseau d'entreprise
+
+**Besoin et principe validés le 21 novembre 2026 ; faisabilité technique à démontrer.**
+
+- En salle de réunion, les joueurs se connectent au point d'accès Wi-Fi du téléphone Android de l'animateur, qui héberge le serveur de jeu local. Le PC reste connecté au réseau d'entreprise et projette une page web de résultats en lecture seule.
+- Les réponses passent par le réseau local ; le téléphone reste l'autorité pour le chronomètre, les réponses et les scores. Le Wi-Fi commun évite de dépendre des connexions mobiles individuelles, sans garantir des délais identiques entre joueurs.
+- Un relais distant transmet au navigateur du PC l'état destiné à la projection. Le téléphone utilise sa connexion Internet mobile pour alimenter ce relais ; le PC y accède via le réseau autorisé par l'entreprise.
+- La projection respecte les règles de révélation : aucun score ou classement masqué pendant une manche ne doit être transmis prématurément à la page de projection.
+- Le relais ne traite pas les réponses des joueurs et ne calcule pas les scores. Sa disponibilité ne conditionne pas le déroulement local de la partie.
+- En cas de coupure Internet ou du relais, la partie locale continue ; la page signale un affichage non actualisé. Au rétablissement, elle récupère le dernier état de projection autorisé.
+- Cette variante nécessite Internet pour la projection distante, mais conserve le jeu local autonome. La page ne commande pas la session ; le pilotage depuis le PC via le relais reste hors du périmètre validé.
+- Aucun contournement des règles réseau de l'entreprise, aucune installation de serveur sur le PC. Le choix et le déploiement du relais nécessitent un accord explicite distinct.
 
 ## 5. Robustesse et contrôle de session
 - Sur déconnexion : avertissement visible côté joueur, tentatives de reconnexion, chronomètre continuant sauf pause ; côté animateur : notification avec identité et durée, nombre de connectés et notification de retour.

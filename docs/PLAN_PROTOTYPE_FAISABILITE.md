@@ -207,6 +207,20 @@ Un prototype minimal, des essais reproductibles et des mesures permettant un ver
 
 Les décisions validées et leurs limites seront reportées dans les documents d'architecture et les questions ouvertes. La réalisation de toutes les fonctionnalités du produit n'est pas un critère de réussite de ce prototype.
 
+### Extension validée le 21 novembre 2026 : projection via un relais
+
+Le jeu reste hébergé sur Android et les joueurs utilisent son point d'accès Wi-Fi. Un PC connecté au réseau d'entreprise projette les résultats via un relais distant alimenté par la connexion mobile du téléphone. La page est en lecture seule ; les règles de révélation restent applicables. Voir `SPECIFICATIONS.md`, section 4.1, et `ARCHITECTURE.md`, section 12.
+
+Cette extension ne retarde pas les expériences prioritaires de portabilité et de PWA locale. Elle ajoute les tâches suivantes après un parcours local minimal ; les essais réseau peuvent être préparés plus tôt si un environnement autorisé est disponible.
+
+| Tâche | Objectif | Livrable | Critère de validation |
+|---|---|---|---|
+| **12. Définir le contrat de projection** | Isoler l'affichage des règles métier et du contrôle de session. | État de projection versionné, filtrage des résultats non révélés, rôles de lecture/publication et règles de reconnexion. | Aucun score masqué ni droit de commande exposé à l'écran ; aucune dépendance du moteur au relais. |
+| **13. Expérimenter le relais et la projection** | Relier les deux réseaux sans exposer directement le serveur Android. | Adaptateur de publication Android, relais minimal et page web de projection dans un environnement autorisé. | Résultats locaux affichés sur le PC ; messages anciens ignorés ; panne du relais sans effet sur les réponses locales ; reprise sur le dernier état autorisé. Hébergement et déploiement soumis à accord explicite. |
+| **14. Valider le montage en salle** | Vérifier la connectivité et la robustesse simultanées. | Rapport de tests point d'accès + serveur + données mobiles, PC sur réseau d'entreprise et projection, puis essai avec 30 joueurs. | Coupures mobiles, réseau entreprise et relais signalées côté projection ; jeu local continu ; aucune réponse confirmée perdue ou doublée ; délais et ressources mesurés avant fixation de seuils. |
+
+Prévoir un adaptateur de publication côté hôte, un composant de relais distinct du serveur de jeu et une vue de projection web. L'emplacement précis dans l'arborescence, les dépendances et l'hébergement seront proposés avant leur implémentation. Aucun service distant n'est créé par cette décision documentaire.
+
 ## 13. Complément validé : portabilité Android sans Node.js
 
 ### Dépendances et frontières

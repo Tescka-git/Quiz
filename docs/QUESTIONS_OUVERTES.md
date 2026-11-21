@@ -16,6 +16,10 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - **SQLite** : choisir et vérifier les adaptateurs Node.js/Android, leur compatibilité avec le runtime et les garanties transactionnelles/durables après interruption.
 
 ## Hébergement distant — non bloquant
+- **Relais de projection pour une partie locale** : besoin validé le 21 novembre 2026. Choisir l'hébergement, le protocole sécurisé, l'association à la session et les droits de lecture ; aucun déploiement encore autorisé. Distinguer ce relais du serveur qui héberge une partie Internet.
+- **Connectivité simultanée Android** : vérifier point d'accès Wi-Fi pour les joueurs, serveur local et connexion mobile sortante vers le relais ; mesurer les effets sur batterie, stabilité et charge.
+- **Projection depuis l'entreprise** : vérifier les accès autorisés, la signalisation d'un affichage non actualisé et la resynchronisation après coupure. Une panne Internet ne doit pas interrompre la partie locale.
+- **Périmètre projection** : lecture seule validée ; pilotage de la session depuis le PC via le relais non inclus. Vérifier que seuls les résultats déjà révélables sont publiés.
 - Aucun hébergeur retenu. Tester d'abord sur PC personnel.
 - Identifier le Raspberry Pi disponible (3 ou 4), sa mémoire, son OS et sa capacité à exécuter le serveur.
 - Étudier un accès Internet sécurisé en HTTPS/WSS sans exposer imprudemment le réseau domestique ; comparer à un hébergement cloud économique.
