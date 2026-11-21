@@ -1,0 +1,376 @@
+{
+  "date": "2026-11-21",
+  "device": "Pixel 7",
+  "android": "17",
+  "status": "PASS",
+  "sha256": "0872b5a0ce435b0a1b1e31ceed2a187810e785061f54bbe113783cbc9274ec02",
+  "steps": 9,
+  "runtime": "AndroidX JavaScriptEngine 1.1.1",
+  "trace": {
+    "trace": [
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "open",
+          "elapsedMs": 2000,
+          "lastNowMs": 102000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            }
+          ]
+        },
+        "status": "accepted-in-memory",
+        "answer": {
+          "playerId": "p1",
+          "submissionId": "s1",
+          "option": "a",
+          "elapsedMs": 2000,
+          "points": 860
+        }
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "open",
+          "elapsedMs": 4000,
+          "lastNowMs": 104000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            }
+          ]
+        },
+        "status": "checkpoint"
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "paused",
+          "elapsedMs": 4000,
+          "lastNowMs": 1000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            }
+          ]
+        },
+        "status": "paused"
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "paused",
+          "elapsedMs": 4000,
+          "lastNowMs": 2000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            }
+          ]
+        },
+        "status": "duplicate",
+        "answer": {
+          "playerId": "p1",
+          "submissionId": "s1",
+          "option": "a",
+          "elapsedMs": 2000,
+          "points": 860
+        }
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "open",
+          "elapsedMs": 4000,
+          "lastNowMs": 5000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            }
+          ]
+        },
+        "status": "resumed"
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "open",
+          "elapsedMs": 5000,
+          "lastNowMs": 6000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            },
+            {
+              "playerId": "p2",
+              "submissionId": "s2",
+              "option": "a",
+              "elapsedMs": 5000,
+              "points": 650
+            }
+          ]
+        },
+        "status": "accepted-in-memory",
+        "answer": {
+          "playerId": "p2",
+          "submissionId": "s2",
+          "option": "a",
+          "elapsedMs": 5000,
+          "points": 650
+        }
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "open",
+          "elapsedMs": 10000,
+          "lastNowMs": 11000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            },
+            {
+              "playerId": "p2",
+              "submissionId": "s2",
+              "option": "a",
+              "elapsedMs": 5000,
+              "points": 650
+            }
+          ]
+        },
+        "status": "late"
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "closed",
+          "elapsedMs": 10000,
+          "lastNowMs": 11000,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            },
+            {
+              "playerId": "p2",
+              "submissionId": "s2",
+              "option": "a",
+              "elapsedMs": 5000,
+              "points": 650
+            }
+          ]
+        },
+        "status": "closed"
+      },
+      {
+        "state": {
+          "question": {
+            "id": "q1",
+            "options": [
+              "a",
+              "b"
+            ],
+            "correctOption": "a",
+            "durationMs": 10000,
+            "maxPoints": 1000,
+            "scoring": "speed"
+          },
+          "players": [
+            "p1",
+            "p2",
+            "p3"
+          ],
+          "phase": "closed",
+          "elapsedMs": 10000,
+          "lastNowMs": 1,
+          "answers": [
+            {
+              "playerId": "p1",
+              "submissionId": "s1",
+              "option": "a",
+              "elapsedMs": 2000,
+              "points": 860
+            },
+            {
+              "playerId": "p2",
+              "submissionId": "s2",
+              "option": "a",
+              "elapsedMs": 5000,
+              "points": 650
+            }
+          ]
+        },
+        "status": "invalid-phase"
+      }
+    ],
+    "ranking": [
+      {
+        "playerId": "p1",
+        "points": 860,
+        "rank": 1
+      },
+      {
+        "playerId": "p2",
+        "points": 650,
+        "rank": 2
+      },
+      {
+        "playerId": "p3",
+        "points": 0,
+        "rank": 3
+      }
+    ]
+  }
+}

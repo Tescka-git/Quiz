@@ -43,7 +43,7 @@ Les arrêts du processus enfant utilisent `process.exit`, sans fermeture SQLite 
 
 - Adaptateur synchrone pour l'expérience ; coût et blocage de la boucle Node à mesurer sous charge avant de choisir son usage final.
 - Une question par session, pas encore de manches, révision, annulation/rejeu ou migration de schéma.
-- La restauration relit le dernier état enregistré. Elle ne met pas encore automatiquement la question en pause, ne rebascule pas l'origine de l'horloge après redémarrage et ne comptabilise pas le temps entre dernière sauvegarde et panne. Il faut définir et implémenter cette reprise gelée dans le moteur/orchestrateur avant intégration jouable.
+- Lors de la campagne initiale P12, seule la relecture était implémentée. Le lot [P13](P13_REPRISE_GELEE.md) ajoute depuis une restauration explicite obligatoire, en pause et avec nouvelle origine de temps. L'intervalle entre dernier point sauvegardé et panne reste non reconstitué ; l'intégration jouable reste à faire.
 - L'adaptateur suppose un fichier du prototype géré uniquement par lui ; pas de protection contre modification extérieure, panne disque réelle, manque d'espace réel ou changement incompatible de version moteur. Ces validations restent à ajouter.
 - Aucune validation SQLite Android ni serveur réseau complet. Le succès Node ne prouve pas l'invariant de bout en bout sur téléphone.
 

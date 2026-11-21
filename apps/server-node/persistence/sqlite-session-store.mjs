@@ -5,6 +5,7 @@ export class SqliteSessionStore {
   #database;
   #engine;
   #closed = false;
+  #readySessions = new Set();
   constructor(filename, engine) {
     this.#engine = engine;
     this.#database = new DatabaseSync(filename);
@@ -45,6 +46,7 @@ export class SqliteSessionStore {
     const state = this.#engine.create(question, players, nowMs);
     this.#transaction(() => this.#database.prepare('INSERT INTO sessions(id,state_json) VALUES (?,?)')
       .run(sessionId, JSON.stringify(state)));
+    this.#readySessions.add(sessionId);
     return state;
   }
   read(sessionId) {
@@ -52,7 +54,18 @@ export class SqliteSessionStore {
     if (!row) throw new Error('Unknown session');
     return JSON.parse(row.state_json);
   }
+  recover(sessionId, nowMs) {
+    this.#readySessions.delete(sessionId);
+    const state = this.#transaction(() => {
+      const restored = this.#engine.recover(this.read(sessionId), nowMs);
+      this.#database.prepare('UPDATE sessions SET state_json=? WHERE id=?').run(JSON.stringify(restored), sessionId);
+      return restored;
+    });
+    this.#readySessions.add(sessionId);
+    return state;
+  }
   dispatch(sessionId, command, nowMs) {
+    if (!this.#readySessions.has(sessionId)) throw new Error('Recovery required before dispatch');
     // Pas de cache mémoire : même la décision métier part de l'état transactionnel.
     return this.#transaction(() => {
       const result = this.#engine.apply(this.read(sessionId), command, nowMs);

@@ -23,7 +23,7 @@ namespace KuikuizEngine {
     lastNowMs: number;
     answers: Answer[];
   }
-  export type Command = { type: 'pause' } | { type: 'resume' } | { type: 'close' }
+  export type Command = { type: 'pause' } | { type: 'resume' } | { type: 'close' } | { type: 'checkpoint' }
     | { type: 'answer'; playerId: string; submissionId: string; option: string };
   export interface Result { state: State; status: string; answer?: Answer }
 
@@ -39,10 +39,18 @@ namespace KuikuizEngine {
     return { question: { ...question, options: question.options.slice() }, players: players.slice(),
       phase: 'open', elapsedMs: 0, lastNowMs: nowMs, answers: [] };
   }
+  /** Restaure le dernier point durable sans compter l'arrêt ni réutiliser l'ancienne horloge. */
+  export function recover(input: State, nowMs: number): State {
+    if (!finite(nowMs)) throw new Error('Invalid recovery time');
+    return { ...input, question: { ...input.question, options: input.question.options.slice() },
+      players: input.players.slice(), answers: input.answers.map((answer) => ({ ...answer })),
+      phase: input.phase === 'closed' ? 'closed' : 'paused', lastNowMs: nowMs };
+  }
   export function apply(input: State, command: Command, nowMs: number): Result {
     if (!finite(nowMs) || nowMs < input.lastNowMs) throw new Error('Invalid monotonic time');
     const elapsedMs = input.elapsedMs + (input.phase === 'open' ? nowMs - input.lastNowMs : 0);
     const state: State = { ...input, elapsedMs, lastNowMs: nowMs, answers: input.answers.slice() };
+    if (command.type === 'checkpoint') return { state, status: 'checkpoint' };
     // Une retransmission identique retrouve son résultat même après clôture.
     if (command.type === 'answer') {
       const previous = state.answers.find((a) => a.submissionId === command.submissionId);

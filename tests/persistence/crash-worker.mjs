@@ -19,6 +19,8 @@ if (mode === 'before-commit') {
   process.exit(42);
 }
 const store = new SqliteSessionStore(filename, engine);
+store.recover('session', 1000);
+store.dispatch('session', { type: 'resume' }, 1000);
 const result = store.dispatch('session', command, 2000);
 if (!result.confirmed) throw new Error('Answer not committed');
 if (mode === 'after-confirmation') process.stdout.write('CONFIRMED\n', () => process.exit(43));

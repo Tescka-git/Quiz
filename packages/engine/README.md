@@ -20,6 +20,8 @@ npm test
 - `create(question, players, nowMs)` fige une copie de la configuration initiale.
 - `apply(state, command, nowMs)` retourne un nouvel état et un résultat sans modifier ses entrées. Le temps monotone autoritaire est fourni par l'appelant ; aucun accès à l'horloge du système.
 - `ranking(state)` retourne le classement de cette question. L'adaptateur devra appliquer les règles de visibilité et ne pas exposer ce classement prématurément.
+- `recover(state, nowMs)` restaure le dernier état sauvegardé en pause et remplace l'origine de temps ; réponses et scores restent conservés. Une session clôturée ne se rouvre pas. L'instant fourni appartient à la nouvelle horloge autoritaire et peut être inférieur au précédent.
+- La commande `checkpoint` actualise le temps sans changer la phase ; son enregistrement durable appartient à l'adaptateur. En pause ou après clôture, elle n'ajoute pas de temps.
 - L'appelant est responsable de la validation des données réseau, de l'authentification des commandes animateur, de la sérialisation des commandes et des transactions.
 
 `accepted-in-memory` signifie uniquement que la règle a accepté la réponse dans l'état retourné. Ce résultat n'autorise pas une confirmation durable au joueur : celle-ci exige un commit dans un adaptateur de stockage encore absent.
@@ -46,3 +48,5 @@ L'absence d'import et de dépendance directe exclut ici toute chaîne de dépend
 AndroidX JavaScriptEngine 1.1.1 a exécuté avec succès le même artefact sur Pixel 7 / Android 17 : empreinte identique et trace du scénario commun identique à Node.js. Le choix définitif reste ouvert. Ce résultat ne prouve ni persistance SQLite, ni charge de 30 joueurs, ni maintien en arrière-plan du futur moteur. Voir [P11](../../docs/experiments/P11_MOTEUR_ANDROID.md).
 
 `tests/fixtures/engine-portability.json` fournit une première séquence transférable, avec attentes explicites (pause, refus, reprise, réponses, clôture, restauration et doublon). Elle est exécutée sur l'artefact par les tests Node et a réussi sur le Pixel dans l'expérience P11. Les autres cas limites sont couverts séparément par les tests du moteur et restent à transférer à la recette Android.
+
+Le moteur a depuis évolué pour la reprise gelée : la preuve historique P11 reste attachée à son ancienne empreinte. `npm.cmd run prepare:recovery-probe` prépare le scénario `engine-recovery-portability.json` et une nouvelle référence Node pour retester l'artefact modifié sur Android ; voir [P13](../../docs/experiments/P13_REPRISE_GELEE.md). La restauration après panne n'est plus une simple désérialisation : elle exige explicitement `recover`, puis `resume` pour continuer.

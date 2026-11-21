@@ -36,12 +36,18 @@ function cleanup(t, file, store) {
     await rm(directory, { recursive:true, force:true });
   });
 }
+function openLive(file) {
+  const store = new SqliteSessionStore(file, engine);
+  store.recover('session', 1000);
+  store.dispatch('session', { type:'resume' }, 1000);
+  return store;
+}
 test('réponse confirmée conservée après fermeture et retransmise une seule fois', async t => {
   const file = await setup(t);
-  let store = new SqliteSessionStore(file, engine);
+  let store = openLive(file);
   assert.equal(store.dispatch('session', answer, 2000).confirmed, true);
   store.close();
-  store = new SqliteSessionStore(file, engine); cleanup(t, file, store);
+  store = openLive(file); cleanup(t, file, store);
   const repeated = store.dispatch('session', answer, 3000);
   assert.equal(repeated.status, 'duplicate'); assert.equal(repeated.confirmed, true);
   assert.equal(repeated.state.answers.length, 1); assert.equal(repeated.answer.points, 1000);
@@ -51,9 +57,9 @@ test('réponse confirmée conservée après fermeture et retransmise une seule f
 test('échec SQL : pas de confirmation ni mise à jour partielle ; session encore utilisable', async t => {
   const file = await setup(t);
   const db = new DatabaseSync(file);
+  const store = openLive(file); cleanup(t, file, store);
   // Panne déterministe entre insertion de la réponse et mise à jour de l'état.
   db.exec("CREATE TRIGGER simulate_disk_failure BEFORE UPDATE ON sessions BEGIN SELECT RAISE(ABORT,'injected-write-failure'); END");
-  const store = new SqliteSessionStore(file, engine); cleanup(t, file, store);
   let result;
   assert.throws(() => { result = store.dispatch('session', answer, 2000); }, /injected-write-failure/);
   assert.equal(result, undefined); assert.equal(store.read('session').answers.length, 0);
@@ -63,8 +69,8 @@ test('échec SQL : pas de confirmation ni mise à jour partielle ; session encor
 });
 test('deux instances relisent le dernier état ; contraintes d’unicité et isolation des sessions', async t => {
   const file = await setup(t);
-  const first = new SqliteSessionStore(file, engine);
-  const second = new SqliteSessionStore(file, engine);
+  const first = openLive(file);
+  const second = openLive(file);
   t.after(() => { first.close(); second.close(); });
   // Enregistrement du nettoyage après la fermeture des deux connexions.
   t.after(async () => {
@@ -73,6 +79,8 @@ test('deux instances relisent le dernier état ; contraintes d’unicité et iso
     await rm(directory, { recursive:true, force:true });
   });
   first.create('other', question, ['p1','p2'], 1000);
+  second.recover('other', 1000);
+  second.dispatch('other', {type:'resume'}, 1000);
   assert.equal(first.dispatch('session', answer, 2000).confirmed, true);
   assert.equal(second.dispatch('session', answer, 2500).status, 'duplicate');
   const refused = second.dispatch('session', {...answer, submissionId:'new'}, 3000);
@@ -91,9 +99,10 @@ test('deux instances relisent le dernier état ; contraintes d’unicité et iso
 
 test('pause et fermeture sont conservées ; réponse refusée sans confirmation', async t => {
   const file = await setup(t);
-  let store = new SqliteSessionStore(file, engine);
+  let store = openLive(file);
   store.dispatch('session', {type:'pause'}, 2000); store.close();
   store = new SqliteSessionStore(file, engine); cleanup(t, file, store);
+  store.recover('session', 500);
   const refused = store.dispatch('session', answer, 9000);
   assert.equal(refused.status, 'paused'); assert.equal(refused.confirmed, false);
   assert.equal(refused.state.elapsedMs, 1000);
@@ -106,7 +115,7 @@ test('pause et fermeture sont conservées ; réponse refusée sans confirmation'
 });
 test('commit bloqué par un lecteur : aucune confirmation et rollback avant nouvel essai', async t => {
   const file = await setup(t);
-  const store = new SqliteSessionStore(file, engine);
+  const store = openLive(file);
   const reader = new DatabaseSync(file);
   cleanup(t, file, store);
   try {
@@ -133,7 +142,7 @@ for (const [mode, code, count, confirmed] of [
     {encoding:'utf8',timeout:15000,windowsHide:true});
   assert.equal(child.status, code, child.stderr || child.error?.message);
   assert.equal(child.stdout.includes('CONFIRMED'), confirmed);
-  const store = new SqliteSessionStore(file, engine); cleanup(t, file, store);
+  const store = openLive(file); cleanup(t, file, store);
   assert.equal(store.read('session').answers.length, count);
   const result = store.dispatch('session', answer, 3000);
   assert.equal(result.status, count ? 'duplicate' : 'accepted-in-memory');

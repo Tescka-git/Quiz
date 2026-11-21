@@ -17,6 +17,7 @@
     "test:persistence": "node --test tests/persistence/*.test.mjs",
     "build:engine": "node tooling/engine-build.mjs",
     "prepare:engine-probe": "node tooling/engine-build.mjs && node tooling/prepare-engine-probe.mjs",
+    "prepare:recovery-probe": "node tooling/engine-build.mjs && node tooling/prepare-engine-probe.mjs --recovery",
     "test:engine": "node --test tests/engine/*.test.mjs"
   },
   "devDependencies": {

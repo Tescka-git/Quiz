@@ -4,9 +4,12 @@ function runKuikuizScenario(fixture) {
     var trace = [];
     fixture.steps.forEach(function (step, index) {
         if (step.restoreBefore) state = JSON.parse(JSON.stringify(state));
+        if (step.recoverNowMs !== undefined) state = KuikuizEngine.recover(state, step.recoverNowMs);
         var result = KuikuizEngine.apply(state, step.command, step.nowMs);
         if (result.status !== step.expectedStatus || result.state.elapsedMs !== step.expectedElapsedMs)
             throw new Error('Unexpected status/time at step ' + index);
+        if (step.expectedPhase !== undefined && result.state.phase !== step.expectedPhase)
+            throw new Error('Unexpected phase at step ' + index);
         if (step.expectedPoints !== undefined && Math.abs(result.answer.points - step.expectedPoints) > 1e-10)
             throw new Error('Unexpected points at step ' + index);
         state = result.state;

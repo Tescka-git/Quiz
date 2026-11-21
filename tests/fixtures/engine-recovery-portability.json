@@ -1,0 +1,19 @@
+{
+  "description": "Reprise gelée avec nouvelle origine de temps et réponses conservées",
+  "question": { "id": "q1", "options": ["a", "b"], "correctOption": "a", "durationMs": 10000, "maxPoints": 1000, "scoring": "speed" },
+  "players": ["p1", "p2", "p3"],
+  "startNowMs": 100000,
+  "steps": [
+    { "nowMs": 102000, "command": { "type": "answer", "playerId": "p1", "submissionId": "s1", "option": "a" }, "expectedStatus": "accepted-in-memory", "expectedElapsedMs": 2000, "expectedPoints": 860 },
+    { "nowMs": 104000, "command": { "type": "checkpoint" }, "expectedStatus": "checkpoint", "expectedElapsedMs": 4000 },
+    { "restoreBefore": true, "recoverNowMs": 10, "nowMs": 1000, "command": { "type": "answer", "playerId": "p2", "submissionId": "s2", "option": "a" }, "expectedStatus": "paused", "expectedElapsedMs": 4000, "expectedPhase": "paused" },
+    { "nowMs": 2000, "command": { "type": "answer", "playerId": "p1", "submissionId": "s1", "option": "a" }, "expectedStatus": "duplicate", "expectedElapsedMs": 4000, "expectedPoints": 860 },
+    { "nowMs": 5000, "command": { "type": "resume" }, "expectedStatus": "resumed", "expectedElapsedMs": 4000 },
+    { "nowMs": 6000, "command": { "type": "answer", "playerId": "p2", "submissionId": "s2", "option": "a" }, "expectedStatus": "accepted-in-memory", "expectedElapsedMs": 5000, "expectedPoints": 650 },
+    { "nowMs": 11000, "command": { "type": "answer", "playerId": "p3", "submissionId": "s3", "option": "a" }, "expectedStatus": "late", "expectedElapsedMs": 10000 },
+    { "nowMs": 11000, "command": { "type": "close" }, "expectedStatus": "closed", "expectedElapsedMs": 10000 },
+    { "restoreBefore": true, "recoverNowMs": 0, "nowMs": 1, "command": { "type": "resume" }, "expectedStatus": "invalid-phase", "expectedElapsedMs": 10000, "expectedPhase": "closed" }
+  ],
+  "expectedRanks": [1, 2, 3],
+  "expectedAnswerCount": 2
+}

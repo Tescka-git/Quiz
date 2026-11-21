@@ -87,3 +87,14 @@ test('scénario JSON transférable vers Android avec résultats métier attendus
   assert.equal(state.answers.length, fixture.expectedAnswerCount);
   assert.deepEqual(Array.from(engine.ranking(state), e => e.rank), fixture.expectedRanks);
 });
+
+test('harnais commun : scénario de restauration avec temps recalé et échéance conservée', async () => {
+  const context = createContext(Object.create(null));
+  runInContext(await readFile(artifact.output, 'utf8'), context);
+  runInContext(await readFile(new URL('../../experiments/engine-portability/scenario.js', import.meta.url), 'utf8'), context);
+  const fixture = JSON.parse(await readFile(new URL('../fixtures/engine-recovery-portability.json', import.meta.url), 'utf8'));
+  const result = JSON.parse(context.runKuikuizScenario(fixture));
+  assert.equal(result.trace.length,9);
+  assert.equal(result.trace[2].state.phase,'paused');
+  assert.deepEqual(result.ranking.map(r=>r.points),[860,650,0]);
+});
