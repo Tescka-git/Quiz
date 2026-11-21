@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-21",
+  "device": "Pixel 7",
+  "android": "17",
+  "sha256": "0872b5a0ce435b0a1b1e31ceed2a187810e785061f54bbe113783cbc9274ec02",
+  "pid": 30454,
+  "status": "PASS",
+  "sessionId": "f551893c-bfaa-4082-8f82-db0a81c54b6a",
+  "preparePid": 29872,
+  "restored": {
+    "question": {
+      "id": "q1",
+      "options": [
+        "a",
+        "b"
+      ],
+      "correctOption": "a",
+      "durationMs": 10000,
+      "maxPoints": 1000,
+      "scoring": "speed"
+    },
+    "players": [
+      "p1",
+      "p2"
+    ],
+    "phase": "paused",
+    "elapsedMs": 4000,
+    "lastNowMs": 10,
+    "answers": [
+      {
+        "playerId": "p1",
+        "submissionId": "s1",
+        "option": "a",
+        "elapsedMs": 2000,
+        "points": 860
+      }
+    ]
+  },
+  "duplicate": {
+    "state": {
+      "question": {
+        "id": "q1",
+        "options": [
+          "a",
+          "b"
+        ],
+        "correctOption": "a",
+        "durationMs": 10000,
+        "maxPoints": 1000,
+        "scoring": "speed"
+      },
+      "players": [
+        "p1",
+        "p2"
+      ],
+      "phase": "paused",
+      "elapsedMs": 4000,
+      "lastNowMs": 2000,
+      "answers": [
+        {
+          "playerId": "p1",
+          "submissionId": "s1",
+          "option": "a",
+          "elapsedMs": 2000,
+          "points": 860
+        }
+      ]
+    },
+    "status": "duplicate",
+    "answer": {
+      "playerId": "p1",
+      "submissionId": "s1",
+      "option": "a",
+      "elapsedMs": 2000,
+      "points": 860
+    },
+    "confirmed": true
+  },
+  "afterResume": {
+    "state": {
+      "question": {
+        "id": "q1",
+        "options": [
+          "a",
+          "b"
+        ],
+        "correctOption": "a",
+        "durationMs": 10000,
+        "maxPoints": 1000,
+        "scoring": "speed"
+      },
+      "players": [
+        "p1",
+        "p2"
+      ],
+      "phase": "open",
+      "elapsedMs": 5000,
+      "lastNowMs": 6000,
+      "answers": [
+        {
+          "playerId": "p1",
+          "submissionId": "s1",
+          "option": "a",
+          "elapsedMs": 2000,
+          "points": 860
+        },
+        {
+          "playerId": "p2",
+          "submissionId": "s2",
+          "option": "a",
+          "elapsedMs": 5000,
+          "points": 650
+        }
+      ]
+    },
+    "status": "accepted-in-memory",
+    "answer": {
+      "playerId": "p2",
+      "submissionId": "s2",
+      "option": "a",
+      "elapsedMs": 5000,
+      "points": 650
+    },
+    "confirmed": true
+  },
+  "rollbackVerified": true,
+  "sqliteVersion": "3.50.6",
+  "journalMode": "delete",
+  "synchronous": "3"
+}

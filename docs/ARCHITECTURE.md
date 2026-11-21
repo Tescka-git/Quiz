@@ -82,6 +82,7 @@ Téléphones joueurs -- Wi-Fi du point d'accès --> Android : moteur et serveur 
 - L'orchestrateur sérialise les commandes d'une session et distingue résultat métier et confirmation durable : une réponse n'est confirmée au joueur qu'après commit. SQLite transactionnel est privilégié, avec adaptateurs Node.js et Android à vérifier ; pas d'event sourcing général.
 - Premier adaptateur Node expérimental : `node:sqlite`, état JSON et réponses dans une transaction, contraintes d'unicité, confirmation après commit. Les tests de réouverture, d'arrêt applicatif et d'échec de commit sont positifs sur PC ; voir `experiments/P12_SQLITE_NODE.md`. SQLite Android et confirmation réseau de bout en bout restent à valider.
 - Depuis P13, la reprise gelée au dernier checkpoint est testée sur Node/SQLite et les mêmes règles sont exécutées sur Pixel via le même artefact. Une nouvelle instance SQLite exige `recover` avant les commandes ; `resume` reste explicite. Précision/fréquence des checkpoints, SQLite Android et confirmation réseau de bout en bout restent ouverts. Voir `experiments/P13_REPRISE_GELEE.md`.
+- Depuis P14, un adaptateur SQLite natif Android a conservé une réponse après arrêt forcé post-commit de la sonde sur Pixel 7. Pause restaurée, retransmission unique et rollback après erreur SQL injectée sont vérifiés. Cette preuve isolée n'intègre pas le stockage au serveur WebSocket et ne couvre pas un arrêt en pleine transaction Android ni une coupure électrique. Voir `experiments/P14_SQLITE_ANDROID.md`.
 
 ### Contrôles automatiques à implémenter
 

@@ -21,3 +21,5 @@ Toute nouvelle instance d'adaptateur exige `recover` avant `dispatch` pour une s
 L'objet retourne `confirmed: true` uniquement après un commit réussi et pour une réponse nouvellement acceptée ou déjà enregistrée à l'identique. Une exception interrompt le retour ; aucune confirmation ne doit être envoyée. Le statut métier peut encore être `accepted-in-memory` : c'est le drapeau post-commit qui distingue la confirmation de stockage. Cette interface est interne au prototype, pas encore le protocole réseau public.
 
 Une implémentation Android devra satisfaire les mêmes cas de conformité avec son adaptateur SQLite natif. Ce contrat ne permet pas d'utiliser le pilote Node sur Android et ne suppose pas que les réglages ou garanties de fichiers seront identiques.
+
+Une première implémentation native expérimentale est maintenant disponible dans `AndroidSessionStore.java` de la sonde Android. Elle a réussi l'essai après arrêt forcé post-commit et le rollback sur erreur SQL sur Pixel 7 : voir [P14](../../docs/experiments/P14_SQLITE_ANDROID.md). La conformité complète, notamment arrêt en pleine transaction, charge et confirmation réseau, n'est pas encore acquise.

@@ -18,6 +18,8 @@ public final class MainActivity extends Activity {
         Button stop = new Button(this); stop.setText("Arrêter le serveur"); layout.addView(stop);
         Button engine = new Button(this); engine.setText("Tester le moteur JavaScript"); layout.addView(engine);
         engine.setOnClickListener(view -> startActivity(new Intent(this, EngineProbeActivity.class)));
+        Button durability=new Button(this);durability.setText("Tester SQLite après arrêt forcé");layout.addView(durability);
+        durability.setOnClickListener(view->startActivity(new Intent(this,DurabilityProbeActivity.class)));
         journal = new TextView(this); journal.setTextIsSelectable(true);
         ScrollView scroll = new ScrollView(this); scroll.addView(journal); layout.addView(scroll); setContentView(layout);
         start.setOnClickListener(view -> {

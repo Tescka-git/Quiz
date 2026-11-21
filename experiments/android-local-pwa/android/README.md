@@ -4,6 +4,8 @@ Application native Java isolée, sans Node.js et sans moteur de quiz. Java est u
 
 ## Construction
 
+Depuis la version 0.5, le bouton **Tester SQLite après arrêt forcé** ouvre une expérience native en deux phases, indépendante du serveur ping. Elle prépare des données fictives et conserve la connexion SQLite ouverte ; après arrêt forcé et relance, elle vérifie restauration gelée, doublon et rollback. Premier résultat positif sur Pixel 7 : voir [P14](../../../docs/experiments/P14_SQLITE_ANDROID.md). Ne pas utiliser cette base de diagnostic comme une session réelle.
+
 Depuis la version 0.3, préparer d'abord les ressources du moteur depuis la racine du dépôt avec `npm.cmd run prepare:engine-probe`. Le bouton **Tester le moteur JavaScript** lance une expérience indépendante, sans serveur WebSocket. La dépendance AndroidX JavaScriptEngine 1.1.1 reste dans l'enveloppe Android, jamais dans le moteur. Voir [P11](../../../docs/experiments/P11_MOTEUR_ANDROID.md).
 
 Prérequis : JDK 17, Gradle 8.11.1, SDK Android plateforme 35 et Build Tools 35.0.0. Le projet utilise Android Gradle Plugin 8.9.2. Définir `ANDROID_HOME` vers le SDK et `JAVA_HOME` vers le JDK. Depuis ce dossier :

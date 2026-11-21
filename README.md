@@ -17,6 +17,8 @@ Application de quiz multijoueur, conviviale et personnalisable, avec modes indiv
 
 ## Première étape
 
+L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) est positive sur Pixel 7 pour l'arrêt forcé après commit, la reprise gelée, la retransmission sans doublon et une erreur SQL injectée. Le serveur WebSocket n'est pas encore assemblé avec ce stockage.
+
 La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. La durabilité sur Android et les confirmations réseau restent à valider.
 
 Le premier [moteur TypeScript expérimental](packages/engine/README.md) est disponible : `npm.cmd run build:engine` produit un artefact autonome et son empreinte, `npm.cmd run test:engine` vérifie les règles et contrôles de portabilité sur Node.js. Son exécution Android reste à démontrer.
