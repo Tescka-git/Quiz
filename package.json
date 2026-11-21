@@ -13,7 +13,8 @@
     "probe:ping": "node tooling/ping-websocket.mjs",
     "doctor:android": "node tooling/android-doctor.mjs",
     "dev:diagnostic": "node tooling/serve-diagnostic.mjs",
-    "test": "node --test tests/integration/*.test.mjs tests/engine/*.test.mjs",
+    "test": "node --test --test-concurrency=1 tests/integration/*.test.mjs tests/engine/*.test.mjs tests/persistence/*.test.mjs",
+    "test:persistence": "node --test tests/persistence/*.test.mjs",
     "build:engine": "node tooling/engine-build.mjs",
     "prepare:engine-probe": "node tooling/engine-build.mjs && node tooling/prepare-engine-probe.mjs",
     "test:engine": "node --test tests/engine/*.test.mjs"

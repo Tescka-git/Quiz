@@ -16,7 +16,7 @@
 
 ## 9. Stratégie de MVP et validation
 - Priorité à la **validation de l'autonomie locale, de la connectivité et du temps réel**, et non à une simple réduction du périmètre fonctionnel.
-- Tests de charge automatisés avec **30 joueurs simulés**, puis essais réels avec **30 téléphones physiques**, sur les trois modes réseau.
+- Tests de charge automatisés avec **30 joueurs simulés**. Validation physique progressive : Pixel + PC, quelques Android/iPhone, puis environ **dix téléphones** accessibles. Un essai éventuel avec **30 téléphones physiques** est différé jusqu'à maturité suffisante et disponibilité des collègues ; il ne bloque pas le développement initial. Tester les trois modes réseau et ne pas extrapoler les capacités physiques non mesurées.
 - Mesurer d'abord les performances réelles avant de fixer les seuils d'acceptation de latence et de reconnexion.
 - Mesures : latence, jitter, pertes de messages, écarts de synchronisation, temps de reconnexion, stabilité, comportement en pause et après restauration.
 - Invariants de fiabilité : **aucune réponse confirmée ne doit être perdue ni comptabilisée deux fois**. Ces invariants sont distincts des objectifs de performance à fixer après mesure.
@@ -80,6 +80,7 @@ Téléphones joueurs -- Wi-Fi du point d'accès --> Android : moteur et serveur 
 - Les API Node.js, navigateur et Android restent dans les adaptateurs. Le moteur n'utilise pas `process`, `Buffer`, `require`, `node:*`, `window`, `document`, `fetch`, `WebSocket`, les stockages navigateur ou les ponts Android. Il ne lit pas directement `Date.now()`, `Math.random()` et ne programme pas de temporisateur.
 - Les états sont des données sérialisables, sans fonction ni objet natif. Les tris, départages et calculs définissent leurs règles sans dépendre implicitement de la locale ou de l'ordre des données.
 - L'orchestrateur sérialise les commandes d'une session et distingue résultat métier et confirmation durable : une réponse n'est confirmée au joueur qu'après commit. SQLite transactionnel est privilégié, avec adaptateurs Node.js et Android à vérifier ; pas d'event sourcing général.
+- Premier adaptateur Node expérimental : `node:sqlite`, état JSON et réponses dans une transaction, contraintes d'unicité, confirmation après commit. Les tests de réouverture, d'arrêt applicatif et d'échec de commit sont positifs sur PC ; voir `experiments/P12_SQLITE_NODE.md`. SQLite Android, reprise avec temps gelé et confirmation réseau de bout en bout restent à valider.
 
 ### Contrôles automatiques à implémenter
 

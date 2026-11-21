@@ -9,12 +9,12 @@ Les points ci-dessous ne sont pas des décisions techniques définitives.
 - **Point d'accès Android** : vérifier expérimentalement le nombre de clients admis et la stabilité avec 30 téléphones.
 - **Hôte Android distinct de l'animateur** : tester le cas d'un téléphone hôte appartenant à un joueur, y compris écran verrouillé, batterie, veille et bascule d'applications.
 - **Fiabilité** : persistance des réponses confirmées, pause/reprise, reconnexion, restauration après interruption et cohérence des classements.
-- **Tests** : 30 clients simulés et 30 téléphones physiques ; instrumenter latence, jitter, pertes, synchronisation et temps de reconnexion avant de définir les seuils.
+- **Tests** : 30 clients simulés ; progression physique avec Pixel + PC, quelques Android/iPhone puis une dizaine d'appareils accessibles. Un essai éventuel à 30 téléphones avec des collègues est reporté après maturité suffisante et ne bloque pas le développement initial. Ne pas annoncer 30 appareils réels validés à partir de dix. Instrumenter latence, jitter, pertes, synchronisation et reconnexion avant de définir les seuils.
 - **Organisation validée** : expériences Android/PWA et portabilité du moteur dès le départ, indépendamment du prototype Node.js. Leur réalisation et leurs résultats restent à produire.
 - **Runtime Android sans Node.js** : expérience AndroidX JavaScriptEngine 1.1.1 positive sur Pixel 7 / Android 17, même artefact et trace de sept étapes identiques à Node (voir `docs/experiments/P11_MOTEUR_ANDROID.md`). Compatibilité multi-appareils, intégration au service et choix final restent ouverts.
 - **Preuve de portabilité** : exécuter exactement le même artefact JavaScript autonome sur Node.js et Android, vérifier son empreinte et les résultats métier attendus. Cette preuve ne couvre ni réseau, ni durabilité, ni arrière-plan, ni fonctionnement PWA hors ligne.
 - **Contrôles du moteur** : sélectionner les outils d'analyse syntaxique et de graphe pour appliquer l'absence de dépendances d'exécution et d'API d'environnement, y compris via alias, réexportations, helpers ou polyfills.
-- **SQLite** : choisir et vérifier les adaptateurs Node.js/Android, leur compatibilité avec le runtime et les garanties transactionnelles/durables après interruption.
+- **SQLite** : premier adaptateur Node expérimental avec transactions, unicité et tests d'interruption, voir `docs/experiments/P12_SQLITE_NODE.md`. Vérifier encore Android, reprise avec temps gelé, intégration au réseau, coût synchrone et pannes matérielles.
 
 ## Hébergement distant — non bloquant
 - **Relais de projection pour une partie locale** : besoin validé le 21 novembre 2026. Choisir l'hébergement, le protocole sécurisé, l'association à la session et les droits de lecture ; aucun déploiement encore autorisé. Distinguer ce relais du serveur qui héberge une partie Internet.

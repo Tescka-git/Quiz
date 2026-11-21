@@ -17,6 +17,8 @@ Application de quiz multijoueur, conviviale et personnalisable, avec modes indiv
 
 ## Première étape
 
+La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. La durabilité sur Android et les confirmations réseau restent à valider.
+
 Le premier [moteur TypeScript expérimental](packages/engine/README.md) est disponible : `npm.cmd run build:engine` produit un artefact autonome et son empreinte, `npm.cmd run test:engine` vérifie les règles et contrôles de portabilité sur Node.js. Son exécution Android reste à démontrer.
 Expériences Android/PWA et portabilité du même moteur compilé dès le départ, indépendamment du serveur de jeu Node.js. Les choix précis d'implémentation Android restent ouverts.
 

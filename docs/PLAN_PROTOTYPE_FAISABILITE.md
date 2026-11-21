@@ -41,7 +41,7 @@ Sont différés : équipes, IA, éditeur de quiz, comptes, collaboration, animat
 
 Mesurer latence, variabilité des échanges, retard de confirmation, écarts du chronomètre affiché, messages manquants ou dupliqués, reconnexion, restauration, mémoire, processeur, batterie et capacité observée.
 
-Les seuils de latence, de reconnexion et de capacité seront proposés après les premières mesures. Les essais prévus portent sur 30 joueurs simulés, puis 30 téléphones physiques ; ils ne constituent pas une capacité déjà démontrée.
+Les seuils de latence, de reconnexion et de capacité seront proposés après les premières mesures. Les essais automatisés restent prévus à 30 joueurs simulés. La validation physique progresse de Pixel + PC vers quelques Android/iPhone, puis environ dix téléphones disponibles. Un essai éventuel à 30 téléphones avec des collègues est différé après maturité suffisante, sans bloquer le développement initial. Aucun de ces objectifs ne constitue une capacité déjà démontrée.
 
 ## 4. Arborescence proposée
 
@@ -133,7 +133,7 @@ Aucun besoin initial de Docker, PostgreSQL, comptes joueurs ou infrastructure cl
 | **8. Assembler le prototype Node.js et web** | Obtenir une première partie complète et observable. | Hôte Node.js, interfaces joueur/animateur, quiz de test et journal de diagnostic. | Deux appareils jouent une session ; pause et reconnexion fonctionnent ; l'animateur contrôle la partie depuis un appareil distinct. |
 | **9. Intégrer l'hôte Android** | Porter le parcours minimal sur la solution retenue après expérimentation. | Adaptateur Android utilisant moteur et protocole partagés. | Un téléphone héberge et participe comme joueur tandis qu'un autre anime. Effets du verrouillage, de la veille et des changements d'application établis. |
 | **10. Éprouver les pannes et la charge** | Vérifier les invariants et établir les premières performances. | Scénarios automatisés avec 30 joueurs, injections de panne et rapport de mesures. | Aucun cas testé ne perd ni ne double une réponse confirmée. Latence, reconnexion, ressources et capacité observée sont rapportées sans seuil inventé. |
-| **11. Valider sur 30 téléphones** | Confronter les résultats aux réseaux et appareils réels. | Rapport sur point d'accès Android, routeur local et Internet/LTE. | Chaque mode dispose d'un verdict documenté, avec limites et incidents. L'essai distant dépend d'un accord préalable sur son hébergement. |
+| **11. Valider progressivement sur téléphones réels** | Confronter les résultats aux réseaux et appareils réels : quelques appareils, puis environ dix, avant un éventuel essai à 30 une fois le prototype mûr. | Rapport par effectif réel sur point d'accès Android, routeur local et Internet/LTE. | Chaque mode dispose d'un verdict documenté, avec effectif, limites et incidents ; aucune capacité à 30 annoncée sans essai correspondant. L'essai distant dépend d'un accord préalable sur son hébergement. |
 
 ### Ordre et dépendances
 
