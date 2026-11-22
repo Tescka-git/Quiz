@@ -8,6 +8,8 @@
 
 ## Périmètre de recette
 
+**P21 — Redmi Note 11 :** utilisateur : Android 13, HyperOS « 1.05.0 », Chrome mis à jour (version non relevée). Autorité de laboratoire installée avec accord ; page HTTPS sans alerte et retour positif après consigne du quiz Pixel animateur / Redmi joueur sur Wi-Fi habituel. Score chiffré non relevé. Clôture automatique ajoutée ensuite dans APK 0.9 : recette tactile Redmi encore à compléter. Voir [P21](P21_REDMI_CLOTURE_AUTOMATIQUE.md). Cache, point d'accès sans Internet et compatibilité générale non validés par ce retour.
+
 **P20 — Point d'accès en laboratoire :** HTTPS/WSS strict et jeu positifs depuis le PC avec Ethernet désactivé et destinations publiques injoignables. Chrome Pixel a préparé normalement l'origine `https://10.186.21.94:8443`, puis l'utilisateur a terminé le parcours tactile à 3 000 points après correction de l'adresse. Le certificat à deux adresses est signé par l'autorité de laboratoire déjà approuvée ; pas de confiance Windows ajoutée. Le navigateur PC automatisé utilise une exception TLS de contexte, documentée séparément des clients Node stricts. Voir [P20](P20_WSS_POINT_ACCES_SANS_INTERNET.md) pour les limites d'isolement et de mesure ; aucun essai iOS/Firefox ou deuxième téléphone ajouté.
 
 **P19 — Pixel physique :** APK 0.8 et Chrome 157, onglet normal à `https://192.168.1.21:8443` : préparation de sept ressources, rechargement hôte arrêté, reconnexion et réponse durable, 3 000 points et réparation ciblée positifs par clavier automatisé. L'utilisateur confirme le parcours tactile terminé, sans total chiffré ; ergonomie à retravailler. Hôte et joueur sur le même Pixel ; ni le point d'accès WSS sans Internet ni un deuxième téléphone ne sont validés. Voir [P19](P19_RECETTE_CACHE_PIXEL.md).

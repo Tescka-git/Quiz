@@ -94,7 +94,7 @@ if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const secure=process.argv.includes('--https');
   const tls=secure?{pfx:await readFile(new URL('../../.tools/tls/pc.p12',import.meta.url)),
     passphrase:(await readFile(new URL('../../.tools/tls/password.txt',import.meta.url),'utf8')).trim()}:undefined;
-  const app=await createMockServer({filename:fileURLToPath(new URL('quiz-v2.sqlite',directory)),tls});
+  const app=await createMockServer({filename:fileURLToPath(new URL('quiz-v3.sqlite',directory)),tls});
   app.server.listen(4180,secure?'0.0.0.0':'127.0.0.1',()=>console.log(secure?'Kuikuiz HTTPS local : port 4180. Certificat de test existant.':'Kuikuiz : http://localhost:4180'));
   for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>app.stop().then(()=>process.exit(0)));
 }

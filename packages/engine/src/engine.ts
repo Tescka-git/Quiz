@@ -118,6 +118,11 @@ namespace KuikuizEngine {
         status: 'next', questionId };
     }
     const result = apply(input.current, command, nowMs);
+    // La liste initiale reste identique entre questions et malgré les déconnexions.
+    // L'adaptateur persiste cette clôture avec la dernière réponse avant confirmation.
+    if (result.status === 'accepted-in-memory'
+      && result.state.players.every(id => result.state.answers.some(answer => answer.playerId === id)))
+      result.state.phase = 'closed';
     return { ...result, state: { ...input, current: result.state }, questionId };
   }
   export function quizRanking(state: QuizState): { playerId: string; points: number; rank: number }[] {

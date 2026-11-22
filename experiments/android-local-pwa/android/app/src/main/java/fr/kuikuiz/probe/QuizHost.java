@@ -151,7 +151,8 @@ final class QuizHost implements AutoCloseable {
         // Toutes les utilisations du pont et de SQLite se font sur ce même worker.
         worker.submit(()->{try{
             engine=new EngineBridge(context);engine.evaluate(textAsset("mock-protocol.js"));engine.evaluate(textAsset("mock-presentation.js"));questions=new JSONArray(textAsset("mock-quiz.json"));
-            db=context.openOrCreateDatabase("kuikuiz-playable-v2.db",Context.MODE_PRIVATE,null);db.disableWriteAheadLogging();db.setForeignKeyConstraintsEnabled(true);
+            // Nouveau comportement métier : conserver la base v2 sans la réinterpréter.
+            db=context.openOrCreateDatabase("kuikuiz-playable-v3.db",Context.MODE_PRIVATE,null);db.disableWriteAheadLogging();db.setForeignKeyConstraintsEnabled(true);
             try(Cursor journal=db.rawQuery("PRAGMA journal_mode=DELETE",null)){if(!journal.moveToFirst()||!"delete".equalsIgnoreCase(journal.getString(0)))throw new Exception("Mode de journal SQLite indisponible");}
             if(android.os.Build.VERSION.SDK_INT>=30)db.execPerConnectionSQL("PRAGMA synchronous=EXTRA",null);else db.execSQL("PRAGMA synchronous=EXTRA");
             db.execSQL("CREATE TABLE IF NOT EXISTS mock_rooms(id TEXT PRIMARY KEY,code TEXT UNIQUE NOT NULL,host_hash TEXT NOT NULL,engine_hash TEXT NOT NULL,question_json TEXT NOT NULL)");

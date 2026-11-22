@@ -41,6 +41,33 @@ test('quiz : progression immuable, questions distinctes, cumul et fin sans réou
   assert.equal(questions[0].options.length,2);
 });
 
+test('quiz : clôture automatique uniquement après toutes les réponses initiales, même incorrectes', () => {
+  let state=engine.createQuiz([question,{...question,id:'q2'}],['p1','p2'],0);
+  const initial=JSON.stringify(state);
+  let result=engine.applyQuiz(state,answer(),100,'q1');
+  assert.equal(result.state.current.phase,'open');
+  assert.equal(JSON.stringify(state),initial);
+  state=JSON.parse(JSON.stringify(result.state));
+  for(const command of [answer(),answer('p1','other'),answer('absent','unknown'),answer('p2','invalid','unknown')]){
+    result=engine.applyQuiz(state,command,100,'q1');
+    assert.equal(result.state.current.phase,'open');
+    assert.equal(result.state.current.answers.length,1);
+  }
+  result=engine.applyQuiz(state,answer('p2','s2','b'),200,'q1');
+  assert.equal(result.status,'accepted-in-memory');
+  assert.equal(result.state.current.phase,'closed');
+  assert.equal(result.state.current.answers[1].points,0);
+  state=engine.recoverQuiz(JSON.parse(JSON.stringify(result.state)),0);
+  assert.equal(state.current.phase,'closed');
+  assert.equal(engine.applyQuiz(state,answer('p2','s2','b'),0,'q1').status,'duplicate');
+  state=engine.applyQuiz(state,{type:'next'},0,'q1').state;
+  assert.deepEqual(Array.from(state.current.players),['p1','p2']);
+  assert.equal(state.current.phase,'open');
+  assert.equal(state.current.answers.length,0);
+  const late=engine.applyQuiz(state,answer(),10000,'q2');
+  assert.equal(late.status,'late');assert.equal(late.state.current.phase,'open');
+});
+
 test('artefact autonome : score attendu, aucun effet sur les entrées', () => {
   const input = fresh(); const snapshot = JSON.stringify(input);
   const result = engine.apply(input, answer(), 6000);

@@ -40,7 +40,7 @@ async function chrome(page){await shell('am','start','-a','android.intent.action
 const checks=[];let local,pixel,page,report={result:'FAIL',origin,checks};
 try{
   const pkg=(await shell('dumpsys','package','fr.kuikuiz.probe')).stdout;
-  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.8-experiment');
+  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.9-experiment');
   await stop();await start();await chrome();
   const chromeDeadline=Date.now()+30000;let chromeError;
   while(Date.now()<chromeDeadline&&!pixel){
@@ -62,7 +62,11 @@ try{
   await host.goto(origin+'/animateur');await host.locator('#create').click();await host.locator('#room-code').waitFor({state:'visible'});
   const code=await host.locator('#room-code').innerText();
   await page.goto(origin+'/joueur?code='+code);await page.locator('#name').fill('Pixel Cache');await page.locator('#name').press('Enter');
-  await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(1)');await host.locator('#start').click();
+  const waitingContext=await local.newContext({ignoreHTTPSErrors:true});
+  const waiting=await waitingContext.newPage();await waiting.goto(origin+'/joueur?code='+code);
+  await waiting.locator('#name').fill('Joueur en attente');await waiting.locator('#join-form button').click();
+  await waiting.locator('#room-code').waitFor({state:'visible'});
+  await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');await host.locator('#start').click();
   const answer=async choice=>{const radio=page.getByRole('radio',{name:choice,exact:true});await radio.focus();await radio.press('Space');assert.equal(await radio.isChecked(),true);
     await page.locator('#submit-answer').press('Enter');await page.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');};
   await answer('Mars');await page.reload();await page.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
@@ -78,7 +82,7 @@ try{
   checks.push('Retour de l’hôte : question en pause et réponse confirmée retrouvées');
   for(const [number,choice] of [[1,null],[2,'Pacifique'],[3,'Six']]){
     if(choice){await host.locator('#next').click();await page.waitForFunction(n=>document.getElementById('question-number').textContent===`Question ${n} / 3`,number);await answer(choice);}
-    await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 1 réponses confirmées');
+    await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 2 réponses confirmées');
     await host.locator('#reveal').click();await page.locator('#results').waitFor({state:'visible'});
     assert.match(await page.locator('#ranking').innerText(),new RegExp(`${number}[\\s\\u202f\\u00a0]?000`));
   }

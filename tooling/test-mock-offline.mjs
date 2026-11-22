@@ -31,7 +31,11 @@ try{
   await host.locator('#create').click();await host.locator('#room-code').waitFor({state:'visible'});
   const code=await host.locator('#room-code').innerText();await player.goto(origin+'/joueur?code='+code);
   await player.locator('#name').fill('Hors ligne');await player.locator('#join-form button').click();
-  await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(1)');
+  const waitingContext=await browser.newContext();
+  const waiting=await waitingContext.newPage();await waiting.goto(origin+'/joueur?code='+code);
+  await waiting.locator('#name').fill('Joueur en attente');await waiting.locator('#join-form button').click();
+  await waiting.locator('#room-code').waitFor({state:'visible'});
+  await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');
   await host.locator('#start').click();await player.getByRole('radio',{name:'Mars',exact:true}).check();await player.locator('#submit-answer').click();
   await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
   const cached=await player.evaluate(async name=>(await (await caches.open(name)).keys()).map(request=>new URL(request.url).pathname).sort(),cacheName);

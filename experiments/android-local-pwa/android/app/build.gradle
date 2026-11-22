@@ -7,8 +7,8 @@ android {
         applicationId 'fr.kuikuiz.probe'
         minSdk 26
         targetSdk 35
-        versionCode 8
-        versionName '0.8-experiment'
+        versionCode 9
+        versionName '0.9-experiment'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

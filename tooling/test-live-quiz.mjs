@@ -49,7 +49,7 @@ try{
     measurements.push(performance.now()-start);
     player.send({type:'answer',questionId,submissionId:'same-id-per-question',option});
     assert.equal((await player.next(m=>m.type==='answer-result'&&m.questionId===questionId)).status,'duplicate');
-    host.send({type:'reveal',questionId});final=await player.next(state(questionId,'closed'));
+    final=await player.next(state(questionId,'closed'));
     assert.equal(final.ranking[0].points,final.questionNumber*1000);
     if(!final.final){host.send({type:'next',questionId});}
   }

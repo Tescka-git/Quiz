@@ -2,6 +2,8 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**Complément P21, 22 novembre 2026 :** [Redmi et clôture automatique](experiments/P21_REDMI_CLOTURE_AUTOMATIQUE.md). Premier retour manuel positif avec Redmi joueur et Pixel hôte sur Wi-Fi habituel, autorité de laboratoire installée. APK 0.9 : clôture dans le moteur commun après les réponses de tous les joueurs initiaux, persistée avec la dernière réponse ; question suivante manuelle. Tests Node et parcours WSS strict Pixel positifs, contrôle tactile de cette évolution encore à faire. Bases v3 séparées, anciennes bases v2 conservées sans migration.
+
 **État expérimental au 22 novembre 2026 :** [P16](experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble trois questions sur Node et Pixel hôte avec le même moteur compilé, SQLite et commandes partagées. Le client Chrome Pixel a aussi joué sur Node HTTPS/WSS. L'hôte Android sert pour l'instant en HTTP/ws sur réseau de test ; cela ne valide ni WSS Android ni le parcours PWA HTTPS préchargé sans Internet. Les choix d'enveloppe restent expérimentaux et le relais distant n'est pas implémenté.
 
 Le parcours HTTP/ws complet depuis le PC client du point d'accès Android a réussi sans Internet après coupure des accès amont et désactivation Ethernet. Cette preuve d'autonomie du jeu local ne remplace pas les essais PWA sécurisée, téléphones clients supplémentaires, veille prolongée ou charge physique.

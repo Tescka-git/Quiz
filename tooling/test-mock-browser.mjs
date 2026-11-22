@@ -50,7 +50,7 @@ try{
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isDisabled(),true);
   await other.getByRole('radio',{name:'Vénus',exact:true}).check();await other.getByRole('button',{name:'Confirmer ma réponse'}).click();
   await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='2 / 2 réponses confirmées');
-  await host.getByRole('button',{name:'Révéler les résultats'}).click();await player.locator('#results').waitFor({state:'visible'});
+  await player.locator('#results').waitFor({state:'visible'});
   assert.equal(await player.locator('#ranking tr').count(),2);
   assert.match(await player.locator('#ranking tr').first().innerText(),/Camille/);
   assert.match(await player.locator('#correction').innerText(),/Mars/);

@@ -63,7 +63,7 @@ test('partie réseau complète : droits, pause, réponses durables, classement r
   await host.next(state('open',1));
   p1.send({type:'answer',questionId:'planete',submissionId:'p1',option:'mars'});assert.equal((await p1.next(m=>m.type==='answer-result')).status,'duplicate');
   p2.send({type:'answer',questionId:'planete',submissionId:'p2',option:'venus'});assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,true);
-  host.send({type:'reveal',questionId:'planete'});const revealed=await p1.next(state('closed',2));
+  const revealed=await p1.next(state('closed',2));
   assert.equal(revealed.correctOption,'mars');assert.deepEqual(revealed.ranking.map(r=>r.points),[1000,0]);
   assert.deepEqual(revealed.ranking.map(r=>r.name),['Camille','Alex']);
 });
@@ -71,6 +71,7 @@ test('partie réseau complète : droits, pause, réponses durables, classement r
 test('reconnexion et redémarrage : réponse retrouvée, pause restaurée et aucun doublon',async t=>{
   const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
   const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  await joinPlayer(t,app,credentials.code,'Second joueur');
   host.send({type:'start'});await player.next(state('open'));
   env.setNow(2500);player.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
   await host.next(state('open',1));player.ws.terminate();
@@ -95,8 +96,11 @@ test('échec transactionnel : aucune confirmation réseau, puis retransmission e
   player.send({type:'answer',questionId:'planete',submissionId:'retry',option:'mars'});
   assert.equal((await player.next(m=>m.type==='error')).code,'storage-failed');
   assert.equal(db.prepare('SELECT count(*) AS n FROM quiz_answers').get().n,0);
+  assert.equal(JSON.parse(db.prepare('SELECT state_json FROM quiz_sessions').get().state_json).current.phase,'open');
   db.exec('DROP TRIGGER fail_mock');player.send({type:'answer',questionId:'planete',submissionId:'retry',option:'mars'});
   assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  await player.next(state('closed',1));
+  assert.equal(JSON.parse(db.prepare('SELECT state_json FROM quiz_sessions').get().state_json).current.phase,'closed');
   }finally{db.close();}
 });
 
@@ -123,11 +127,12 @@ test('protocole et entrées : origine, accès animateur, arrivée tardive et éc
 test('trois questions : cumul durable, anciennes commandes refusées et reprise à la deuxième',async t=>{
   const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
   const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  await joinPlayer(t,app,credentials.code,'Second joueur');
   host.send({type:'start'});await player.next(state('open'));
-  player.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
-  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
   host.send({type:'next',questionId:'planete'});host.send({type:'sync'});
   assert.equal((await host.next(m=>m.type==='state'&&m.questionId==='planete')).questionNumber,1);
+  player.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
   host.send({type:'reveal',questionId:'planete'});await player.next(state('closed'));
   host.send({type:'next',questionId:'planete'});await player.next(m=>m.type==='state'&&m.questionId==='ocean');
   player.send({type:'answer',questionId:'planete',submissionId:'delayed',option:'mars'});
@@ -146,6 +151,28 @@ test('trois questions : cumul durable, anciennes commandes refusées et reprise 
   const db=new DatabaseSync(env.filename);try{assert.equal(db.prepare('SELECT count(*) AS n FROM quiz_answers').get().n,3);}finally{db.close();}
 });
 
+test('déconnexion : effectif initial conservé, dernière réponse clôturée durablement après retour',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:p1}=await joinPlayer(t,app,credentials.code,'Premier');
+  const {connection:p2,credentials:identity}=await joinPlayer(t,app,credentials.code,'Second');
+  host.send({type:'start'});await p1.next(state('open'));
+  p2.ws.terminate();
+  p1.send({type:'answer',questionId:'planete',submissionId:'first',option:'mars'});
+  assert.equal((await p1.next(m=>m.type==='answer-result')).confirmed,true);
+  const pending=await host.next(state('open',1));assert.equal(pending.total,2);
+  p1.send({type:'answer',questionId:'planete',submissionId:'first',option:'mars'});
+  assert.equal((await p1.next(m=>m.type==='answer-result')).status,'duplicate');
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  await returning.next(state('open',1));
+  returning.send({type:'answer',questionId:'planete',submissionId:'last',option:'venus'});
+  assert.equal((await returning.next(m=>m.type==='answer-result')).confirmed,true);
+  await host.next(state('closed',2));
+  await app.stop();env.setNow(0);app=await env.start();
+  const restored=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  const closed=await restored.next(state('closed',2));assert.equal(closed.ownAnswer.option,'venus');
+  assert.deepEqual(closed.ranking.map(row=>row.points),[1000,0]);
+});
+
 test('30 joueurs simulés : trois questions et 90 réponses confirmées sans doublon',async t=>{
   const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
   const players=[];for(let i=0;i<30;i++)players.push((await joinPlayer(t,app,credentials.code,`Joueur ${i+1}`)).connection);
@@ -157,7 +184,7 @@ test('30 joueurs simulés : trois questions et 90 réponses confirmées sans dou
       assert.equal((await player.next(m=>m.type==='answer-result'&&m.questionId===questionId)).confirmed,true);
       durations.push(performance.now()-start);
     }));
-    host.send({type:'reveal',questionId});const result=await players[0].next(state('closed',30));
+    const result=await players[0].next(state('closed',30));
     assert.equal(result.ranking.length,30);assert.ok(result.ranking.every(r=>r.rank===1&&r.points===result.questionNumber*1000));
     if(!result.final){host.send({type:'next',questionId});await players[0].next(m=>m.type==='state'&&m.phase==='open'&&m.questionId!==questionId);}
   }

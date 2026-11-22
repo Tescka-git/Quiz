@@ -25,7 +25,7 @@ try{
     await player.locator('#submit-answer').press('Enter');
     await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
     await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 1 réponses confirmées');
-    await host.locator('#reveal').click();await player.locator('#results').waitFor({state:'visible'});
+    await player.locator('#results').waitFor({state:'visible'});
     assert.match(await player.locator('#ranking').innerText(),new RegExp(`${number}[\\s\\u202f\\u00a0]?000`));
     if(number<3)await host.locator('#next').click();
   }
