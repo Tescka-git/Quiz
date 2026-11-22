@@ -1,0 +1,161 @@
+{
+  "date": "2026-11-22",
+  "device": "Pixel 7",
+  "apkVersion": "0.8-experiment",
+  "certificate": {
+    "wifiIp": "192.168.1.21",
+    "hotspotIp": "10.186.21.94",
+    "caFingerprint256": "A5:78:E9:DE:CB:56:71:4D:E4:57:7F:33:EE:B7:81:FD:CB:07:F5:6B:34:F0:47:DD:36:63:80:DD:06:50:C4:2C",
+    "leafFingerprint256": "12:D8:49:59:5E:3F:6D:13:C5:F8:E1:C9:EF:10:12:B8:69:73:A2:87:6D:F9:97:FA:2F:4C:B6:99:7F:3F:3F:FD",
+    "expires": "Dec 22 17:22:10 2026 GMT",
+    "sameServerKey": true,
+    "sourcesUnchanged": true
+  },
+  "preparation": {
+    "date": "2026-11-22T17:31:52.149Z",
+    "result": "PASS",
+    "origin": "https://10.186.21.94:8443",
+    "apkVersion": "0.8-experiment",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36",
+    "cacheName": "kuikuiz-mock-shell-v1",
+    "entries": [
+      "/",
+      "/app.js",
+      "/connection.json",
+      "/icon.svg",
+      "/manifest.webmanifest",
+      "/offline.js",
+      "/style.css"
+    ],
+    "checks": [
+      "Préparation HTTPS normale sur Chrome Pixel : sept ressources présentes et contexte sécurisé",
+      "Réponse confirmée retrouvée après rechargement avec hôte actif",
+      "Hôte réellement arrêté : page joueur rechargeable, cache prêt, aucune confirmation reconstruite",
+      "Retour de l’hôte : question en pause et réponse confirmée retrouvées",
+      "Fin du quiz après reprise : 3 000 points, sans double comptage",
+      "Seule entrée de configuration supprimée du cache Kuikuiz puis réparée explicitement",
+      "Accueil, animateur et joueur rechargeables sans hôte ; création refusée et paramètre de code conservé",
+      "Onglet de test fermé puis rouvert : interface encore disponible sans serveur ; autres onglets conservés"
+    ],
+    "score": 3000,
+    "inputMethod": "Clavier CDP ; gestes tactiles manuels à valider séparément",
+    "network": "Point acces Android avec Internet amont, preparation avant coupure",
+    "limits": [
+      "La disponibilité Internet doit être relevée séparément ; ce test arrête le seul hôte",
+      "Même Pixel hôte et client, pas de deuxième téléphone",
+      "Fermeture du seul onglet de test, pas arrêt forcé de Chrome",
+      "Exception TLS limitée au contexte PC automatisé ; aucune désactivation TLS sur le Pixel",
+      "Pas de validation iOS/Firefox, installation PWA ou point d’accès WSS hors Internet"
+    ]
+  },
+  "offline": {
+    "status": "PASS",
+    "startedAt": "2026-11-22T17:44:16.178Z",
+    "finishedAt": "2026-11-22T17:44:33.662Z",
+    "origin": "https://10.186.21.94:8443",
+    "networkBefore": {
+      "ethernet": "Disabled",
+      "wifiGateway": "10.186.21.94"
+    },
+    "externalBefore": {
+      "date": "2026-11-22T17:44:16.165Z",
+      "scope": "Two public TCP endpoints from PC; combine with interface and Android upstream checks",
+      "isolated": true,
+      "results": [
+        {
+          "host": "1.1.1.1",
+          "reachable": false,
+          "reason": "timeout"
+        },
+        {
+          "host": "8.8.8.8",
+          "reachable": false,
+          "reason": "timeout"
+        }
+      ]
+    },
+    "networkAfter": {
+      "ethernet": "Disabled",
+      "wifiGateway": "10.186.21.94"
+    },
+    "externalAfter": {
+      "date": "2026-11-22T17:44:31.481Z",
+      "scope": "Two public TCP endpoints from PC; combine with interface and Android upstream checks",
+      "isolated": true,
+      "results": [
+        {
+          "host": "1.1.1.1",
+          "reachable": false,
+          "reason": "timeout"
+        },
+        {
+          "host": "8.8.8.8",
+          "reachable": false,
+          "reason": "timeout"
+        }
+      ]
+    },
+    "tls": {
+      "date": "2026-11-22T17:44:16.834Z",
+      "origin": "https://10.186.21.94:8443",
+      "result": "PASS",
+      "https": {
+        "authorized": true,
+        "protocol": "TLSv1.3",
+        "fingerprint256": "12:D8:49:59:5E:3F:6D:13:C5:F8:E1:C9:EF:10:12:B8:69:73:A2:87:6D:F9:97:FA:2F:4C:B6:99:7F:3F:3F:FD",
+        "subjectAltName": "IP Address:192.168.1.21, IP Address:10.186.21.94",
+        "expires": "Dec 22 17:22:10 2026 GMT"
+      },
+      "wss": {
+        "authorized": true,
+        "protocol": "TLSv1.3"
+      },
+      "checks": [
+        "Chaîne et adresse vérifiées en HTTPS et WSS",
+        "Autorité inconnue refusée en HTTPS et WSS",
+        "Mauvaise adresse refusée en HTTPS et WSS",
+        "Origine WSS étrangère fermée avec code 1008",
+        "Fichiers privés inaccessibles par HTTPS"
+      ],
+      "trust": "Autorité locale fournie uniquement aux clients Node de test ; aucun magasin système modifié"
+    },
+    "protocol": {
+      "date": "2026-11-22T17:44:19.388Z",
+      "origin": "https://10.186.21.94:8443",
+      "result": "PASS",
+      "scenario": "3 questions, droits, masquage, commit, doublons, reconnexion",
+      "score": 3000,
+      "confirmationMs": [
+        131.88689999999997,
+        49.615800000000036,
+        50.653099999999995
+      ]
+    },
+    "browser": {
+      "date": "2026-11-22T17:44:28.173Z",
+      "origin": "https://10.186.21.94:8443",
+      "result": "PASS",
+      "scenario": "3 questions, 2 joueurs, pause/reprise, rechargement, cumul et nouvelle salle",
+      "score": 3000,
+      "outsideRequests": [],
+      "tlsVerification": "Exception TLS limitée aux contextes Playwright PC ; ne valide pas la confiance normale du navigateur"
+    },
+    "browserTlsScope": "Contextes Playwright PC avec exception TLS locale ; clients Node stricts avec autorité explicite, aucune confiance Windows modifiée"
+  },
+  "manualOffline": {
+    "status": "PASS selon retour utilisateur",
+    "source": "Retour utilisateur du 22 novembre 2026 après coupure et rétablissement Ethernet",
+    "origin": "https://10.186.21.94:8443",
+    "quizCompleted": true,
+    "scoreReported": 3000,
+    "initialError": "Adresse incorrecte utilisée ; échec de connexion avant correction",
+    "resolution": "Utilisateur confirme le quiz sans problème et 3000 points après correction de l’adresse",
+    "upstreamEvidence": "Consignes utilisateur : données mobiles et Wi-Fi amont du Pixel coupés ; pas de télémétrie ADB après cette coupure",
+    "limit": "Même Pixel hôte et client ; Ethernet PC rétabli pour le retour manuel, isolement PC mesuré séparément pendant le test autonome"
+  },
+  "regression": {
+    "nodePassed": 31,
+    "tlsPassed": 4
+  },
+  "conclusion": "HTTPS/WSS et jeu local positifs sur le point d’accès en laboratoire : PC isolé mesuré, puis parcours Chrome Pixel confirmé par utilisateur. Confiance de laboratoire et deux adresses explicites, pas de compatibilité générale démontrée."
+}

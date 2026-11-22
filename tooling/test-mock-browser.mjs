@@ -14,10 +14,12 @@ let browser;
 try{
   if(app){app.server.listen(0,'127.0.0.1');await once(app.server,'listening');}
   const origin=process.env.KUIKUIZ_ORIGIN||`http://127.0.0.1:${app.server.address().port}`;
+  const labTlsException=process.env.KUIKUIZ_LAB_IGNORE_HTTPS_ERRORS==='1';
+  if(labTlsException&&!origin.startsWith('https:'))throw new Error('Exception de laboratoire réservée à une origine HTTPS explicite.');
   browser=await chromium.launch({executablePath:process.env.KUIKUIZ_CHROME||'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
-  const hostContext=await browser.newContext({viewport:{width:1280,height:900}});
-  const playerContext=await browser.newContext({viewport:{width:390,height:844}});
-  const otherContext=await browser.newContext({viewport:{width:900,height:800}});
+  const hostContext=await browser.newContext({viewport:{width:1280,height:900},ignoreHTTPSErrors:labTlsException});
+  const playerContext=await browser.newContext({viewport:{width:390,height:844},ignoreHTTPSErrors:labTlsException});
+  const otherContext=await browser.newContext({viewport:{width:900,height:800},ignoreHTTPSErrors:labTlsException});
   const host=await hostContext.newPage(),player=await playerContext.newPage(),other=await otherContext.newPage();
   const errors=[];for(const page of [host,player,other])page.on('pageerror',e=>errors.push(e.message));
   const outsideRequests=[];
@@ -79,7 +81,8 @@ try{
   assert.deepEqual(errors,[]);
   assert.deepEqual(outsideRequests,[]);
   await writeFile('artifacts/mock-preview/browser-report.json',JSON.stringify({date:new Date().toISOString(),origin,result:'PASS',
-    scenario:'3 questions, 2 joueurs, pause/reprise, rechargement, cumul et nouvelle salle',score:3000,outsideRequests},null,2));
+    scenario:'3 questions, 2 joueurs, pause/reprise, rechargement, cumul et nouvelle salle',score:3000,outsideRequests,
+    tlsVerification:labTlsException?'Exception TLS limitée aux contextes Playwright PC ; ne valide pas la confiance normale du navigateur':'Vérifications normales du navigateur'},null,2));
   console.log('PASS : trois questions, score cumulé 3000 points, deux joueurs, pause/reprise, rechargement et nouvelle partie.');
 }finally{
   if(browser)await browser.close();if(app)await app.stop();

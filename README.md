@@ -29,6 +29,8 @@ Le complément `npm.cmd run test:mock:offline-lifecycle` vérifie aussi la réou
 
 Depuis [P19](docs/experiments/P19_RECETTE_CACHE_PIXEL.md), le cache est aussi testé automatiquement sur le Pixel en HTTPS : rechargement hôte arrêté, réponse durable retrouvée, classement à 3 000 points et réparation ciblée. APK 0.8 installé ; l'utilisateur a aussi terminé le parcours tactile. L'ergonomie reste à retravailler après les risques techniques. Ces essais ne valident pas le mode WSS du point d'accès sans Internet.
 
+[P20 — HTTPS/WSS sur le point d'accès sans Internet](docs/experiments/P20_WSS_POINT_ACCES_SANS_INTERNET.md) est positif en laboratoire : certificat adapté aux deux adresses, clients Node stricts et quiz sur PC isolé, puis parcours tactile Pixel confirmé à 3 000 points. La confiance repose encore sur l'autorité de test installée sur le Pixel ; pas de validation générale iOS/Firefox ni de joueurs sans préparation de certificat.
+
 L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) reste la preuve isolée de durabilité. [P16](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble maintenant stockage et réseau : reprise en deuxième question après arrêt forcé, réponses confirmées conservées, puis fin du quiz à 3 000 points.
 
 La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. Les essais réseau complémentaires sont décrits dans P15/P16 ; ils ne démontrent pas une résistance à toute panne matérielle.

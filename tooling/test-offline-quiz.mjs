@@ -2,7 +2,9 @@ import {spawn} from 'node:child_process';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 const root=fileURLToPath(new URL('../',import.meta.url));
-const output=new URL('../artifacts/mock-preview/offline-quiz-report.json',import.meta.url);
+const secure=process.argv.includes('--https');
+if(process.argv.slice(2).some(arg=>arg!=='--https'))throw new Error('Seule option autorisée : --https');
+const output=new URL(`../artifacts/mock-preview/offline-quiz${secure?'-tls':''}-report.json`,import.meta.url);
 await mkdir(new URL('../artifacts/mock-preview/',import.meta.url),{recursive:true});
 function run(executable,args,env=process.env){return new Promise((resolve,reject)=>{
   const child=spawn(executable,args,{cwd:root,env,windowsHide:true});let stdout='',stderr='';
@@ -31,8 +33,13 @@ try{
   if(!network)throw new Error('Isolement non observé dans les 10 minutes ; aucun succès hors Internet annoncé.');
   report.network=network;report.isolatedAt=new Date().toISOString();
   report.before=JSON.parse(await readFile(new URL('../artifacts/mock-preview/pc-network-check.json',import.meta.url),'utf8'));
-  report.origin=`http://${network.wifiGateway}:8080`;
-  const env={...process.env,KUIKUIZ_ORIGIN:report.origin};
+  report.origin=`${secure?'https':'http'}://${network.wifiGateway}:${secure?8443:8080}`;
+  const env={...process.env,KUIKUIZ_ORIGIN:report.origin,...(secure?{KUIKUIZ_HOST_KIND:'android-hotspot-tls',KUIKUIZ_LAB_IGNORE_HTTPS_ERRORS:'1'}:{})};
+  if(secure){
+    report.tls=await run(process.execPath,['tooling/test-android-tls.mjs'],env);
+    if(report.tls.code!==0)throw new Error('Vérification stricte TLS/WSS échouée : '+report.tls.stderr);
+    report.browserTlsScope='Contextes Playwright PC avec exception TLS locale ; clients Node stricts avec autorité explicite, aucune confiance Windows modifiée';
+  }
   report.protocol=await run(process.execPath,['tooling/test-live-quiz.mjs'],env);
   if(report.protocol.code!==0)throw new Error('Parcours réseau échoué : '+report.protocol.stderr);
   report.browser=await run(process.execPath,['tooling/test-mock-browser.mjs'],env);

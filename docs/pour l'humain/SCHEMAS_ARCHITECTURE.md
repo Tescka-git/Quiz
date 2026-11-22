@@ -26,7 +26,7 @@ Les deux hôtes exécutent le même moteur : trois questions, réponse définiti
 
 Le Pixel hôte a été utilisé sur le Wi-Fi habituel puis via son point d'accès. Une reprise après arrêt forcé conserve les réponses déjà confirmées et gèle la question courante. Le lien ADB sert à installer et vérifier l'application ; il ne transporte pas les commandes du jeu. Les joueurs n'en ont pas besoin.
 
-Le mode Android HTTP/ws a fonctionné sans Internet sur le point d'accès ; [P16](../experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) décrit cet essai. Un mode HTTPS/WSS avec certificat de laboratoire a ensuite réussi sur le Wi-Fi habituel, voir [P17](../experiments/P17_HTTPS_WSS_ANDROID.md). Le certificat ne couvre pas l'adresse du point d'accès. Une PWA HTTPS préchargée vers cet hôte reste à valider séparément.
+Le mode Android HTTP/ws a fonctionné sans Internet sur le point d'accès ; [P16](../experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) décrit cet essai. Le mode HTTPS/WSS a ensuite réussi sur le Wi-Fi habituel dans [P17](../experiments/P17_HTTPS_WSS_ANDROID.md), puis sur le point d'accès isolé dans [P20](../experiments/P20_WSS_POINT_ACCES_SANS_INTERNET.md) avec une nouvelle feuille de certificat couvrant les deux adresses. La clé serveur et l'autorité sont conservées. Chrome Pixel a préparé son interface, et l'utilisateur a terminé le quiz à 3 000 points avec la bonne adresse. Cette preuve de laboratoire ne valide pas encore un téléphone joueur distinct ni une confiance sans installation de certificat.
 
 ## 2. Cible locale : Android héberge la partie
 

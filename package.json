@@ -22,6 +22,8 @@
     "prepare:mock-android": "node tooling/engine-build.mjs && node tooling/prepare-engine-probe.mjs --recovery && node tooling/prepare-mock-assets.mjs",
     "dev:diagnostic:https": "node tooling/serve-diagnostic.mjs --https",
     "prepare:tls": "node tooling/prepare-local-tls.mjs",
+    "prepare:tls:hotspot": "node tooling/prepare-hotspot-tls.mjs",
+    "test:mock:hotspot-offline": "node tooling/test-offline-quiz.mjs --https",
     "test:tls": "node --test tests/tls/*.test.mjs",
     "probe:ping": "node tooling/ping-websocket.mjs",
     "doctor:android": "node tooling/android-doctor.mjs",

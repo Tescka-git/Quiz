@@ -16,7 +16,12 @@ function probe(){return new Promise((resolve,reject)=>{
 });}
 async function nativeButton(label){
   await shell('am','start','-n','fr.kuikuiz.probe/.MainActivity');
-  await shell('uiautomator','dump','/sdcard/kuikuiz-window.xml');
+  let dumpError;
+  for(let attempt=0;attempt<3;attempt++){
+    try{await shell('uiautomator','dump','--compressed','/sdcard/kuikuiz-window.xml');dumpError=null;break;}
+    catch(error){dumpError=error;await new Promise(resolve=>setTimeout(resolve,750));}
+  }
+  if(dumpError)throw new Error('Écran natif non disponible après trois essais : '+label);
   const xml=(await shell('cat','/sdcard/kuikuiz-window.xml')).stdout;
   const node=xml.match(new RegExp(`<node[^>]*text="${label}"[^>]*bounds="\\[(\\d+),(\\d+)\\]\\[(\\d+),(\\d+)\\]"`));
   if(!node)throw new Error('Commande native non repérée : '+label);
@@ -96,7 +101,8 @@ try{
   await mkdir('artifacts/mock-preview',{recursive:true});await page.screenshot({path:'artifacts/mock-preview/pixel-cache-sans-hote.png',fullPage:true});
   report={date:new Date().toISOString(),result:'PASS',origin,apkVersion:version,userAgent,cacheName,entries,checks,score:3000,
     inputMethod:'Clavier CDP ; gestes tactiles manuels à valider séparément',
-    limits:['Wi-Fi habituel avec Internet disponible ; arrêt du seul hôte','Même Pixel hôte et client, pas de deuxième téléphone',
+    network:process.env.KUIKUIZ_NETWORK_LABEL||'Wi-Fi habituel avec Internet disponible ; arrêt du seul hôte',
+    limits:['La disponibilité Internet doit être relevée séparément ; ce test arrête le seul hôte','Même Pixel hôte et client, pas de deuxième téléphone',
       'Fermeture du seul onglet de test, pas arrêt forcé de Chrome','Exception TLS limitée au contexte PC automatisé ; aucune désactivation TLS sur le Pixel','Pas de validation iOS/Firefox, installation PWA ou point d’accès WSS hors Internet']};
 }catch(error){report={...report,date:new Date().toISOString(),error:error.message};process.exitCode=1;}
 finally{

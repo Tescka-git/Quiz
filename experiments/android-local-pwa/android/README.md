@@ -4,6 +4,8 @@ Application expérimentale Java, sans Node.js. Elle conserve les sondes isolées
 
 ## Construction
 
+**Actualisation P20 :** le même APK 0.8 charge désormais le certificat de laboratoire couvrant aussi l'adresse du point d'accès. Le renouvellement autorisé conserve clé et autorité, avec sauvegarde privée ; ni nouveau build ni clé dans l'APK. HTTPS/WSS et jeu réussissent sur le réseau isolé dans [P20](../../../docs/experiments/P20_WSS_POINT_ACCES_SANS_INTERNET.md). Utiliser le profil TLS nommé pour la préparation ; l'installateur sans profil refuse d'écraser ce conteneur différent.
+
 **Actualisation P19 :** la version 0.8 est maintenant installée sur le Pixel. Cache HTTPS et arrêt/reprise de l'hôte sont positifs par automatisation Chrome ; les détails et la portée sont dans [P19](../../../docs/experiments/P19_RECETTE_CACHE_PIXEL.md). L'utilisateur a aussi terminé le parcours tactile ; l'ergonomie reste à retravailler. Les lignes P18 ci-dessous décrivent le premier lot, limité au PC.
 
 La version **0.8**, compilée mais non installée lors du premier lot P18, embarque les routes du service worker, du manifeste, de l'icône et du contrôle du cache. Le cache n'est disponible que sur une origine reconnue comme sécurisée ; HTTP local ordinaire garde le jeu connecté. La preuve de rechargement serveur arrêté concerne pour l'instant Chrome PC, voir [P18](../../../docs/experiments/P18_CACHE_INTERFACE_PC.md). Les essais physiques de 0.7 restent les relevés historiques P17.

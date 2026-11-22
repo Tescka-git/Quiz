@@ -2,6 +2,8 @@
 
 ## Périmètre autorisé
 
+**Complément P20 du 22 novembre 2026 :** l'utilisateur a autorisé une nouvelle feuille de laboratoire pour `192.168.1.21` et `10.186.21.94`, signée par la même autorité et avec la même clé serveur. Les fichiers source de ce dossier restent inchangés ; le profil est dans `.tools/tls/profiles/hotspot-10-186-21-94/` et l'ancien conteneur Android a une sauvegarde privée. Voir [P20](P20_WSS_POINT_ACCES_SANS_INTERNET.md) pour les commandes de profil et de retour arrière. L'installateur par défaut continue de refuser un fichier différent : ne pas contourner ce garde-fou par un écrasement manuel.
+
 L'utilisateur a autorisé la création des clés et certificats de test, puis l'installation du certificat public de l'autorité sur son Pixel personnel pour cette expérience. La confirmation et l'authentification Android sont effectuées par l'utilisateur. Le 21 novembre 2026, l'utilisateur confirme avoir terminé l'installation sur le Pixel ; l'acceptation HTTPS dans le navigateur reste à tester. Aucune confiance Windows n'est autorisée ou modifiée. Aucun certificat public, hébergement ou déploiement Internet n'est créé.
 
 ## Fichiers et protection
