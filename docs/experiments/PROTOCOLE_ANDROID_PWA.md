@@ -54,6 +54,8 @@ Le rapport exporté contient adresses et informations de navigateur : le conserv
 
 ## Jalon indépendant : portabilité du moteur
 
+**Complément du 22 novembre :** [P16](P16_MAQUETTE_TROIS_QUESTIONS.md) assemble désormais moteur, réseau et SQLite pour trois questions. Ce parcours Android sert les pages en HTTP/ws ; il ne coche pas les essais P1/P2 de PWA HTTPS préchargée. Le Pixel joueur du serveur Node PC a, séparément, réussi les trois questions en HTTPS/WSS. Les conclusions historiques de chaque expérience restent limitées à leur configuration.
+
 Premier résultat positif sur Pixel 7 avec AndroidX JavaScriptEngine : même artefact et mêmes résultats sur le scénario commun, voir [P11](P11_MOTEUR_ANDROID.md). Ce résultat est limité à l'appareil/runtime et aux sept étapes testés ; il ne clôt pas les validations réseau et de durabilité.
 
 Créer ensuite un moteur TypeScript sans dépendance d'exécution et compiler un artefact unique. Exécuter les mêmes octets sur Node.js et dans un runtime Android sans Node.js ; comparer SHA-256 et résultats attendus après chaque commande. Le runtime est encore ouvert et son choix structurant devra être validé avant intégration définitive.

@@ -1,34 +1,32 @@
 # Kuikuiz — Comprendre l'architecture actuelle et cible
 
-**État de référence :** premier échange WebSocket Node.js PC ↔ Pixel réussi. Ces schémas expliquent l'organisation ; les choix techniques encore ouverts sont détaillés dans [l'architecture](../ARCHITECTURE.md).
+**État de référence :** 22 novembre 2026, maquette de trois questions jouable sur Node et sur Pixel hôte. Ces schémas expliquent l'organisation ; les choix techniques encore ouverts sont détaillés dans [l'architecture](../ARCHITECTURE.md).
 
 Les blocs marqués « cible » ne sont pas encore implémentés. Les schémas Mermaid peuvent être lus dans un aperçu Markdown compatible ; les paragraphes en donnent aussi la lecture.
 
-## 1. Aujourd'hui : une sonde réseau, pas encore un quiz
+## 1. Aujourd'hui : trois questions, deux possibilités d'hébergement
 
 ```mermaid
 flowchart LR
-    subgraph PC[PC personnel]
-        Files[Serveur de préparation Node.js]
-        Browser[Sonde web dans le navigateur]
-        Client[Client ping Node.js]
-        Tools[ADB de développement]
-        Files -->|fichiers sur localhost:4173| Browser
-        Cache[Cache du navigateur] -->|rechargement serveur arrêté : P0 positif| Browser
+    Engine[Même moteur TypeScript compilé] --> Node
+    Engine --> Android
+    subgraph OptionPC[Option 1 — PC personnel hôte]
+        Node[Serveur Node et SQLite]
+        PixelClient[Chrome du Pixel — joueur]
+        PixelClient <-->|HTTPS et WSS locaux testés| Node
     end
-    subgraph Phone[Pixel 7 - Android 17]
-        Probe[Sonde Android Java-WebSocket]
+    subgraph OptionAndroid[Option 2 — Pixel hôte]
+        Android[Service Android et SQLite natif]
+        PCBrowser[Chrome PC — animateur et joueurs de test]
+        PCBrowser <-->|HTTP et ws locaux testés| Android
     end
-    Client <-->|ws sur le Wi-Fi existant : P7 positif| Probe
-    Browser -.->|connexion navigateur à vérifier| Probe
-    Tools -.->|installation et diagnostic par Wi-Fi| Probe
 ```
 
-Le serveur sur PC fournit les fichiers de la page de diagnostic. Il n'héberge aucune partie. Le serveur sur le Pixel répond seulement aux messages ping. Un client Node.js sur PC a confirmé le retour pong ; la connexion depuis le navigateur reste à consigner séparément.
+Les deux hôtes exécutent le même moteur : trois questions, réponse définitive, pause/reprise, correction, question suivante et classement cumulé. Chaque hôte possède son adaptateur réseau et son stockage SQLite ; aucune règle de score n'est réécrite en Java. Les interfaces web et le contrat des messages sont communs.
 
-Le PC et le téléphone utilisent pour cet essai le réseau local existant. Le Pixel n'est pas encore testé en point d'accès. Le lien ADB est un outil de développement : les joueurs n'en auront pas besoin.
+Le Pixel hôte a été utilisé sur le Wi-Fi habituel puis via son point d'accès. Une reprise après arrêt forcé conserve les réponses déjà confirmées et gèle la question courante. Le lien ADB sert à installer et vérifier l'application ; il ne transporte pas les commandes du jeu. Les joueurs n'en ont pas besoin.
 
-P0 valide le rechargement de la page après arrêt du serveur selon le retour manuel ; P7 valide un échange WebSocket sans chiffrement au premier plan. Aucun des deux ne démontre encore une PWA HTTPS sur téléphone en réseau sans Internet.
+Le montage Android actuel sert les pages en HTTP et échange en ws sur réseau de test. Une PWA HTTPS préchargée vers un hôte Android sécurisé reste à valider séparément. Voir [P16](../experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) pour les preuves et l'état exact du test sans Internet.
 
 ## 2. Cible locale : Android héberge la partie
 
@@ -58,7 +56,7 @@ L'orchestrateur reçoit les commandes, contrôle les droits et demande au moteur
 
 L'animateur pilote ; l'hôte exécute. Ces rôles peuvent être sur le même appareil ou sur deux appareils distincts. Héberger sur le téléphone d'un joueur ne lui donne aucun droit d'animation.
 
-Le runtime Android du moteur, la connexion sécurisée depuis la PWA, la persistance après panne et le maintien en arrière-plan restent à tester.
+Le moteur embarqué et une reprise après arrêt forcé ont une première preuve sur Pixel. La connexion sécurisée depuis la PWA, les autres types de panne, l'endurance et le maintien prolongé en veille restent à éprouver.
 
 ## 3. Cible en salle : projection depuis un PC d'entreprise
 

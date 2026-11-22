@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#142637">
-  <title>Kuikuiz — Une question ensemble</title>
+  <title>Kuikuiz — Trois questions ensemble</title>
   <link rel="stylesheet" href="/style.css">
   <script type="module" src="/app.js"></script>
 </head>
 <body>
-  <header class="topbar"><a class="brand" href="/">kuikuiz<span class="brand-dot">.</span></a><span class="prototype">Maquette · 1 question</span></header>
+  <header class="topbar"><a class="brand" href="/">kuikuiz<span class="brand-dot">.</span></a><span class="prototype">Maquette · 3 questions</span></header>
   <main>
     <section id="welcome" class="welcome">
-      <p class="eyebrow">À vous de jouer</p><h1>Une question.<br>Tout le monde participe.</h1>
+      <p class="eyebrow">À vous de jouer</p><h1>Trois questions.<br>Tout le monde participe.</h1>
       <p class="intro">Rassemblez les joueurs, lancez le chrono et découvrez les résultats ensemble.</p>
       <div class="entry-grid"><a class="entry-card" href="/animateur"><span class="card-icon">✦</span><h2>J’anime la partie</h2><p>Ouvrir une salle et mener le jeu.</p><span class="entry-action">Espace animateur</span></a>
       <a class="entry-card player-entry" href="/joueur"><span class="card-icon">?</span><h2>Je participe</h2><p>Un code, un pseudo, et c’est parti.</p><span class="entry-action">Rejoindre la partie</span></a></div>
-      <p class="footnote">Pour ce premier essai, ouvrez l’animateur et un joueur dans deux onglets du PC.</p>
+      <p class="footnote">Sur le même réseau local, ouvrez un écran animateur et un écran par joueur.</p>
     </section>
     <section id="setup" class="setup" hidden>
       <p id="setup-eyebrow" class="eyebrow"></p><h1 id="setup-title"></h1>
@@ -26,7 +26,7 @@
           <label for="name">Votre pseudo</label><input id="name" maxlength="24" autocomplete="nickname" placeholder="Comment vous appelle-t-on ?" required>
           <button type="submit" class="primary">Rejoindre la salle</button>
         </form>
-        <div id="create-panel" hidden><p>Une question de culture générale, 30 secondes et jusqu’à 1 000 points. Les joueurs rejoignent avant le lancement.</p><button id="create" class="primary">Créer une partie</button></div>
+        <div id="create-panel" hidden><p>Trois questions de culture générale, 30 secondes par question et jusqu’à 3 000 points. Les joueurs rejoignent avant le lancement.</p><button id="create" class="primary">Créer une partie</button></div>
       </div>
     </section>
     <section id="game" hidden>
@@ -35,14 +35,14 @@
       <div class="game-grid">
         <section class="panel question-panel">
           <div id="lobby-content"><span class="large-symbol">✦</span><h2>Tout commence ici.</h2><p id="lobby-instruction"></p></div>
-          <div id="question-content" hidden><div class="question-top"><span class="pill">Question 1 / 1</span><span id="timer" class="timer" aria-label="Temps restant"></span></div><progress id="time-progress" max="30000" value="30000" aria-label="Temps restant"></progress>
+          <div id="question-content" hidden><div class="question-top"><span id="question-number" class="pill">Question 1 / 3</span><span id="timer" class="timer" aria-label="Temps restant"></span></div><progress id="time-progress" max="30000" value="30000" aria-label="Temps restant"></progress>
           <h2 id="question-title"></h2><fieldset id="choices"><legend class="sr-only">Choisissez une réponse</legend></fieldset>
           <button id="submit-answer" class="primary" hidden>Confirmer ma réponse</button><p id="receipt" role="status"></p></div>
-          <div id="host-controls" class="controls" hidden><button id="start" class="primary">Lancer la question</button><button id="pause">Mettre en pause</button><button id="resume">Reprendre</button><button id="reveal">Révéler les résultats</button></div>
+          <div id="host-controls" class="controls" hidden><button id="start" class="primary">Lancer la question</button><button id="pause">Mettre en pause</button><button id="resume">Reprendre</button><button id="reveal">Révéler les résultats</button><button id="next" class="primary">Question suivante</button></div>
         </section>
         <aside class="panel participants"><p class="eyebrow">La salle</p><h2>Les participants <span id="participant-count">0</span></h2><ul id="players"></ul><p id="empty-players">Personne pour le moment. Partagez le code !</p><a id="player-link" class="text-link" href="/joueur" target="_blank" rel="noopener">Ouvrir un onglet joueur</a></aside>
       </div>
-      <section id="results" class="panel results" hidden><p class="eyebrow">Bien joué !</p><h2>Le classement</h2><p id="correction"></p><table><caption class="sr-only">Classement final de la question</caption><thead><tr><th>Place</th><th>Joueur</th><th>Points</th></tr></thead><tbody id="ranking"></tbody></table><button id="new-room" hidden>Créer une nouvelle partie</button></section>
+      <section id="results" class="panel results" hidden><p class="eyebrow">Bien joué !</p><h2 id="ranking-title">Le classement cumulé</h2><p id="correction"></p><table><caption class="sr-only">Classement cumulé du quiz</caption><thead><tr><th>Place</th><th>Joueur</th><th>Points</th></tr></thead><tbody id="ranking"></tbody></table><button id="new-room" hidden>Créer une nouvelle partie</button></section>
     </section>
     <p id="error" class="error" role="alert" hidden></p>
     <button id="forget" class="text-button" hidden>Revenir à l’accueil</button>

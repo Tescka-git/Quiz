@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import { createServer as createHttpsServer } from 'node:https';
 import { WebSocketServer, WebSocket } from 'ws';
 import { readFile, mkdir } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
@@ -6,23 +7,28 @@ import { resolve } from 'node:path';
 import { createContext, runInContext } from 'node:vm';
 import { createHash } from 'node:crypto';
 import { performance } from 'node:perf_hooks';
-import { SqliteSessionStore } from './persistence/sqlite-session-store.mjs';
+import { SqliteQuizStore } from './persistence/sqlite-quiz-store.mjs';
 import { MockRooms } from './mock-rooms.mjs';
 import { parseClientMessage } from '../../packages/protocol/mock.mjs';
 
-export async function createMockServer({filename,clock=()=>performance.now(),timers=true}={}) {
+export async function createMockServer({filename,clock=()=>performance.now(),timers=true,tls}={}) {
   const bytes=await readFile(new URL('../../artifacts/engine/engine.js',import.meta.url));
   const manifest=JSON.parse(await readFile(new URL('../../artifacts/engine/manifest.json',import.meta.url),'utf8'));
   if(createHash('sha256').update(bytes).digest('hex')!==manifest.sha256)throw new Error('Invalid engine hash');
   const context=createContext(Object.create(null));runInContext(bytes.toString(),context);
-  const store=new SqliteSessionStore(filename,context.KuikuizEngine);
+  runInContext(await readFile(new URL('../../packages/protocol/mock-presentation.js',import.meta.url),'utf8'),context);
+  const store=new SqliteQuizStore(filename,context.KuikuizEngine);
   let rooms;
-  try {rooms=new MockRooms(filename,store,context.KuikuizEngine,manifest.sha256,clock);}catch(error){store.close();throw error;}
+  try {rooms=new MockRooms(filename,store,context.KuikuizEngine,manifest.sha256,clock,
+    {snapshot:context.kuikuizSnapshot,command:context.kuikuizCommand,admission:context.kuikuizAdmission});}catch(error){store.close();throw error;}
   const routes=new Map([['/','index.html'],['/animateur','index.html'],['/joueur','index.html'],['/app.js','app.js'],['/style.css','style.css']]);
-  const trustedOrigin=request=>request.headers.origin===`http://${request.headers.host}`;
-  const server=createServer(async(request,response)=>{
+  const trustedOrigin=request=>request.headers.origin===`${tls?'https':'http'}://${request.headers.host}`;
+  const handler=async(request,response)=>{
     try {
       const path=new URL(request.url,'http://localhost').pathname;
+      if(path==='/connection.json'&&request.method==='GET'){
+        response.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify({socketPath:'/socket'}));return;
+      }
       if(path==='/api/rooms'&&request.method==='POST') {
         if(!trustedOrigin(request)){response.writeHead(403).end();return;}
         const created=rooms.create();response.writeHead(201,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify(created));return;
@@ -33,7 +39,8 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
         'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"}).end(body);
     }catch{response.writeHead(500).end('Service indisponible');}
-  });
+  };
+  const server=tls?createHttpsServer({...tls,minVersion:'TLSv1.2'},handler):createServer(handler);
   const wss=new WebSocketServer({noServer:true,maxPayload:4096});
   server.on('upgrade',(request,socket,head)=>{
     if(request.url!=='/socket'||!trustedOrigin(request)){socket.end('HTTP/1.1 403 Forbidden\r\nConnection: close\r\n\r\n');return;}
@@ -66,7 +73,7 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
         }
         if(['host','player','join'].includes(message.type))throw new Error('forbidden');
         const result=rooms.command(socket.identity,message);
-        if(message.type==='answer')send(socket,{v:1,type:'answer-result',submissionId:message.submissionId,
+        if(message.type==='answer')send(socket,{v:1,type:'answer-result',questionId:message.questionId,submissionId:message.submissionId,
           confirmed:result.confirmed,status:result.status});
         publish();
       }catch(error){send(socket,{v:1,type:'error',code:knownErrors.has(error.message)?error.message:'storage-failed'});}
@@ -83,7 +90,10 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
 }
 if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)) {
   const directory=new URL('../../.tools/mock/',import.meta.url);await mkdir(directory,{recursive:true});
-  const app=await createMockServer({filename:fileURLToPath(new URL('game.sqlite',directory))});
-  app.server.listen(4180,'127.0.0.1',()=>console.log('Kuikuiz : http://localhost:4180 — animateur et joueurs dans des onglets séparés.'));
+  const secure=process.argv.includes('--https');
+  const tls=secure?{pfx:await readFile(new URL('../../.tools/tls/pc.p12',import.meta.url)),
+    passphrase:(await readFile(new URL('../../.tools/tls/password.txt',import.meta.url),'utf8')).trim()}:undefined;
+  const app=await createMockServer({filename:fileURLToPath(new URL('quiz-v2.sqlite',directory)),tls});
+  app.server.listen(4180,secure?'0.0.0.0':'127.0.0.1',()=>console.log(secure?'Kuikuiz HTTPS local : port 4180. Certificat de test existant.':'Kuikuiz : http://localhost:4180'));
   for(const signal of ['SIGINT','SIGTERM'])process.once(signal,()=>app.stop().then(()=>process.exit(0)));
 }

@@ -1,6 +1,6 @@
 import { chromium } from 'playwright-core';
 import assert from 'node:assert/strict';
-import { mkdtemp,rm,mkdir } from 'node:fs/promises';
+import { mkdtemp,rm,mkdir,writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join,resolve } from 'node:path';
 import { once } from 'node:events';
@@ -9,17 +9,21 @@ import { createMockServer } from '../apps/server-node/mock-server.mjs';
 
 await buildEngine();
 const directory=await mkdtemp(join(tmpdir(),'kuikuiz-browser-'));
-const app=await createMockServer({filename:join(directory,'game.sqlite')});
+const app=process.env.KUIKUIZ_ORIGIN?null:await createMockServer({filename:join(directory,'game.sqlite')});
 let browser;
 try{
-  app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
-  const origin=`http://127.0.0.1:${app.server.address().port}`;
+  if(app){app.server.listen(0,'127.0.0.1');await once(app.server,'listening');}
+  const origin=process.env.KUIKUIZ_ORIGIN||`http://127.0.0.1:${app.server.address().port}`;
   browser=await chromium.launch({executablePath:process.env.KUIKUIZ_CHROME||'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',headless:true});
   const hostContext=await browser.newContext({viewport:{width:1280,height:900}});
   const playerContext=await browser.newContext({viewport:{width:390,height:844}});
   const otherContext=await browser.newContext({viewport:{width:900,height:800}});
   const host=await hostContext.newPage(),player=await playerContext.newPage(),other=await otherContext.newPage();
   const errors=[];for(const page of [host,player,other])page.on('pageerror',e=>errors.push(e.message));
+  const outsideRequests=[];
+  for(const context of [hostContext,playerContext,otherContext])context.on('request',request=>{
+    if(!request.url().startsWith(origin+'/'))outsideRequests.push(request.url());
+  });
   await host.goto(origin+'/animateur');await host.getByRole('button',{name:'Créer une partie',exact:true}).click();
   await host.locator('#room-code').waitFor({state:'visible'});const code=await host.locator('#room-code').innerText();
   for(const [page,name] of [[player,'Camille'],[other,'Alex']]){
@@ -50,6 +54,20 @@ try{
   assert.match(await player.locator('#correction').innerText(),/Mars/);
   assert.equal(await player.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);
   await player.screenshot({path:'artifacts/mock-preview/joueur-resultats.png',fullPage:true});
+  for(const [number,choice] of [[2,'Pacifique'],[3,'Six']]){
+    await host.getByRole('button',{name:'Question suivante',exact:true}).click();
+    await player.waitForFunction(n=>document.getElementById('question-number').textContent===`Question ${n} / 3`,number);
+    assert.equal(await player.locator('#results').isHidden(),true);
+    await player.getByRole('radio',{name:choice,exact:true}).check();
+    await player.getByRole('button',{name:'Confirmer ma réponse'}).click();
+    await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 2 réponses confirmées');
+    await host.getByRole('button',{name:'Révéler les résultats'}).click();
+    await player.locator('#results').waitFor({state:'visible'});
+    assert.match(await player.locator('#ranking tr').first().innerText(),new RegExp(`${number}[\\s\\u202f\\u00a0]?000`));
+  }
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='La partie est terminée !');
+  assert.equal(await host.locator('#next').isHidden(),true);
+  await player.screenshot({path:'artifacts/mock-preview/joueur-final.png',fullPage:true});
   await host.getByRole('button',{name:'Créer une nouvelle partie'}).click();
   await host.getByRole('button',{name:'Créer une partie',exact:true}).click();
   await host.locator('#room-code').waitFor({state:'visible'});const nextCode=await host.locator('#room-code').innerText();
@@ -59,9 +77,12 @@ try{
   await player.locator('#name').fill('Camille');await player.getByRole('button',{name:'Rejoindre la salle'}).click();
   await player.locator('#room-code').waitFor({state:'visible'});assert.equal(await player.locator('#room-code').innerText(),nextCode);
   assert.deepEqual(errors,[]);
-  console.log('PASS : deux joueurs, pause/reprise, réponses confirmées, rechargement, correction et classement. Captures dans artifacts/mock-preview.');
+  assert.deepEqual(outsideRequests,[]);
+  await writeFile('artifacts/mock-preview/browser-report.json',JSON.stringify({date:new Date().toISOString(),origin,result:'PASS',
+    scenario:'3 questions, 2 joueurs, pause/reprise, rechargement, cumul et nouvelle salle',score:3000,outsideRequests},null,2));
+  console.log('PASS : trois questions, score cumulé 3000 points, deux joueurs, pause/reprise, rechargement et nouvelle partie.');
 }finally{
-  if(browser)await browser.close();await app.stop();
+  if(browser)await browser.close();if(app)await app.stop();
   const path=resolve(directory);assert.ok(path.startsWith(resolve(tmpdir())+'\\kuikuiz-browser-')||path.startsWith(resolve(tmpdir())+'/kuikuiz-browser-'));
   await rm(directory,{recursive:true,force:true});
 }

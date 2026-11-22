@@ -7,6 +7,7 @@
     <application android:label="Kuikuiz — Sonde réseau" android:allowBackup="false"
         android:theme="@android:style/Theme.Material.Light.NoActionBar">
         <service android:name=".ProbeService" android:exported="false" android:foregroundServiceType="connectedDevice" />
+        <service android:name=".QuizService" android:exported="false" android:foregroundServiceType="connectedDevice" />
         <activity android:name=".EngineProbeActivity" android:exported="false" />
         <activity android:name=".DurabilityProbeActivity" android:exported="false" />
         <activity android:name=".MainActivity" android:exported="true">

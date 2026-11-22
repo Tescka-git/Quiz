@@ -42,6 +42,7 @@ final class EngineBridge implements AutoCloseable {
     JSONObject json(String expression) throws Exception {
         return new JSONObject(isolate.evaluateJavaScriptAsync("JSON.stringify("+expression+")").get(20,TimeUnit.SECONDS));
     }
+    void evaluate(String script) throws Exception { isolate.evaluateJavaScriptAsync(script).get(20,TimeUnit.SECONDS); }
     static String value(JSONObject object) { return "JSON.parse("+JSONObject.quote(object.toString())+")"; }
     @Override public void close() { isolate.close(); sandbox.close(); }
 }

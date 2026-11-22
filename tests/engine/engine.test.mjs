@@ -17,6 +17,30 @@ const question = { id: 'q1', options: ['a', 'b'], correctOption: 'a', durationMs
 const answer = (playerId = 'p1', submissionId = 's1', option = 'a') => ({ type: 'answer', playerId, submissionId, option });
 const fresh = (q = question) => engine.create(q, ['p1', 'p2', 'p3'], 1000);
 
+test('quiz : progression immuable, questions distinctes, cumul et fin sans réouverture', () => {
+  const questions=['q1','q2','q3'].map(id=>({...question,id,scoring:'fixed'}));
+  assert.throws(()=>engine.createQuiz([],['p1'],0));
+  assert.throws(()=>engine.createQuiz([questions[0],questions[0]],['p1'],0));
+  let state=engine.createQuiz(questions,['p1','p2','p3'],0);
+  const input=state;
+  const original=JSON.stringify(state);
+  assert.equal(engine.applyQuiz(state,{type:'next'},0,'q1').status,'invalid-phase');
+  for(let i=0;i<3;i++){
+    const id=questions[i].id;
+    const stale=engine.applyQuiz(state,answer(),i,'previous');assert.equal(stale.status,'stale-question');assert.equal(stale.state,state);
+    state=engine.applyQuiz(state,answer('p1','same-id'),i,id).state;
+    state=engine.applyQuiz(state,answer('p2','tie-id'),i,id).state;
+    state=engine.applyQuiz(state,{type:'close'},i,id).state;
+    const ranking=JSON.parse(JSON.stringify(engine.quizRanking(state)));
+    assert.deepEqual(ranking.map(row=>[row.rank,row.points]),[[1,(i+1)*1000],[1,(i+1)*1000],[3,0]]);
+    if(i<2)state=engine.applyQuiz(state,{type:'next'},i,id).state;
+  }
+  assert.equal(engine.applyQuiz(state,{type:'next'},3,'q3').status,'invalid-phase');
+  const recovered=engine.recoverQuiz(JSON.parse(JSON.stringify(state)),0);assert.equal(recovered.current.phase,'closed');assert.equal(recovered.completed.length,2);
+  assert.equal(JSON.stringify(input),original);
+  assert.equal(questions[0].options.length,2);
+});
+
 test('artefact autonome : score attendu, aucun effet sur les entrées', () => {
   const input = fresh(); const snapshot = JSON.stringify(input);
   const result = engine.apply(input, answer(), 6000);

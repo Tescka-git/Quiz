@@ -20,13 +20,14 @@ npm test
 - `create(question, players, nowMs)` fige une copie de la configuration initiale.
 - `apply(state, command, nowMs)` retourne un nouvel état et un résultat sans modifier ses entrées. Le temps monotone autoritaire est fourni par l'appelant ; aucun accès à l'horloge du système.
 - `ranking(state)` retourne le classement de cette question. L'adaptateur devra appliquer les règles de visibilité et ne pas exposer ce classement prématurément.
+- `createQuiz(questions, players, nowMs)`, `applyQuiz(state, command, nowMs, questionId)` et `recoverQuiz(state, nowMs)` ajoutent la progression entre questions isolées et la reprise gelée de la question courante. `quizRanking(state)` cumule les réponses conservées avec classement de compétition. Une commande d'une autre question est refusée ; `next` exige une correction publiée et une question restante.
 - `recover(state, nowMs)` restaure le dernier état sauvegardé en pause et remplace l'origine de temps ; réponses et scores restent conservés. Une session clôturée ne se rouvre pas. L'instant fourni appartient à la nouvelle horloge autoritaire et peut être inférieur au précédent.
 - La commande `checkpoint` actualise le temps sans changer la phase ; son enregistrement durable appartient à l'adaptateur. En pause ou après clôture, elle n'ajoute pas de temps.
 - L'appelant est responsable de la validation des données réseau, de l'authentification des commandes animateur, de la sérialisation des commandes et des transactions.
 
-`accepted-in-memory` signifie uniquement que la règle a accepté la réponse dans l'état retourné. Ce résultat n'autorise pas une confirmation durable au joueur : celle-ci exige un commit dans un adaptateur de stockage encore absent.
+`accepted-in-memory` signifie uniquement que la règle a accepté la réponse dans l'état retourné. Ce résultat n'autorise pas une confirmation durable au joueur : celle-ci exige un commit dans un adaptateur de stockage. Les adaptateurs expérimentaux sont désormais présents sur Node et Android ; voir [P16](../../docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md).
 
-Une retransmission strictement identique retrouve sa réponse, même après clôture et sérialisation. Réutiliser son identifiant pour un autre joueur ou une autre option est un conflit. Les identifiants de soumission doivent être uniques à cette instance de question. Plusieurs questions et tentatives nécessiteront un modèle plus complet.
+Une retransmission strictement identique retrouve sa réponse dans la question courante, même après clôture et sérialisation. Réutiliser son identifiant pour un autre joueur ou une autre option est un conflit. Les identifiants de soumission sont uniques à leur instance de question ; le registre des quiz les indexe par session et question. Après progression, un message de l'ancienne question est refusé sans modifier la nouvelle. Annulation et nouvelle tentative d'une même question restent hors périmètre.
 
 ## Conventions expérimentales à confirmer
 
@@ -44,6 +45,8 @@ Le build refuse les dépendances npm d'exécution du manifeste moteur, les impor
 L'absence d'import et de dépendance directe exclut ici toute chaîne de dépendances d'exécution transitives. Les bibliothèques du compilateur restent des outils de développement. Ces contrôles servent de garde-fous d'architecture, pas de bac à sable pour du code hostile.
 
 ## Preuves encore absentes
+
+Au 22 novembre, [P16](../../docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) vérifie également le parcours de trois questions sur le Pixel hôte, sans Node.js, avec l'empreinte `672ba13691f39a3411f540f21e92b975d9e8ac084cd04ac7c8db62e7c5a5d11e`. Le scénario réseau attend les mêmes scores et vérifie doublons/reconnexion ; la comparaison de traces P11/P13 reste attachée à ses scénarios historiques. Le manifeste de compilation garde `androidValidated: false` : un build seul ne certifie jamais Android ; les rapports documentent les essais réellement faits.
 
 AndroidX JavaScriptEngine 1.1.1 a exécuté avec succès le même artefact sur Pixel 7 / Android 17 : empreinte identique et trace du scénario commun identique à Node.js. Le choix définitif reste ouvert. Ce résultat ne prouve ni persistance SQLite, ni charge de 30 joueurs, ni maintien en arrière-plan du futur moteur. Voir [P11](../../docs/experiments/P11_MOTEUR_ANDROID.md).
 

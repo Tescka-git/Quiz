@@ -7,9 +7,13 @@ export const question = {
   choices:[{id:'mars',text:'Mars'},{id:'venus',text:'Vénus'},{id:'jupiter',text:'Jupiter'},{id:'saturne',text:'Saturne'}],
   correctOption:'mars',durationMs:30000,maxPoints:1000,scoring:'fixed'
 };
+export const questions=[question,
+  {id:'ocean',text:'Quel est le plus grand océan ?',choices:[{id:'pacifique',text:'Pacifique'},{id:'atlantique',text:'Atlantique'},{id:'indien',text:'Indien'},{id:'arctique',text:'Arctique'}],correctOption:'pacifique',durationMs:30000,maxPoints:1000,scoring:'fixed'},
+  {id:'hexagone',text:'Combien de côtés possède un hexagone ?',choices:[{id:'six',text:'Six'},{id:'cinq',text:'Cinq'},{id:'huit',text:'Huit'},{id:'dix',text:'Dix'}],correctOption:'six',durationMs:30000,maxPoints:1000,scoring:'fixed'}];
 export class MockRooms {
-  constructor(filename, store, engine, engineHash, clock) {
+  constructor(filename, store, engine, engineHash, clock,project) {
     this.store=store;this.engine=engine;this.clock=clock;this.engineHash=engineHash;
+    this.project=project;
     this.db=new DatabaseSync(filename);
     this.db.exec(`PRAGMA foreign_keys=ON; PRAGMA synchronous=EXTRA;
       CREATE TABLE IF NOT EXISTS mock_rooms(id TEXT PRIMARY KEY,code TEXT UNIQUE NOT NULL,host_hash TEXT NOT NULL,engine_hash TEXT NOT NULL,question_json TEXT NOT NULL);
@@ -25,7 +29,7 @@ export class MockRooms {
   room(id) {const row=this.db.prepare('SELECT * FROM mock_rooms WHERE id=?').get(id);if(!row)throw new Error('unknown-room');return row;}
   create() {
     const id=token(),secret=token(),code=randomBytes(4).toString('hex').toUpperCase();
-    this.db.prepare('INSERT INTO mock_rooms VALUES (?,?,?,?,?)').run(id,code,hash(secret),this.engineHash,JSON.stringify(question));
+    this.db.prepare('INSERT INTO mock_rooms VALUES (?,?,?,?,?)').run(id,code,hash(secret),this.engineHash,JSON.stringify(questions));
     return {role:'host',roomId:id,token:secret,code};
   }
   authenticate(role,id,secret) {
@@ -37,7 +41,7 @@ export class MockRooms {
   join(code,name) {
     const room=this.db.prepare('SELECT * FROM mock_rooms WHERE code=?').get(code);
     if(!room)throw new Error('unknown-room');
-    if(this.state(room.id))throw new Error('already-started');
+    const admission=this.project.admission(Boolean(this.state(room.id)));if(admission.error)throw new Error(admission.error);
     const id=token(),secret=token();
     this.db.prepare('INSERT INTO mock_players VALUES (?,?,?,?)').run(id,room.id,name,hash(secret));
     return {role:'player',roomId:room.id,playerId:id,token:secret,code};
@@ -45,47 +49,25 @@ export class MockRooms {
   players(id) {return this.db.prepare('SELECT id,name FROM mock_players WHERE room_id=? ORDER BY rowid').all(id);}
   command(identity,message) {
     const id=identity.roomId;const frozenQuestion=JSON.parse(this.room(id).question_json);
-    if(message.type==='sync')return;
-    if(message.type==='answer') {
-      if(identity.role!=='player')throw new Error('forbidden');
-      if(!this.state(id))throw new Error('not-started');
-      return this.store.dispatch(id,{type:'answer',playerId:identity.playerId,submissionId:message.submissionId,option:message.option},this.clock());
-    }
-    if(identity.role!=='host')throw new Error('forbidden');
-    if(message.type==='start') {
-      if(this.state(id))throw new Error('already-started');
+    const command=this.project.command(identity,message,Boolean(this.state(id)));if(command.error)throw new Error(command.error);
+    if(command.type==='sync')return;
+    if(command.type==='start') {
       const roster=this.players(id);if(!roster.length)throw new Error('no-players');
-      return this.store.create(id,{id:frozenQuestion.id,options:frozenQuestion.choices.map(c=>c.id),correctOption:frozenQuestion.correctOption,
-        durationMs:frozenQuestion.durationMs,maxPoints:frozenQuestion.maxPoints,scoring:frozenQuestion.scoring},roster.map(p=>p.id),this.clock());
+      return this.store.create(id,frozenQuestion.map(q=>({id:q.id,options:q.choices.map(c=>c.id),correctOption:q.correctOption,
+        durationMs:q.durationMs,maxPoints:q.maxPoints,scoring:q.scoring})),roster.map(p=>p.id),this.clock());
     }
-    if(!this.state(id))throw new Error('not-started');
-    const type=message.type==='reveal'?'close':message.type;
-    if(!['pause','resume','close'].includes(type))throw new Error('invalid-message');
-    return this.store.dispatch(id,{type},this.clock());
+    return this.store.dispatch(id,command,this.clock(),message.questionId);
   }
   snapshot(identity) {
-    const room=this.room(identity.roomId),state=this.state(room.id),players=this.players(room.id),frozenQuestion=JSON.parse(room.question_json);
-    const snapshot={v:1,type:'state',role:identity.role,roomId:room.id,code:room.code,players,
-      phase:'lobby',answered:0,total:players.length,remainingMs:frozenQuestion.durationMs,ownAnswer:null};
-    if(!state)return snapshot;
-    const elapsed=state.elapsedMs+(state.phase==='open'?Math.max(0,this.clock()-state.lastNowMs):0);
-    snapshot.phase=state.phase==='open'&&elapsed>=state.question.durationMs?'expired':state.phase;
-    snapshot.remainingMs=Math.max(0,state.question.durationMs-elapsed);
-    snapshot.answered=state.answers.length;
-    snapshot.question={text:frozenQuestion.text,choices:frozenQuestion.choices};
-    const own=state.answers.find(a=>a.playerId===identity.playerId);
-    if(own)snapshot.ownAnswer={submissionId:own.submissionId,option:own.option};
-    if(state.phase==='closed') {
-      snapshot.correctOption=state.question.correctOption;
-      snapshot.ranking=this.engine.ranking(state).map(row=>({...row,name:players.find(p=>p.id===row.playerId)?.name}));
-    }
-    return snapshot;
+    const room=this.room(identity.roomId);
+    return this.project.snapshot(this.state(room.id),{id:room.id,code:room.code,questions:JSON.parse(room.question_json)},
+      this.players(room.id),identity,this.clock());
   }
   checkpoint() {
     for(const room of this.db.prepare('SELECT id FROM mock_rooms').all()) {
-      const state=this.state(room.id);
+      const state=this.state(room.id)?.current;
       if(state?.phase==='open'&&state.elapsedMs<state.question.durationMs)
-        this.store.dispatch(room.id,{type:'checkpoint'},this.clock());
+        this.store.dispatch(room.id,{type:'checkpoint'},this.clock(),state.question.id);
     }
   }
   close(){this.db.close();}

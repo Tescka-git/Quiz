@@ -3,6 +3,7 @@
 Les points ci-dessous ne sont pas des décisions techniques définitives.
 
 ## Faisabilité prioritaire
+- **Assemblage jouable au 22 novembre** : trois questions sur Node et Pixel hôte, cumul, droits, réponses réseau confirmées et reprise après arrêt forcé positifs dans [P16](experiments/P16_MAQUETTE_TROIS_QUESTIONS.md). HTTP/ws sur Android seulement ; WSS, PWA complète hors ligne, endurance et capacité sur téléphones physiques restent ouverts. NanoHTTPD 2.3.1 reste limité à l'adaptateur HTTP expérimental.
 - **Android hôte** : comment exécuter le moteur TypeScript commun avec un serveur WebSocket local ? Comparer les adaptateurs/environnements possibles et les restrictions du système.
 - **PWA préchargée et réseau local** : vérifier les restrictions HTTPS/WSS, certificats, contenus mixtes, service workers, Android et iOS ; ne pas supposer que la seule installation de la PWA suffit.
 - **Compatibilité navigateurs** : recette suivie dans `docs/experiments/CHECKLIST_NAVIGATEURS.md` : Chrome, Firefox et Samsung Browser sur Android ; Safari, Chrome et Firefox sur iOS. Firefox reste une cible, son incident TLS Pixel est différé mais doit être résolu avant déclaration de compatibilité. Versions minimales et fenêtre de support restent à définir.

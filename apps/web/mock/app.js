@@ -1,4 +1,5 @@
 const $=id=>document.getElementById(id);
+const configuration=await fetch('/connection.json').then(response=>{if(!response.ok)throw new Error('Configuration indisponible');return response.json();});
 const role=location.pathname==='/animateur'?'host':location.pathname==='/joueur'?'player':null;
 const key=role?`kuikuiz.mock.${role}`:null;
 let credentials;try{credentials=key?JSON.parse(localStorage.getItem(key)):null;}catch{}
@@ -14,7 +15,8 @@ function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringi
 function send(message){if(!connected)return false;socket.send(JSON.stringify({v:1,...message}));return true;}
 function connect(){
   clearTimeout(retry);stopped=false;
-  socket=new WebSocket(`${location.protocol==='https:'?'wss':'ws'}://${location.host}/socket`);
+  const endpoint=new URL(configuration.socketPath,location.href);endpoint.protocol=endpoint.protocol==='https:'?'wss:':endpoint.protocol==='http:'?'ws:':endpoint.protocol;
+  socket=new WebSocket(endpoint);
   socket.onopen=()=>{
     connected=true;
     if(credentials)send({...credentials,type:role});
@@ -25,15 +27,17 @@ function connect(){
     const message=JSON.parse(data);
     if(message.type==='credentials'){save(message);joinDetails=null;}
     if(message.type==='state'){
+      if(snapshot?.questionId!==message.questionId){selected='';pending=null;clearTimeout(ackTimeout);$('choices').querySelectorAll('.choice').forEach(node=>node.remove());error('');}
       snapshot=message;anchor=performance.now();
       if(message.ownAnswer){selected=message.ownAnswer.option;pending=null;clearTimeout(ackTimeout);}
       render();
     }
     if(message.type==='answer-result'){
+      if(message.questionId!==snapshot?.questionId||message.submissionId!==pending?.id)return;
       pending=null;clearTimeout(ackTimeout);
       if(message.confirmed){$('receipt').textContent='Réponse confirmée et enregistrée.';error('');}
       else error(({paused:'La partie est en pause.',late:'Le temps est écoulé.',closed:'La question est terminée.',
-        'already-answered':'Votre première réponse est définitive.','submission-conflict':'Identifiant de réponse déjà utilisé.'})[message.status]||'La réponse n’a pas été acceptée.');
+        'stale-question':'Cette réponse concerne une question précédente.','already-answered':'Votre première réponse est définitive.','submission-conflict':'Identifiant de réponse déjà utilisé.'})[message.status]||'La réponse n’a pas été acceptée.');
       if(snapshot)render();
     }
     if(message.type==='error'){
@@ -54,7 +58,9 @@ function tick(){if(!snapshot)return;const left=remaining();$('timer').textConten
 function render(){
   $('welcome').hidden=true;$('setup').hidden=true;$('game').hidden=false;$('forget').hidden=false;
   $('room-code').textContent=snapshot.code;$('role-label').textContent=role==='host'?'Espace animateur':'Vous êtes dans la partie';
-  $('phase-title').textContent=({lobby:'On vous attend.',open:'À vous de jouer !',paused:'On fait une pause.',expired:'Le temps est écoulé.',closed:'Les résultats sont là.'})[snapshot.phase];
+  $('phase-title').textContent=snapshot.final?'La partie est terminée !':({lobby:'On vous attend.',open:'À vous de jouer !',paused:'On fait une pause.',expired:'Le temps est écoulé.',closed:'Les résultats sont là.'})[snapshot.phase];
+  $('question-number').textContent=`Question ${snapshot.questionNumber} / ${snapshot.questionCount}`;
+  $('ranking-title').textContent=snapshot.final?'Le classement final':'Le classement cumulé';
   $('connection').textContent=connected?'Connecté à la partie':'Déconnecté — tentative de reconnexion…';
   $('answer-count').textContent=snapshot.phase==='lobby'?`${snapshot.total} participant${snapshot.total>1?'s':''}`:`${snapshot.answered} / ${snapshot.total} réponses confirmées`;
   $('lobby-content').hidden=snapshot.phase!=='lobby';$('question-content').hidden=snapshot.phase==='lobby';
@@ -78,12 +84,12 @@ function render(){
   $('receipt').textContent=snapshot.ownAnswer?'Réponse confirmée et enregistrée.':pending?(pending.sending?'Envoi en cours…':'Confirmation non reçue. Vous pouvez renvoyer la même réponse.'):
     role==='player'?'Votre réponse sera définitive après confirmation.':'';
   $('host-controls').hidden=role!=='host';
-  for(const id of ['start','pause','resume','reveal']){
-    $(id).hidden=id==='start'?snapshot.phase!=='lobby':id==='pause'?snapshot.phase!=='open':id==='resume'?snapshot.phase!=='paused':['lobby','closed'].includes(snapshot.phase);
+  for(const id of ['start','pause','resume','reveal','next']){
+    $(id).hidden=id==='next'?snapshot.phase!=='closed'||snapshot.final:id==='start'?snapshot.phase!=='lobby':id==='pause'?snapshot.phase!=='open':id==='resume'?snapshot.phase!=='paused':['lobby','closed'].includes(snapshot.phase);
     $(id).disabled=!connected||(id==='start'&&!snapshot.total);
   }
-  $('results').hidden=snapshot.phase!=='closed';$('new-room').hidden=role!=='host';
-  $('join-another').hidden=role!=='player'||snapshot.phase!=='closed';
+  $('results').hidden=snapshot.phase!=='closed';$('new-room').hidden=role!=='host'||!snapshot.final;
+  $('join-another').hidden=role!=='player'||!snapshot.final;
   if(snapshot.phase==='closed'){
     $('correction').textContent=`La bonne réponse : ${snapshot.question.choices.find(c=>c.id===snapshot.correctOption).text}.`;
     $('ranking').replaceChildren();snapshot.ranking.forEach(row=>{const tr=document.createElement('tr');[row.rank,row.name,`${row.points.toLocaleString('fr-FR')} pts`].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td);});$('ranking').append(tr);});
@@ -93,11 +99,11 @@ function render(){
 $('join-form').onsubmit=event=>{event.preventDefault();error('');joinDetails={code:$('code').value.trim().toUpperCase(),name:$('name').value.trim()};
   if(!joinDetails.name)return;event.submitter.disabled=true;connect();};
 $('create').onclick=async()=>{error('');$('create').disabled=true;try{const response=await fetch('/api/rooms',{method:'POST'});if(!response.ok)throw new Error();save(await response.json());connect();}catch{error('Impossible de créer la partie. Vérifiez le serveur.');}finally{$('create').disabled=false;}};
-for(const id of ['start','pause','resume','reveal'])$(id).onclick=()=>{error('');send({type:id});};
+for(const id of ['start','pause','resume','reveal','next'])$(id).onclick=()=>{error('');send({type:id,questionId:snapshot?.questionId});};
 $('submit-answer').onclick=()=>{
   if(!selected||!connected||pending?.sending)return;
   if(!pending){const bytes=new Uint8Array(16);crypto.getRandomValues(bytes);const id=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');pending={id,option:selected,sending:false};}
-  pending.sending=true;send({type:'answer',submissionId:pending.id,option:pending.option});render();
+  pending.sending=true;send({type:'answer',questionId:snapshot.questionId,submissionId:pending.id,option:pending.option});render();
   ackTimeout=setTimeout(()=>{if(pending){pending.sending=false;send({type:'sync'});render();}},8000);
 };
 $('forget').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();location.href='/';};

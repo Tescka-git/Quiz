@@ -1,6 +1,8 @@
 # Matrice et checklist de compatibilité des navigateurs
 
-**Référence :** 21 novembre 2026. Document vivant : compléter les résultats à chaque essai, sans transformer un test partiel en compatibilité générale.
+**Référence :** 22 novembre 2026. Document vivant : compléter les résultats à chaque essai, sans transformer un test partiel en compatibilité générale.
+
+**Complément P16 :** Chrome 157 sur Pixel 7 a joué les trois questions depuis le serveur Node PC en HTTPS/WSS local, sans contournement TLS par le script côté téléphone. L'autorité de laboratoire était déjà installée ; `isSecureContext=true`, 3 000 points attendus. Cela valide ce parcours client, sans valider l'hôte Android WSS, Firefox, iOS ou le cache PWA de la maquette. Voir [le rapport](P16_MAQUETTE_TROIS_QUESTIONS.md).
 
 ## Périmètre de recette
 

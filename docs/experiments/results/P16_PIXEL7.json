@@ -1,0 +1,111 @@
+{
+  "date": "2026-11-22",
+  "device": "Pixel 7",
+  "androidVersion": "17",
+  "appVersion": "0.6-experiment",
+  "engineSha256": "672ba13691f39a3411f540f21e92b975d9e8ac084cd04ac7c8db62e7c5a5d11e",
+  "nodeTests": {
+    "passed": 31,
+    "tlsPassed": 1
+  },
+  "pixelAsPlayer": {
+    "date": "2026-11-22T08:32:29.848Z",
+    "origin": "https://192.168.1.23:4180",
+    "scenario": "Pixel joueur, Node hôte, trois questions",
+    "secureContext": true,
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36",
+    "score": 3000,
+    "result": "PASS",
+    "notes": "PC de test : exception TLS dans le contexte Playwright seulement. Chrome Pixel : aucun contournement TLS par le script."
+  },
+  "androidRecovery": {
+    "date": "2026-11-22T08:33:23.795Z",
+    "origin": "http://192.168.1.21:8080",
+    "result": "PASS",
+    "oldPid": "15389",
+    "newPid": "16967",
+    "questionAtStop": 2,
+    "score": 3000,
+    "scenario": "Arrêt forcé après confirmation réseau, reprise gelée en question 2, score précédent et réponse retrouvés, fin de partie"
+  },
+  "offlineAndroidHost": {
+    "result": "PASS",
+    "startedAt": "2026-11-22T08:58:28.610Z",
+    "finishedAt": "2026-11-22T08:58:41.755Z",
+    "origin": "http://10.186.21.94:8080",
+    "upstreamShutdown": {
+      "source": "Confirmation utilisateur pendant la séance",
+      "mobileDataDisabled": true,
+      "phoneUpstreamWifiDisabled": true
+    },
+    "networkBefore": {
+      "ethernet": "Disabled",
+      "wifiGateway": "10.186.21.94"
+    },
+    "publicReachabilityBefore": {
+      "date": "2026-11-22T08:58:28.597Z",
+      "scope": "Two public TCP endpoints from PC; combine with interface and Android upstream checks",
+      "isolated": true,
+      "results": [
+        {
+          "host": "1.1.1.1",
+          "reachable": false,
+          "reason": "timeout"
+        },
+        {
+          "host": "8.8.8.8",
+          "reachable": false,
+          "reason": "timeout"
+        }
+      ]
+    },
+    "networkAfter": {
+      "ethernet": "Disabled",
+      "wifiGateway": "10.186.21.94"
+    },
+    "publicReachabilityAfter": {
+      "date": "2026-11-22T08:58:39.428Z",
+      "scope": "Two public TCP endpoints from PC; combine with interface and Android upstream checks",
+      "isolated": true,
+      "results": [
+        {
+          "host": "1.1.1.1",
+          "reachable": false,
+          "reason": "timeout"
+        },
+        {
+          "host": "8.8.8.8",
+          "reachable": false,
+          "reason": "timeout"
+        }
+      ]
+    },
+    "protocol": {
+      "date": "2026-11-22T08:58:30.210Z",
+      "origin": "http://10.186.21.94:8080",
+      "result": "PASS",
+      "scenario": "3 questions, droits, masquage, commit, doublons, reconnexion",
+      "score": 3000,
+      "confirmationMs": [
+        47.214200000000005,
+        34.701599999999985,
+        94.68369999999982
+      ]
+    },
+    "browser": {
+      "date": "2026-11-22T08:58:36.112Z",
+      "origin": "http://10.186.21.94:8080",
+      "result": "PASS",
+      "scenario": "3 questions, 2 joueurs, pause/reprise, rechargement, cumul et nouvelle salle",
+      "score": 3000,
+      "outsideRequests": []
+    }
+  },
+  "limits": [
+    "HTTP/ws sur Android ; WSS Android et PWA HTTPS préchargée non validés",
+    "Clients de cet essai Android hôte : navigateurs PC, pas un deuxième téléphone physique",
+    "Arrêt forcé testé sur Wi-Fi habituel après confirmation réseau ; pas en pleine transaction ni coupure matérielle",
+    "30 joueurs simulés testés sur Node, pas 30 téléphones ni 30 clients Android hôte",
+    "Deux destinations publiques injoignables corroborent les interfaces et la coupure amont déclarée ; ce test seul ne prouve pas toute absence Internet"
+  ]
+}

@@ -81,11 +81,46 @@ namespace KuikuizEngine {
     return { state, status: 'accepted-in-memory', answer: { ...answer } };
   }
   export function ranking(state: State): { playerId: string; points: number; rank: number }[] {
-    const entries = state.players.map((playerId) => ({ playerId,
-      points: state.answers.find((a) => a.playerId === playerId)?.points || 0, rank: 0 }));
+    return cumulativeRanking([state]);
+  }
+  export function cumulativeRanking(states: State[]): { playerId: string; points: number; rank: number }[] {
+    if (!states.length) return [];
+    const entries = states[0].players.map((playerId) => ({ playerId,
+      points: states.reduce((total, state) => total + (state.answers.find(a => a.playerId === playerId)?.points || 0), 0), rank: 0 }));
     entries.sort((a, b) => b.points - a.points || (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0));
     entries.forEach((entry, index) => { entry.rank = index > 0 && entry.points === entries[index - 1].points
       ? entries[index - 1].rank : index + 1; });
     return entries;
+  }
+
+  /** Trois questions isolées : les règles restent identiques sur tous les hôtes. */
+  export interface QuizState { questions: Question[]; current: State; completed: State[] }
+  export type QuizCommand = Command | { type: 'next' };
+  export interface QuizResult { state: QuizState; status: string; answer?: Answer; questionId: string }
+  export function createQuiz(questions: Question[], players: string[], nowMs: number): QuizState {
+    if (!questions.length || questions.some((q, i) => questions.findIndex(other => other.id === q.id) !== i))
+      throw new Error('Invalid quiz');
+    const validated = questions.map(q => create(q, players, nowMs).question);
+    return { questions: validated, current: create(validated[0], players, nowMs), completed: [] };
+  }
+  export function recoverQuiz(state: QuizState, nowMs: number): QuizState {
+    return { ...state, current: recover(state.current, nowMs) };
+  }
+  export function applyQuiz(input: QuizState, command: QuizCommand, nowMs: number, questionId: string): QuizResult {
+    if (questionId !== input.current.question.id)
+      return { state: input, status: 'stale-question', questionId };
+    if (command.type === 'next') {
+      if (!finite(nowMs) || nowMs < input.current.lastNowMs) throw new Error('Invalid monotonic time');
+      if (input.current.phase !== 'closed' || input.completed.length + 1 >= input.questions.length)
+        return { state: input, status: 'invalid-phase', questionId };
+      const completed = input.completed.concat([input.current]);
+      return { state: { ...input, completed, current: create(input.questions[completed.length], input.current.players, nowMs) },
+        status: 'next', questionId };
+    }
+    const result = apply(input.current, command, nowMs);
+    return { ...result, state: { ...input, current: result.state }, questionId };
+  }
+  export function quizRanking(state: QuizState): { playerId: string; points: number; rank: number }[] {
+    return cumulativeRanking(state.completed.concat([state.current]));
   }
 }

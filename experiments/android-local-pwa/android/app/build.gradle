@@ -7,20 +7,25 @@ android {
         applicationId 'fr.kuikuiz.probe'
         minSdk 26
         targetSdk 35
-        versionCode 5
-        versionName '0.5-experiment'
+        versionCode 6
+        versionName '0.6-experiment'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
-    sourceSets { main { assets.srcDir rootProject.file('../../../artifacts/engine') } }
+    sourceSets { main {
+        assets.srcDir rootProject.file('../../../artifacts/engine')
+        assets.srcDir rootProject.file('../../../artifacts/mock-assets')
+        assets.srcDir rootProject.file('../../../apps/web/mock')
+    } }
 }
 
 dependencies {
     implementation 'androidx.javascriptengine:javascriptengine:1.1.1'
     implementation 'org.java-websocket:Java-WebSocket:1.6.0'
     implementation 'org.slf4j:slf4j-nop:2.0.16'
+    implementation 'org.nanohttpd:nanohttpd:2.3.1'
 }
 
 // Vérification seulement : Android doit embarquer l'artefact Node sans le recompiler.
@@ -33,6 +38,18 @@ tasks.register('verifyEngineProbeAssets') {
         def expected = new groovy.json.JsonSlurper().parse(new File(assets, 'manifest.json')).sha256
         def actual = java.security.MessageDigest.getInstance('SHA-256').digest(new File(assets, 'engine.js').bytes).encodeHex().toString()
         if (actual != expected) throw new GradleException('Empreinte du moteur différente du manifeste')
+        ['mock-quiz.json','mock-presentation.js','mock-protocol.js'].each { name ->
+            if (!rootProject.file('../../../artifacts/mock-assets/' + name).isFile()) throw new GradleException('Exécuter node tooling/prepare-mock-assets.mjs : ' + name)
+        }
+        def mockManifest = new groovy.json.JsonSlurper().parse(rootProject.file('../../../artifacts/mock-assets/mock-assets-manifest.json'))
+        mockManifest.sources.each { path, digest ->
+            def current = java.security.MessageDigest.getInstance('SHA-256').digest(rootProject.file('../../../' + path).bytes).encodeHex().toString()
+            if (current != digest) throw new GradleException('Sources de maquette modifiées : exécuter npm.cmd run prepare:mock-android (' + path + ')')
+        }
+        mockManifest.outputs.each { name, digest ->
+            def current = java.security.MessageDigest.getInstance('SHA-256').digest(rootProject.file('../../../artifacts/mock-assets/' + name).bytes).encodeHex().toString()
+            if (current != digest) throw new GradleException('Asset de maquette différent du manifeste : ' + name)
+        }
     }
 }
 tasks.named('preBuild').configure { dependsOn 'verifyEngineProbeAssets' }

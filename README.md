@@ -2,7 +2,7 @@
 
 Application de quiz multijoueur, conviviale et personnalisable, avec modes individuel et équipe, animation de sessions et objectif de fonctionnement local sans Internet.
 
-**Statut :** premier outillage de diagnostic PWA disponible ; faisabilité Android encore à démontrer. **Kuikuiz** est un nom provisoire. Aucune disponibilité juridique n'est garantie.
+**Statut :** maquette de trois questions jouable sur Node et sur Pixel 7 hôte, avec moteur partagé et SQLite. HTTPS/WSS Android et PWA complète hors ligne restent à démontrer. **Kuikuiz** est un nom provisoire. Aucune disponibilité juridique n'est garantie.
 
 ## Documentation
 - [`docs/COMPRENDRE_GRADLE.md`](<docs/pour l'humain/COMPRENDRE_GRADLE.md>) : explication de la fabrication de l'application Android.
@@ -17,22 +17,25 @@ Application de quiz multijoueur, conviviale et personnalisable, avec modes indiv
 
 ## Première étape
 
-La [première maquette jouable](docs/experiments/P15_MAQUETTE_JOUABLE.md) relie maintenant animateur, joueurs, moteur et SQLite sur le PC personnel : `npm.cmd run dev:mock`, puis **http://localhost:4180**. Elle propose une question, pause/reprise et classement ; l'accès depuis un téléphone vient ensuite.
+La [maquette de trois questions](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) relie animateur, joueurs, moteur et SQLite : `npm.cmd run dev:mock`, puis **http://localhost:4180**. Pause/reprise, progression manuelle, cumul et classement final sont disponibles. Le Pixel a été testé comme joueur Chrome du serveur Node HTTPS/WSS, puis comme hôte du même parcours pour les navigateurs du PC.
 
-L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) est positive sur Pixel 7 pour l'arrêt forcé après commit, la reprise gelée, la retransmission sans doublon et une erreur SQL injectée. Le serveur WebSocket n'est pas encore assemblé avec ce stockage.
+Le parcours hébergé sur le Pixel a aussi réussi **sans Internet**, PC connecté à son point d'accès, Ethernet désactivé et accès amont du téléphone coupés. Le serveur Android expérimental utilise HTTP/ws ; la PWA HTTPS/WSS reste un chantier distinct.
 
-La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. La durabilité sur Android et les confirmations réseau restent à valider.
+L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) reste la preuve isolée de durabilité. [P16](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble maintenant stockage et réseau : reprise en deuxième question après arrêt forcé, réponses confirmées conservées, puis fin du quiz à 3 000 points.
 
-Le premier [moteur TypeScript expérimental](packages/engine/README.md) est disponible : `npm.cmd run build:engine` produit un artefact autonome et son empreinte, `npm.cmd run test:engine` vérifie les règles et contrôles de portabilité sur Node.js. Son exécution Android reste à démontrer.
+La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. Les essais réseau complémentaires sont décrits dans P15/P16 ; ils ne démontrent pas une résistance à toute panne matérielle.
+
+Le [moteur TypeScript expérimental](packages/engine/README.md) est disponible : `npm.cmd run build:engine` produit un artefact autonome et son empreinte, `npm.cmd run test:engine` vérifie les règles et contrôles de portabilité sur Node.js. Le même artefact s'exécute sur le Pixel sans Node.js.
 Expériences Android/PWA et portabilité du même moteur compilé dès le départ, indépendamment du serveur de jeu Node.js. Les choix précis d'implémentation Android restent ouverts.
 
-Avec Node.js 24 ou supérieur, sans installation de dépendances :
+Avec Node.js 24 ou supérieur :
 
 ```powershell
+npm.cmd ci
 npm.cmd test
 npm.cmd run dev:diagnostic
 ```
 
 Ouvrir `http://localhost:4173`. Ce serveur prépare la sonde sur le PC uniquement ; il ne démontre pas la connexion d'une PWA HTTPS à un hôte Android. Voir le protocole d'expérience avant tout essai téléphone.
 
-**Date de référence :** 16 novembre 2026 — documentation v0.2.
+**Date de référence :** 22 novembre 2026 — prototype expérimental.

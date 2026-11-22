@@ -54,16 +54,16 @@ test('partie réseau complète : droits, pause, réponses durables, classement r
   p1.send({type:'start'});assert.equal((await p1.next(m=>m.type==='error')).code,'forbidden');
   host.send({type:'start'});const opened=await p1.next(state('open'));
   assert.equal(opened.correctOption,undefined);assert.equal(opened.ranking,undefined);assert.equal(opened.ownAnswer,null);
-  env.setNow(2000);host.send({type:'pause'});await p2.next(state('paused'));
-  p2.send({type:'answer',submissionId:'p2',option:'venus'});
+  env.setNow(2000);host.send({type:'pause',questionId:'planete'});await p2.next(state('paused'));
+  p2.send({type:'answer',questionId:'planete',submissionId:'p2',option:'venus'});
   assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,false);
-  env.setNow(3000);host.send({type:'resume'});await p1.next(state('open'));
-  p1.send({type:'answer',submissionId:'p1',option:'mars',playerId:'someone-else',points:999999});
+  env.setNow(3000);host.send({type:'resume',questionId:'planete'});await p1.next(state('open'));
+  p1.send({type:'answer',questionId:'planete',submissionId:'p1',option:'mars',playerId:'someone-else',points:999999});
   const accepted=await p1.next(m=>m.type==='answer-result');assert.equal(accepted.confirmed,true);assert.equal(accepted.answer,undefined);
   await host.next(state('open',1));
-  p1.send({type:'answer',submissionId:'p1',option:'mars'});assert.equal((await p1.next(m=>m.type==='answer-result')).status,'duplicate');
-  p2.send({type:'answer',submissionId:'p2',option:'venus'});assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,true);
-  host.send({type:'reveal'});const revealed=await p1.next(state('closed',2));
+  p1.send({type:'answer',questionId:'planete',submissionId:'p1',option:'mars'});assert.equal((await p1.next(m=>m.type==='answer-result')).status,'duplicate');
+  p2.send({type:'answer',questionId:'planete',submissionId:'p2',option:'venus'});assert.equal((await p2.next(m=>m.type==='answer-result')).confirmed,true);
+  host.send({type:'reveal',questionId:'planete'});const revealed=await p1.next(state('closed',2));
   assert.equal(revealed.correctOption,'mars');assert.deepEqual(revealed.ranking.map(r=>r.points),[1000,0]);
   assert.deepEqual(revealed.ranking.map(r=>r.name),['Camille','Alex']);
 });
@@ -72,17 +72,17 @@ test('reconnexion et redémarrage : réponse retrouvée, pause restaurée et auc
   const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
   const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
   host.send({type:'start'});await player.next(state('open'));
-  env.setNow(2500);player.send({type:'answer',submissionId:'stable',option:'mars'});
+  env.setNow(2500);player.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
   await host.next(state('open',1));player.ws.terminate();
   await app.stop();env.setNow(10);app=await env.start();
   const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
   const restored=await returning.next(state('paused',1));assert.equal(restored.ownAnswer.submissionId,'stable');
   assert.equal(restored.remainingMs,28500);assert.equal(restored.ranking,undefined);
-  returning.send({type:'answer',submissionId:'stable',option:'mars'});
+  returning.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
   assert.equal((await returning.next(m=>m.type==='answer-result')).status,'duplicate');
   const hostAgain=await client(t,app,{type:'host',roomId:credentials.roomId,token:credentials.token});
   await hostAgain.next(state('paused'));
-  hostAgain.send({type:'reveal'});const final=await returning.next(state('closed',1));assert.equal(final.ranking[0].points,1000);
+  hostAgain.send({type:'reveal',questionId:'planete'});const final=await returning.next(state('closed',1));assert.equal(final.ranking[0].points,1000);
 });
 
 test('échec transactionnel : aucune confirmation réseau, puis retransmission explicite acceptée',async t=>{
@@ -91,11 +91,11 @@ test('échec transactionnel : aucune confirmation réseau, puis retransmission e
   host.send({type:'start'});await player.next(state('open'));
   const db=new DatabaseSync(env.filename);
   try {
-  db.exec("CREATE TRIGGER fail_mock BEFORE UPDATE ON sessions BEGIN SELECT RAISE(ABORT,'injected'); END");
-  player.send({type:'answer',submissionId:'retry',option:'mars'});
+  db.exec("CREATE TRIGGER fail_mock BEFORE UPDATE ON quiz_sessions BEGIN SELECT RAISE(ABORT,'injected'); END");
+  player.send({type:'answer',questionId:'planete',submissionId:'retry',option:'mars'});
   assert.equal((await player.next(m=>m.type==='error')).code,'storage-failed');
-  assert.equal(db.prepare('SELECT count(*) AS n FROM answers').get().n,0);
-  db.exec('DROP TRIGGER fail_mock');player.send({type:'answer',submissionId:'retry',option:'mars'});
+  assert.equal(db.prepare('SELECT count(*) AS n FROM quiz_answers').get().n,0);
+  db.exec('DROP TRIGGER fail_mock');player.send({type:'answer',questionId:'planete',submissionId:'retry',option:'mars'});
   assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
   }finally{db.close();}
 });
@@ -116,6 +116,70 @@ test('protocole et entrées : origine, accès animateur, arrivée tardive et éc
   host.send({type:'start'});await player.next(state('open'));
   const late=await client(t,app,{type:'join',code:credentials.code,name:'Tardif'});
   assert.equal((await late.next(m=>m.type==='error')).code,'already-started');
-  env.setNow(31000);player.send({type:'answer',submissionId:'too-late',option:'mars'});
+  env.setNow(31000);player.send({type:'answer',questionId:'planete',submissionId:'too-late',option:'mars'});
   const result=await player.next(m=>m.type==='answer-result');assert.equal(result.status,'late');assert.equal(result.confirmed,false);
+});
+
+test('trois questions : cumul durable, anciennes commandes refusées et reprise à la deuxième',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  player.send({type:'answer',questionId:'planete',submissionId:'stable',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  host.send({type:'next',questionId:'planete'});host.send({type:'sync'});
+  assert.equal((await host.next(m=>m.type==='state'&&m.questionId==='planete')).questionNumber,1);
+  host.send({type:'reveal',questionId:'planete'});await player.next(state('closed'));
+  host.send({type:'next',questionId:'planete'});await player.next(m=>m.type==='state'&&m.questionId==='ocean');
+  player.send({type:'answer',questionId:'planete',submissionId:'delayed',option:'mars'});
+  const stale=await player.next(m=>m.type==='answer-result'&&m.submissionId==='delayed');assert.equal(stale.status,'stale-question');assert.equal(stale.confirmed,false);
+  player.send({type:'answer',questionId:'ocean',submissionId:'stable',option:'pacifique'});
+  assert.equal((await player.next(m=>m.type==='answer-result'&&m.questionId==='ocean')).confirmed,true);
+  await app.stop();env.setNow(1);app=await env.start();
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  const restored=await returning.next(state('paused',1));assert.equal(restored.questionNumber,2);assert.equal(restored.ownAnswer.option,'pacifique');
+  const hostAgain=await client(t,app,{type:'host',roomId:credentials.roomId,token:credentials.token});await hostAgain.next(state('paused'));
+  hostAgain.send({type:'reveal',questionId:'ocean'});assert.equal((await returning.next(state('closed'))).ranking[0].points,2000);
+  hostAgain.send({type:'next',questionId:'ocean'});await returning.next(m=>m.type==='state'&&m.questionId==='hexagone');
+  returning.send({type:'answer',questionId:'hexagone',submissionId:'stable',option:'six'});
+  assert.equal((await returning.next(m=>m.type==='answer-result')).confirmed,true);
+  hostAgain.send({type:'reveal',questionId:'hexagone'});const final=await returning.next(state('closed'));assert.equal(final.final,true);assert.equal(final.ranking[0].points,3000);
+  const db=new DatabaseSync(env.filename);try{assert.equal(db.prepare('SELECT count(*) AS n FROM quiz_answers').get().n,3);}finally{db.close();}
+});
+
+test('30 joueurs simulés : trois questions et 90 réponses confirmées sans doublon',async t=>{
+  const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
+  const players=[];for(let i=0;i<30;i++)players.push((await joinPlayer(t,app,credentials.code,`Joueur ${i+1}`)).connection);
+  host.send({type:'start'});await players[0].next(state('open'));
+  const durations=[];
+  for(const [questionId,option] of [['planete','mars'],['ocean','pacifique'],['hexagone','six']]){
+    await Promise.all(players.map(async(player,i)=>{
+      const start=performance.now();player.send({type:'answer',questionId,submissionId:`answer-${i}`,option});
+      assert.equal((await player.next(m=>m.type==='answer-result'&&m.questionId===questionId)).confirmed,true);
+      durations.push(performance.now()-start);
+    }));
+    host.send({type:'reveal',questionId});const result=await players[0].next(state('closed',30));
+    assert.equal(result.ranking.length,30);assert.ok(result.ranking.every(r=>r.rank===1&&r.points===result.questionNumber*1000));
+    if(!result.final){host.send({type:'next',questionId});await players[0].next(m=>m.type==='state'&&m.phase==='open'&&m.questionId!==questionId);}
+  }
+  const db=new DatabaseSync(env.filename);try{assert.equal(db.prepare('SELECT count(*) AS n FROM quiz_answers').get().n,90);}finally{db.close();}
+  durations.sort((a,b)=>a-b);t.diagnostic(`Confirmation boucle locale (90 réponses) : médiane ${durations[45].toFixed(1)} ms, p95 ${durations[85].toFixed(1)} ms, max ${durations[89].toFixed(1)} ms ; aucune garantie sur téléphones physiques.`);
+});
+
+test('échec SQL pendant la progression : question et score précédents conservés',async t=>{
+  const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
+  const {connection:player}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  player.send({type:'answer',questionId:'planete',submissionId:'kept',option:'mars'});assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  host.send({type:'reveal',questionId:'planete'});await player.next(state('closed'));
+  const db=new DatabaseSync(env.filename);
+  try{
+    db.exec("CREATE TRIGGER fail_next BEFORE UPDATE ON quiz_sessions BEGIN SELECT RAISE(ABORT,'injected'); END");
+    host.send({type:'next',questionId:'planete'});assert.equal((await host.next(m=>m.type==='error')).code,'storage-failed');
+    const stored=JSON.parse(db.prepare('SELECT state_json FROM quiz_sessions').get().state_json);
+    assert.equal(stored.current.question.id,'planete');assert.equal(stored.current.answers[0].points,1000);assert.equal(stored.completed.length,0);
+    db.exec('DROP TRIGGER fail_next');host.send({type:'next',questionId:'planete'});
+    const next=await player.next(m=>m.type==='state'&&m.questionId==='ocean');assert.equal(next.answered,0);
+    host.send({type:'next',questionId:'planete'});host.send({type:'reveal',questionId:'ocean'});
+    const revealed=await player.next(m=>m.type==='state'&&m.questionId==='ocean'&&m.phase==='closed');assert.equal(revealed.ranking[0].points,1000);
+  }finally{db.close();}
 });
