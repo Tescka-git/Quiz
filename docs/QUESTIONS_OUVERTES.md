@@ -3,6 +3,7 @@
 Les points ci-dessous ne sont pas des décisions techniques définitives.
 
 ## Faisabilité prioritaire
+- **TLS Android au 22 novembre** : [P17](experiments/P17_HTTPS_WSS_ANDROID.md) valide HTTPS/WSS en laboratoire sur le Wi-Fi habituel, y compris Chrome Pixel sans contournement TLS côté téléphone. Le certificat de test exige une autorité approuvée et couvre une IP fixe ; adresses du point d'accès, renouvellement et confiance sans installation pour les joueurs restent ouverts. Cache PWA et client sur un autre téléphone non validés.
 - **Assemblage jouable au 22 novembre** : trois questions sur Node et Pixel hôte, cumul, droits, réponses réseau confirmées et reprise après arrêt forcé positifs dans [P16](experiments/P16_MAQUETTE_TROIS_QUESTIONS.md). HTTP/ws sur Android seulement ; WSS, PWA complète hors ligne, endurance et capacité sur téléphones physiques restent ouverts. NanoHTTPD 2.3.1 reste limité à l'adaptateur HTTP expérimental.
 - **Android hôte** : comment exécuter le moteur TypeScript commun avec un serveur WebSocket local ? Comparer les adaptateurs/environnements possibles et les restrictions du système.
 - **PWA préchargée et réseau local** : vérifier les restrictions HTTPS/WSS, certificats, contenus mixtes, service workers, Android et iOS ; ne pas supposer que la seule installation de la PWA suffit.

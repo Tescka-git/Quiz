@@ -4,6 +4,8 @@
 
 **Complément P16 :** Chrome 157 sur Pixel 7 a joué les trois questions depuis le serveur Node PC en HTTPS/WSS local, sans contournement TLS par le script côté téléphone. L'autorité de laboratoire était déjà installée ; `isSecureContext=true`, 3 000 points attendus. Cela valide ce parcours client, sans valider l'hôte Android WSS, Firefox, iOS ou le cache PWA de la maquette. Voir [le rapport](P16_MAQUETTE_TROIS_QUESTIONS.md).
 
+**Complément P17 :** le même Chrome Pixel a aussi joué les trois questions sur **l'hôte Android HTTPS/WSS**, à `192.168.1.21` sur le Wi-Fi habituel : 3 000 points et contexte sécurisé. Hôte et joueur sont sur le même Pixel, animateur automatisé sur PC. Pas de deuxième téléphone, cache PWA, WSS du point d'accès, Firefox ou iOS validés par ce résultat. Voir [P17](P17_HTTPS_WSS_ANDROID.md).
+
 ## Périmètre de recette
 
 Ce socle de test vise un nombre limité de navigateurs usuels. Il définit les configurations à éprouver, pas une promesse de support déjà démontrée. Firefox reste une cible : son problème TLS actuel est différé, pas abandonné.

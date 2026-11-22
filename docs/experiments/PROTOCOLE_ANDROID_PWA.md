@@ -54,6 +54,8 @@ Le rapport exporté contient adresses et informations de navigateur : le conserv
 
 ## Jalon indépendant : portabilité du moteur
 
+**Complément P17 :** [l'hôte Android HTTPS/WSS de laboratoire](P17_HTTPS_WSS_ANDROID.md) a réussi le parcours de jeu sur le Wi-Fi habituel, avec client Chrome sur le même Pixel. Pas de cache PWA ni de deuxième téléphone validés ; les cases P1/P2 ne sont donc pas cochées par cette expérience.
+
 **Complément du 22 novembre :** [P16](P16_MAQUETTE_TROIS_QUESTIONS.md) assemble désormais moteur, réseau et SQLite pour trois questions. Ce parcours Android sert les pages en HTTP/ws ; il ne coche pas les essais P1/P2 de PWA HTTPS préchargée. Le Pixel joueur du serveur Node PC a, séparément, réussi les trois questions en HTTPS/WSS. Les conclusions historiques de chaque expérience restent limitées à leur configuration.
 
 Premier résultat positif sur Pixel 7 avec AndroidX JavaScriptEngine : même artefact et mêmes résultats sur le scénario commun, voir [P11](P11_MOTEUR_ANDROID.md). Ce résultat est limité à l'appareil/runtime et aux sept étapes testés ; il ne clôt pas les validations réseau et de durabilité.

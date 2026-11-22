@@ -1,0 +1,108 @@
+{
+  "date": "2026-11-22",
+  "device": "Pixel 7",
+  "androidVersion": "17",
+  "appVersion": "0.7-experiment",
+  "engineSha256": "672ba13691f39a3411f540f21e92b975d9e8ac084cd04ac7c8db62e7c5a5d11e",
+  "nodeRegression": {
+    "passed": 31,
+    "localTlsPassed": 1
+  },
+  "tls": {
+    "date": "2026-11-22T09:37:28.309Z",
+    "origin": "https://192.168.1.21:8443",
+    "result": "PASS",
+    "https": {
+      "authorized": true,
+      "protocol": "TLSv1.3",
+      "fingerprint256": "24:8F:5A:4D:F7:42:DC:0A:18:9C:4E:55:4D:BC:5F:40:4D:74:57:D1:00:83:13:45:53:C8:CA:8E:14:B3:B0:60",
+      "subjectAltName": "IP Address:192.168.1.21",
+      "expires": "Dec 21 11:05:56 2026 GMT"
+    },
+    "wss": {
+      "authorized": true,
+      "protocol": "TLSv1.3"
+    },
+    "checks": [
+      "Chaîne et adresse vérifiées en HTTPS et WSS",
+      "Autorité inconnue refusée en HTTPS et WSS",
+      "Mauvaise adresse refusée en HTTPS et WSS",
+      "Origine WSS étrangère fermée avec code 1008",
+      "Fichiers privés inaccessibles par HTTPS"
+    ],
+    "trust": "Autorité locale fournie uniquement aux clients Node de test ; aucun magasin système modifié"
+  },
+  "modes": {
+    "date": "2026-11-22T09:36:58.894Z",
+    "result": "PASS",
+    "trace": [
+      {
+        "mode": "http",
+        "origin": "http://192.168.1.21:8080",
+        "result": "PASS"
+      },
+      {
+        "mode": "https",
+        "origin": "https://192.168.1.21:8443",
+        "result": "PASS"
+      },
+      {
+        "mode": "http",
+        "origin": "http://192.168.1.21:8080",
+        "result": "PASS"
+      },
+      {
+        "mode": "https",
+        "origin": "https://192.168.1.21:8443",
+        "result": "PASS"
+      }
+    ],
+    "scenario": "Arrêt puis redémarrage rapide : HTTP, HTTPS, HTTP, HTTPS ; un seul mode actif"
+  },
+  "networkQuiz": {
+    "date": "2026-11-22T09:37:33.855Z",
+    "origin": "https://192.168.1.21:8443",
+    "result": "PASS",
+    "scenario": "3 questions, droits, masquage, commit, doublons, reconnexion",
+    "score": 3000,
+    "confirmationMs": [
+      43.15020000000004,
+      61.676400000000285,
+      59.312700000000405
+    ]
+  },
+  "pixelBrowser": {
+    "date": "2026-11-22T09:41:24.242Z",
+    "origin": "https://192.168.1.21:8443",
+    "scenario": "Pixel joueur, hôte Android TLS, trois questions",
+    "secureContext": true,
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36",
+    "score": 3000,
+    "result": "PASS",
+    "inputMethod": "Clavier via CDP (Entrée et Espace), sans clic forcé ni soumission directe par JavaScript",
+    "notes": "PC de test : exception TLS dans le contexte Playwright seulement. Chrome Pixel : aucun contournement TLS par le script."
+  },
+  "httpRegression": {
+    "date": "2026-11-22T09:29:12.653Z",
+    "origin": "http://192.168.1.21:8080",
+    "result": "PASS",
+    "scenario": "3 questions, droits, masquage, commit, doublons, reconnexion",
+    "score": 3000,
+    "confirmationMs": [
+      226.80830000000014,
+      135.02440000000024,
+      45.83140000000003
+    ]
+  },
+  "apkInspection": {
+    "result": "PASS",
+    "p12OrPasswordAssets": 0
+  },
+  "limitations": [
+    "Certificat de laboratoire pour 192.168.1.21, expirant le 21 décembre 2026",
+    "Confiance Pixel déjà installée ; aucune confiance Windows modifiée",
+    "Même Pixel hôte et client Chrome ; pas de deuxième téléphone",
+    "Recette automatisée au clavier via CDP ; recette tactile manuelle à faire",
+    "WSS du point d’accès sans Internet, cache PWA, Firefox, iOS et endurance non validés"
+  ]
+}

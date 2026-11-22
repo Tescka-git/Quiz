@@ -6,6 +6,8 @@
 
 Le parcours HTTP/ws complet depuis le PC client du point d'accès Android a réussi sans Internet après coupure des accès amont et désactivation Ethernet. Cette preuve d'autonomie du jeu local ne remplace pas les essais PWA sécurisée, téléphones clients supplémentaires, veille prolongée ou charge physique.
 
+**Complément P17, même date :** [HTTPS/WSS Android de laboratoire](experiments/P17_HTTPS_WSS_ANDROID.md) est positif sur le Wi-Fi habituel, avec clients Node stricts et Chrome du Pixel. Le certificat existant couvre `192.168.1.21` seulement ; pas de validation WSS du point d'accès ni de cache PWA par cette expérience. Clés hors APK dans les fichiers privés de l'application, aucun changement de confiance Windows ; aucune solution de certificats pour les utilisateurs finaux sélectionnée.
+
 ## 8. Architecture et modes réseau — décisions récentes
 - Moteur de jeu commun écrit en **TypeScript**, indépendant du mode d'hébergement ; partage des règles métier et du protocole, avec adaptateurs spécifiques selon l'environnement.
 - Hébergement distant sur serveur **Node.js** pour les joueurs connectés par LTE/4G/5G et Internet.

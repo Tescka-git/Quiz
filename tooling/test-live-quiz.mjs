@@ -58,6 +58,7 @@ try{
   const returning=await client({type:'player',roomId:access.roomId,token:access.token});
   const restored=await returning.next(state('hexagone','closed'));assert.equal(restored.ownAnswer.option,'six');assert.equal(restored.ranking[0].points,3000);
   const report={date:new Date().toISOString(),origin,result:'PASS',scenario:'3 questions, droits, masquage, commit, doublons, reconnexion',score:3000,confirmationMs:measurements};
-  await mkdir('artifacts/mock-preview',{recursive:true});await writeFile(`artifacts/mock-preview/live-${secure?'node':'android'}.json`,JSON.stringify(report,null,2));
+  const kind=process.env.KUIKUIZ_HOST_KIND|| (secure?'node':'android');
+  await mkdir('artifacts/mock-preview',{recursive:true});await writeFile(`artifacts/mock-preview/live-${kind}.json`,JSON.stringify(report,null,2));
   console.log(JSON.stringify(report));
 }finally{for(const socket of sockets)socket.terminate();}

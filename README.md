@@ -2,7 +2,7 @@
 
 Application de quiz multijoueur, conviviale et personnalisable, avec modes individuel et équipe, animation de sessions et objectif de fonctionnement local sans Internet.
 
-**Statut :** maquette de trois questions jouable sur Node et sur Pixel 7 hôte, avec moteur partagé et SQLite. HTTPS/WSS Android et PWA complète hors ligne restent à démontrer. **Kuikuiz** est un nom provisoire. Aucune disponibilité juridique n'est garantie.
+**Statut :** maquette de trois questions jouable sur Node et Pixel 7 hôte, avec moteur partagé et SQLite. HTTPS/WSS Android fonctionne en laboratoire ; la PWA complète hors ligne reste à démontrer. **Kuikuiz** est un nom provisoire. Aucune disponibilité juridique n'est garantie.
 
 ## Documentation
 - [`docs/COMPRENDRE_GRADLE.md`](<docs/pour l'humain/COMPRENDRE_GRADLE.md>) : explication de la fabrication de l'application Android.
@@ -19,7 +19,9 @@ Application de quiz multijoueur, conviviale et personnalisable, avec modes indiv
 
 La [maquette de trois questions](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) relie animateur, joueurs, moteur et SQLite : `npm.cmd run dev:mock`, puis **http://localhost:4180**. Pause/reprise, progression manuelle, cumul et classement final sont disponibles. Le Pixel a été testé comme joueur Chrome du serveur Node HTTPS/WSS, puis comme hôte du même parcours pour les navigateurs du PC.
 
-Le parcours hébergé sur le Pixel a aussi réussi **sans Internet**, PC connecté à son point d'accès, Ethernet désactivé et accès amont du téléphone coupés. Le serveur Android expérimental utilise HTTP/ws ; la PWA HTTPS/WSS reste un chantier distinct.
+Le parcours hébergé sur le Pixel a aussi réussi **sans Internet**, PC connecté à son point d'accès, Ethernet désactivé et accès amont du téléphone coupés. Cet essai utilise HTTP/ws.
+
+[P17 — HTTPS/WSS Android](docs/experiments/P17_HTTPS_WSS_ANDROID.md) ajoute un mode sécurisé de laboratoire sur le Wi-Fi habituel, avec le certificat de test existant, trois questions et Chrome Pixel. Le mode WSS du point d'accès et le cache PWA restent à valider séparément.
 
 L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) reste la preuve isolée de durabilité. [P16](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble maintenant stockage et réseau : reprise en deuxième question après arrêt forcé, réponses confirmées conservées, puis fin du quiz à 3 000 points.
 

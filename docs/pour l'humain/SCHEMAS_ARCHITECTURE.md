@@ -18,7 +18,7 @@ flowchart LR
     subgraph OptionAndroid[Option 2 — Pixel hôte]
         Android[Service Android et SQLite natif]
         PCBrowser[Chrome PC — animateur et joueurs de test]
-        PCBrowser <-->|HTTP et ws locaux testés| Android
+        PCBrowser <-->|HTTP/ws et HTTPS/WSS de laboratoire| Android
     end
 ```
 
@@ -26,7 +26,7 @@ Les deux hôtes exécutent le même moteur : trois questions, réponse définiti
 
 Le Pixel hôte a été utilisé sur le Wi-Fi habituel puis via son point d'accès. Une reprise après arrêt forcé conserve les réponses déjà confirmées et gèle la question courante. Le lien ADB sert à installer et vérifier l'application ; il ne transporte pas les commandes du jeu. Les joueurs n'en ont pas besoin.
 
-Le montage Android actuel sert les pages en HTTP et échange en ws sur réseau de test. Une PWA HTTPS préchargée vers un hôte Android sécurisé reste à valider séparément. Voir [P16](../experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) pour les preuves et l'état exact du test sans Internet.
+Le mode Android HTTP/ws a fonctionné sans Internet sur le point d'accès ; [P16](../experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) décrit cet essai. Un mode HTTPS/WSS avec certificat de laboratoire a ensuite réussi sur le Wi-Fi habituel, voir [P17](../experiments/P17_HTTPS_WSS_ANDROID.md). Le certificat ne couvre pas l'adresse du point d'accès. Une PWA HTTPS préchargée vers cet hôte reste à valider séparément.
 
 ## 2. Cible locale : Android héberge la partie
 

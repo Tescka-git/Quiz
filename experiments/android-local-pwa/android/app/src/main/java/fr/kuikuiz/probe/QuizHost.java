@@ -22,6 +22,9 @@ import java.util.concurrent.TimeUnit;
 /** Adaptateur expérimental : réseau et SQLite natifs, règles et projection JavaScript communes. */
 final class QuizHost implements AutoCloseable {
     private final Context context;
+    private final boolean secure;
+    private final int httpPort,socketPort;
+    private final String httpScheme,socketScheme;
     private final ScheduledThreadPoolExecutor worker = new ScheduledThreadPoolExecutor(1);
     private final Map<WebSocket,JSONObject> identities = new HashMap<>();
     private final Map<WebSocket,long[]> limits = new HashMap<>();
@@ -32,7 +35,12 @@ final class QuizHost implements AutoCloseable {
     private NanoHTTPD http;
     private JSONArray questions;
     private volatile boolean closing;
-    QuizHost(Context context) { this.context=context.getApplicationContext(); }
+    QuizHost(Context context,boolean secure) {
+        this.context=context.getApplicationContext();this.secure=secure;
+        httpPort=secure?8443:8080;socketPort=secure?8789:8788;
+        httpScheme=secure?"https://":"http://";socketScheme=secure?"wss://":"ws://";
+    }
+    private String socketAuthority(String host){return host.replaceFirst(":"+httpPort+"$",":"+socketPort);}
     private static JSONObject object(String text) throws Exception { return new JSONObject(text); }
     private static double now() { return SystemClock.elapsedRealtime(); }
     private String textAsset(String name) throws Exception { return new String(EngineBridge.asset(context,name),StandardCharsets.UTF_8); }
@@ -116,7 +124,7 @@ final class QuizHost implements AutoCloseable {
         String code=error.getMessage();if(code==null||!java.util.Arrays.asList("invalid-message","unknown-room","unauthorized","already-started","forbidden","no-players","not-started").contains(code))code="storage-failed";
         try{send(socket,new JSONObject().put("v",1).put("type","error").put("code",code));}catch(Exception ignored){}
     }
-    private void publish(){for(Map.Entry<WebSocket,JSONObject> entry:identities.entrySet())try{send(entry.getKey(),snapshot(entry.getValue()));}catch(Exception e){error(entry.getKey(),e);}}
+    private void publish(){if(closing)return;for(Map.Entry<WebSocket,JSONObject> entry:identities.entrySet())try{send(entry.getKey(),snapshot(entry.getValue()));}catch(Exception e){error(entry.getKey(),e);}}
     private void message(WebSocket socket,String raw){
         if(closing||!socket.isOpen())return;
         try{
@@ -138,6 +146,8 @@ final class QuizHost implements AutoCloseable {
         }catch(Exception e){error(socket,e);}
     }
     void start() throws Exception {
+        final LocalTls material=secure?LocalTls.load(context):null;
+        final javax.net.ssl.SSLContext tls=material==null?null:material.context;
         // Toutes les utilisations du pont et de SQLite se font sur ce même worker.
         worker.submit(()->{try{
             engine=new EngineBridge(context);engine.evaluate(textAsset("mock-protocol.js"));engine.evaluate(textAsset("mock-presentation.js"));questions=new JSONArray(textAsset("mock-quiz.json"));
@@ -156,11 +166,12 @@ final class QuizHost implements AutoCloseable {
             }finally{db.endTransaction();}
             return null;
         }catch(Exception e){throw new java.util.concurrent.CompletionException(e);}}).get(45,TimeUnit.SECONDS);
-        sockets=new WebSocketServer(new InetSocketAddress("0.0.0.0",8788)){
-            @Override public void onStart(){setConnectionLostTimeout(15);QuizService.write("WebSocket de jeu actif : port 8788. Moteur "+engine.sha256);}
+        sockets=new WebSocketServer(new InetSocketAddress("0.0.0.0",socketPort)){
+            @Override public void onStart(){setConnectionLostTimeout(15);QuizService.write("WebSocket de jeu actif : port "+socketPort+". Moteur "+engine.sha256);}
             @Override public void onOpen(WebSocket socket,ClientHandshake handshake){
+                if(closing){socket.close(1001,"Arrêt en cours");return;}
                 String host=handshake.getFieldValue("Host"),origin=handshake.getFieldValue("Origin");
-                String expected="http://"+host.replaceFirst(":8788$",":8080");
+                String expected=httpScheme+host.replaceFirst(":"+socketPort+"$",":"+httpPort);
                 if(!"/socket".equals(handshake.getResourceDescriptor())||!expected.equals(origin)){socket.close(1008,"Origine refusée");return;}
                 worker.execute(()->limits.put(socket,new long[]{SystemClock.elapsedRealtime(),0}));
                 worker.schedule(()->{if(!identities.containsKey(socket))socket.close(1008,"Identification requise");},10,TimeUnit.SECONDS);
@@ -169,15 +180,16 @@ final class QuizHost implements AutoCloseable {
             @Override public void onClose(WebSocket socket,int code,String reason,boolean remote){if(!closing)worker.execute(()->{identities.remove(socket);limits.remove(socket);});}
             @Override public void onError(WebSocket socket,Exception e){QuizService.write("Erreur réseau : "+e.getClass().getSimpleName());}
         };
+        if(tls!=null)sockets.setWebSocketFactory(new org.java_websocket.server.DefaultSSLWebSocketServerFactory(tls));
         sockets.start();
-        http=new NanoHTTPD("0.0.0.0",8080){
+        http=new NanoHTTPD("0.0.0.0",httpPort){
             @Override public Response serve(IHTTPSession request){
                 try{
                     String path=request.getUri(),host=request.getHeaders().get("host");Response response;
                     if("/connection.json".equals(path)&&request.getMethod()==Method.GET){
-                        response=newFixedLengthResponse(Response.Status.OK,"application/json",new JSONObject().put("socketPath","ws://"+host.replaceFirst(":8080$",":8788")+"/socket").toString());
+                        response=newFixedLengthResponse(Response.Status.OK,"application/json",new JSONObject().put("socketPath",socketScheme+socketAuthority(host)+"/socket").toString());
                     }else if("/api/rooms".equals(path)&&request.getMethod()==Method.POST){
-                        if(!("http://"+host).equals(request.getHeaders().get("origin")))return newFixedLengthResponse(Response.Status.FORBIDDEN,MIME_PLAINTEXT,"Origine refusée");
+                        if(!(httpScheme+host).equals(request.getHeaders().get("origin")))return newFixedLengthResponse(Response.Status.FORBIDDEN,MIME_PLAINTEXT,"Origine refusée");
                         JSONObject created=worker.submit(()->create()).get(25,TimeUnit.SECONDS);response=newFixedLengthResponse(Response.Status.CREATED,"application/json",created.toString());
                     }else{
                         String name="/".equals(path)||"/animateur".equals(path)||"/joueur".equals(path)?"index.html":"/app.js".equals(path)?"app.js":"/style.css".equals(path)?"style.css":null;
@@ -185,24 +197,34 @@ final class QuizHost implements AutoCloseable {
                         response=newFixedLengthResponse(Response.Status.OK,name.endsWith(".js")?"text/javascript; charset=utf-8":name.endsWith(".css")?"text/css; charset=utf-8":"text/html; charset=utf-8",textAsset(name));
                     }
                     response.addHeader("Cache-Control","no-store");response.addHeader("X-Content-Type-Options","nosniff");response.addHeader("Referrer-Policy","no-referrer");
-                    response.addHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' ws://"+host.replaceFirst(":8080$",":8788")+"; frame-ancestors 'none'; base-uri 'none'");return response;
+                    response.addHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' "+socketScheme+socketAuthority(host)+"; frame-ancestors 'none'; base-uri 'none'");return response;
                 }catch(Exception e){return newFixedLengthResponse(Response.Status.INTERNAL_ERROR,MIME_PLAINTEXT,"Service indisponible");}
             }
         };
+        if(tls!=null)http.makeSecure(tls.getServerSocketFactory(),null);
         http.start(30000,false);
         worker.scheduleAtFixedRate(()->publish(),500,500,TimeUnit.MILLISECONDS);
-        worker.scheduleAtFixedRate(()->{try(Cursor c=db.rawQuery("SELECT id,state_json FROM quiz_sessions",null)){
+        worker.scheduleAtFixedRate(()->{if(closing)return;try(Cursor c=db.rawQuery("SELECT id,state_json FROM quiz_sessions",null)){
             while(c.moveToNext()){JSONObject current=object(c.getString(1)).getJSONObject("current");if("open".equals(current.getString("phase"))&&current.getDouble("elapsedMs")<current.getJSONObject("question").getDouble("durationMs"))
                 dispatch(c.getString(0),new JSONObject().put("type","checkpoint"),current.getJSONObject("question").getString("id"));}
         }catch(Exception e){QuizService.write("Checkpoint non sauvegardé : "+e.getClass().getSimpleName());}},1,1,TimeUnit.SECONDS);
-        QuizService.write("Maquette locale HTTP active : http://ADRESSE_DU_TELEPHONE:8080 — réseau de confiance uniquement.");
+        QuizService.write(secure?"HTTPS/WSS de laboratoire actif. L'adresse doit être couverte par le certificat.":"HTTP/ws local actif — réseau de confiance uniquement.");
         for(java.net.NetworkInterface network:java.util.Collections.list(java.net.NetworkInterface.getNetworkInterfaces()))
             for(java.net.InetAddress address:java.util.Collections.list(network.getInetAddresses()))
-                if(address instanceof java.net.Inet4Address&&!address.isLoopbackAddress())QuizService.write("Ouvrir http://"+address.getHostAddress()+":8080");
+                if(address instanceof java.net.Inet4Address&&!address.isLoopbackAddress()){
+                    if(material==null||material.coversIp(address.getHostAddress()))QuizService.write("Ouvrir "+httpScheme+address.getHostAddress()+":"+httpPort);
+                    else QuizService.write("Adresse "+address.getHostAddress()+" hors du certificat TLS de test : ne pas l'utiliser pour cet essai HTTPS.");
+                }
     }
     @Override public void close(){
         closing=true;if(http!=null)http.stop();if(sockets!=null)try{sockets.stop(1000);}catch(InterruptedException e){Thread.currentThread().interrupt();}
         worker.setExecuteExistingDelayedTasksAfterShutdownPolicy(false);worker.setContinueExistingPeriodicTasksAfterShutdownPolicy(false);
-        worker.execute(()->{if(db!=null)db.close();if(engine!=null)engine.close();});worker.shutdown();
+        // shutdown() peut annuler même une tâche immédiate dans ce ScheduledThreadPoolExecutor.
+        // Attendre donc explicitement le nettoyage AVANT d'arrêter l'exécuteur.
+        java.util.concurrent.Future<?> cleanup=worker.submit(()->{try{if(db!=null)db.close();}finally{if(engine!=null)engine.close();}});
+        try{cleanup.get(30,TimeUnit.SECONDS);}
+        catch(InterruptedException e){Thread.currentThread().interrupt();throw new IllegalStateException("Arrêt du moteur interrompu",e);}
+        catch(Exception e){throw new IllegalStateException("Arrêt du moteur incomplet ; redémarrer l'application avant un nouvel hébergement",e);}
+        finally{worker.shutdown();}
     }
 }

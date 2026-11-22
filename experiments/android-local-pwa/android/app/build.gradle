@@ -7,8 +7,8 @@ android {
         applicationId 'fr.kuikuiz.probe'
         minSdk 26
         targetSdk 35
-        versionCode 6
-        versionName '0.6-experiment'
+        versionCode 7
+        versionName '0.7-experiment'
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
@@ -31,6 +31,10 @@ dependencies {
 // Vérification seulement : Android doit embarquer l'artefact Node sans le recompiler.
 tasks.register('verifyEngineProbeAssets') {
     doLast {
+        android.sourceSets.main.assets.srcDirs.each { directory ->
+            def secrets = fileTree(directory).matching { include '**/*.p12', '**/password.txt' }.files
+            if (!secrets.empty) throw new GradleException('Fichier TLS privé interdit dans les assets Android')
+        }
         def assets = rootProject.file('../../../artifacts/engine')
         ['engine.js', 'manifest.json', 'scenario.js', 'fixture.json', 'node-reference.json'].each { name ->
             if (!new File(assets, name).isFile()) throw new GradleException('Exécuter npm run prepare:engine-probe avant la compilation Android : ' + name)

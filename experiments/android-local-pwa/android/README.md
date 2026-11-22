@@ -4,6 +4,8 @@ Application expérimentale Java, sans Node.js. Elle conserve les sondes isolées
 
 ## Construction
 
+Depuis la version **0.7**, **Héberger en HTTPS/WSS de test** utilise HTTPS 8443 et WSS 8789 avec le certificat de laboratoire déjà créé, préparé dans les fichiers privés de l'application. Arrêter la maquette avant de changer de mode. Aucun secret n'est embarqué ; aucun certificat n'est créé ni installé dans un magasin système par ce bouton. Voir [P17](../../../docs/experiments/P17_HTTPS_WSS_ANDROID.md) pour `prepare:android-tls`, les contrôles et les limites d'adresse/cache PWA.
+
 Pour la version actuelle, préparer depuis la racine avec **`npm.cmd run prepare:mock-android`**, puis compiler. Gradle vérifie les empreintes du moteur et des ressources communes avant construction. Le bouton **Héberger la maquette de quiz** démarre un service distinct : HTTP 8080, WebSocket 8788 et base privée `kuikuiz-playable-v2.db`. Ouvrir `http://ADRESSE_DU_PIXEL:8080` depuis le PC personnel sur le même réseau. Voir [P16](../../../docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) pour la recette et ses limites HTTPS/PWA.
 
 L'adaptateur HTTP emploie NanoHTTPD 2.3.1 ; WebSocket reste Java-WebSocket 1.6.0 et le runtime AndroidX JavaScriptEngine 1.1.1. Aucune de ces dépendances n'entre dans le moteur. Les anciennes bases de diagnostic ne sont pas remplacées. **Arrêter la maquette de quiz** coupe uniquement ce nouveau service.

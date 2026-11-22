@@ -4,6 +4,8 @@
 **Statut :** organisation validée pour préparer l'implémentation ; technologies candidates à vérifier avant sélection.  
 **Références :** `AGENTS.md`, `docs/SPECIFICATIONS.md`, `docs/ARCHITECTURE.md`, `docs/QUESTIONS_OUVERTES.md`.
 
+**Complément P17, 22 novembre :** [HTTPS/WSS Android de laboratoire](experiments/P17_HTTPS_WSS_ANDROID.md) est implémenté avec le certificat existant. Les contrôles TLS et le parcours Chrome Pixel sont positifs sur le Wi-Fi habituel ; le cache PWA et le mode sécurisé du point d'accès ne sont pas validés par cet essai.
+
 **Avancement au 22 novembre 2026 :** [P16](experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) apporte la maquette de trois questions avec cumul, le Pixel joueur du serveur Node HTTPS/WSS, puis l'hôte Android avec SQLite et reprise après arrêt forcé. Les étapes « trois questions », « client Pixel » et « assemblage Android sans Internet » de la progression vers une maquette sont réalisées. Ne pas confondre cette numérotation de séance avec les tâches du plan initial ci-dessous. Le jeu local HTTP/ws sans Internet est positif avec le PC client du Pixel ; WSS Android/PWA, navigateurs supplémentaires et endurance restent ouverts.
 
 ## 1. Objectif et priorités
