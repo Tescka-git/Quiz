@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-22T14:23:08.111Z",
+  "result": "PASS",
+  "browser": "157.0.8103.79",
+  "checks": [
+    "Navigateur entièrement fermé puis rouvert avec profil conservé et serveur arrêté : interface et accès local retrouvés, aucun faux état de partie",
+    "Retour du serveur : même salle et même accès animateur récupérés",
+    "Mise à jour complète en attente : onglet existant et rechargement restent sur v1",
+    "Après fermeture des onglets : v2 activée, v1 supprimée, cache étranger conservé ; nouvelle page v2 disponible serveur arrêté",
+    "Nouveau redémarrage complet du navigateur : v2 reste disponible sans serveur"
+  ],
+  "scope": "Chrome PC, profil de test temporaire conservé entre fermetures, arrêt réel du serveur, mise à jour simulée sans modification des sources",
+  "limits": [
+    "Fermetures normales, pas de coupure matérielle ni effacement des données",
+    "Aucune validation physique Pixel/iOS ou installation PWA ajoutée"
+  ]
+}

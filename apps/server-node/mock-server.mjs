@@ -11,7 +11,7 @@ import { SqliteQuizStore } from './persistence/sqlite-quiz-store.mjs';
 import { MockRooms } from './mock-rooms.mjs';
 import { parseClientMessage } from '../../packages/protocol/mock.mjs';
 
-export async function createMockServer({filename,clock=()=>performance.now(),timers=true,tls}={}) {
+export async function createMockServer({filename,clock=()=>performance.now(),timers=true,tls,assetReader=readFile}={}) {
   const bytes=await readFile(new URL('../../artifacts/engine/engine.js',import.meta.url));
   const manifest=JSON.parse(await readFile(new URL('../../artifacts/engine/manifest.json',import.meta.url),'utf8'));
   if(createHash('sha256').update(bytes).digest('hex')!==manifest.sha256)throw new Error('Invalid engine hash');
@@ -21,7 +21,8 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
   let rooms;
   try {rooms=new MockRooms(filename,store,context.KuikuizEngine,manifest.sha256,clock,
     {snapshot:context.kuikuizSnapshot,command:context.kuikuizCommand,admission:context.kuikuizAdmission});}catch(error){store.close();throw error;}
-  const routes=new Map([['/','index.html'],['/animateur','index.html'],['/joueur','index.html'],['/app.js','app.js'],['/style.css','style.css']]);
+  const routes=new Map([['/','index.html'],['/animateur','index.html'],['/joueur','index.html'],['/app.js','app.js'],['/style.css','style.css'],
+    ['/offline.js','offline.js'],['/sw.js','sw.js'],['/manifest.webmanifest','manifest.webmanifest'],['/icon.svg','icon.svg']]);
   const trustedOrigin=request=>request.headers.origin===`${tls?'https':'http'}://${request.headers.host}`;
   const handler=async(request,response)=>{
     try {
@@ -34,8 +35,8 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
         const created=rooms.create();response.writeHead(201,{'Content-Type':'application/json','Cache-Control':'no-store'}).end(JSON.stringify(created));return;
       }
       if(request.method!=='GET'||!routes.has(path)){response.writeHead(404).end();return;}
-      const name=routes.get(path);const body=await readFile(new URL(`../web/mock/${name}`,import.meta.url));
-      response.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8',
+      const name=routes.get(path);const body=await assetReader(new URL(`../web/mock/${name}`,import.meta.url));
+      response.writeHead(200,{'Content-Type':name.endsWith('.js')?'text/javascript; charset=utf-8':name.endsWith('.css')?'text/css; charset=utf-8':name.endsWith('.webmanifest')?'application/manifest+json':name.endsWith('.svg')?'image/svg+xml':'text/html; charset=utf-8',
         'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer',
         'Content-Security-Policy':"default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'"}).end(body);
     }catch{response.writeHead(500).end('Service indisponible');}

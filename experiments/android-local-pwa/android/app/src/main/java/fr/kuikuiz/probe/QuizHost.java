@@ -192,9 +192,10 @@ final class QuizHost implements AutoCloseable {
                         if(!(httpScheme+host).equals(request.getHeaders().get("origin")))return newFixedLengthResponse(Response.Status.FORBIDDEN,MIME_PLAINTEXT,"Origine refusée");
                         JSONObject created=worker.submit(()->create()).get(25,TimeUnit.SECONDS);response=newFixedLengthResponse(Response.Status.CREATED,"application/json",created.toString());
                     }else{
-                        String name="/".equals(path)||"/animateur".equals(path)||"/joueur".equals(path)?"index.html":"/app.js".equals(path)?"app.js":"/style.css".equals(path)?"style.css":null;
+                        String name="/".equals(path)||"/animateur".equals(path)||"/joueur".equals(path)?"index.html":
+                            java.util.Arrays.asList("/app.js","/offline.js","/sw.js","/style.css","/manifest.webmanifest","/icon.svg").contains(path)?path.substring(1):null;
                         if(request.getMethod()!=Method.GET||name==null)return newFixedLengthResponse(Response.Status.NOT_FOUND,MIME_PLAINTEXT,"Introuvable");
-                        response=newFixedLengthResponse(Response.Status.OK,name.endsWith(".js")?"text/javascript; charset=utf-8":name.endsWith(".css")?"text/css; charset=utf-8":"text/html; charset=utf-8",textAsset(name));
+                        response=newFixedLengthResponse(Response.Status.OK,name.endsWith(".js")?"text/javascript; charset=utf-8":name.endsWith(".css")?"text/css; charset=utf-8":name.endsWith(".webmanifest")?"application/manifest+json":name.endsWith(".svg")?"image/svg+xml":"text/html; charset=utf-8",textAsset(name));
                     }
                     response.addHeader("Cache-Control","no-store");response.addHeader("X-Content-Type-Options","nosniff");response.addHeader("Referrer-Policy","no-referrer");
                     response.addHeader("Content-Security-Policy","default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self' "+socketScheme+socketAuthority(host)+"; frame-ancestors 'none'; base-uri 'none'");return response;

@@ -23,6 +23,10 @@ Le parcours hébergé sur le Pixel a aussi réussi **sans Internet**, PC connect
 
 [P17 — HTTPS/WSS Android](docs/experiments/P17_HTTPS_WSS_ANDROID.md) ajoute un mode sécurisé de laboratoire sur le Wi-Fi habituel, avec le certificat de test existant, trois questions et Chrome Pixel. Le mode WSS du point d'accès et le cache PWA restent à valider séparément.
 
+[P18 — Cache de l'interface sur PC](docs/experiments/P18_CACHE_INTERFACE_PC.md) permet maintenant de recharger les écrans après arrêt du serveur et de retrouver l'état de jeu à son retour. Le contrôle de préparation, les ressources manquantes et les mises à jour incomplètes sont testés dans Chrome PC : `npm.cmd run test:mock:offline`. Cette version est compilée pour Android, sans nouvel essai Pixel dans ce lot.
+
+Le complément `npm.cmd run test:mock:offline-lifecycle` vérifie aussi la réouverture complète de Chrome sans serveur et l'activation d'une mise à jour après fermeture des anciens onglets. La [recette Pixel P19](docs/experiments/P19_RECETTE_CACHE_PIXEL.md) est préparée, sans résultats physiques ajoutés.
+
 L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) reste la preuve isolée de durabilité. [P16](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble maintenant stockage et réseau : reprise en deuxième question après arrêt forcé, réponses confirmées conservées, puis fin du quiz à 3 000 points.
 
 La première [expérience de persistance SQLite Node](docs/experiments/P12_SQLITE_NODE.md) ajoute des transactions et des tests de redémarrage : `npm.cmd run test:persistence`. Les essais réseau complémentaires sont décrits dans P15/P16 ; ils ne démontrent pas une résistance à toute panne matérielle.

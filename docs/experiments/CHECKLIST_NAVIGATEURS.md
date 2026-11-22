@@ -8,6 +8,8 @@
 
 ## Périmètre de recette
 
+**P18 — PC seulement :** cache de l'interface, rechargement serveur arrêté, ressources manquantes et mise à jour incomplète testés dans Chrome PC. Cela ne coche aucune nouvelle case physique Android/iOS de cette matrice. Voir [P18](P18_CACHE_INTERFACE_PC.md).
+
 Ce socle de test vise un nombre limité de navigateurs usuels. Il définit les configurations à éprouver, pas une promesse de support déjà démontrée. Firefox reste une cible : son problème TLS actuel est différé, pas abandonné.
 
 | ID | Système | Navigateur | Place dans la recette | État actuel |

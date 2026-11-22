@@ -30,6 +30,8 @@ Le mode Android HTTP/ws a fonctionné sans Internet sur le point d'accès ; [P16
 
 ## 2. Cible locale : Android héberge la partie
 
+Depuis [P18](../experiments/P18_CACHE_INTERFACE_PC.md), un service worker garde l'interface web et la configuration de connexion en cache. Sur Chrome PC, les pages se rechargent lorsque le serveur est arrêté ; le jeu reste indisponible jusqu'au retour de l'hôte. Aucun score ni accusé de réception n'est fabriqué dans le cache. Cette preuve du cache reste à répéter sur le Pixel.
+
 ```mermaid
 flowchart TB
     Players[Téléphones joueurs - interface web PWA]

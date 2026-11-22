@@ -1,5 +1,4 @@
 const $=id=>document.getElementById(id);
-const configuration=await fetch('/connection.json').then(response=>{if(!response.ok)throw new Error('Configuration indisponible');return response.json();});
 const role=location.pathname==='/animateur'?'host':location.pathname==='/joueur'?'player':null;
 const key=role?`kuikuiz.mock.${role}`:null;
 let credentials;try{credentials=key?JSON.parse(localStorage.getItem(key)):null;}catch{}
@@ -13,12 +12,27 @@ const errors={'invalid-message':'Message non reconnu. Rechargez la page.','unkno
 function error(message){$('error').textContent=message;$('error').hidden=!message;}
 function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringify(value));}catch{error('Cet onglet ne peut pas conserver votre accès après fermeture.');}}
 function send(message){if(!connected)return false;socket.send(JSON.stringify({v:1,...message}));return true;}
-function connect(){
+async function connect(){
   clearTimeout(retry);stopped=false;
-  const endpoint=new URL(configuration.socketPath,location.href);endpoint.protocol=endpoint.protocol==='https:'?'wss:':endpoint.protocol==='http:'?'ws:':endpoint.protocol;
-  socket=new WebSocket(endpoint);
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),2500);
+  try{
+    const response=await fetch('/connection.json',{signal:controller.signal});if(!response.ok)throw new Error();
+    const configuration=await response.json();if(typeof configuration.socketPath!=='string')throw new Error();
+    const endpoint=new URL(configuration.socketPath,location.href);endpoint.protocol=endpoint.protocol==='https:'?'wss:':endpoint.protocol==='http:'?'ws:':endpoint.protocol;
+    if(!['ws:','wss:'].includes(endpoint.protocol))throw new Error();
+    if(stopped)return;
+    socket=new WebSocket(endpoint);
+  }
+  catch{
+    $('host-status').textContent='Hôte injoignable. Les écrans restent accessibles ; la partie attend sa connexion.';
+    error('Impossible de joindre l’hôte. Vérifiez le réseau et que la maquette est démarrée.');
+    $('join-form').querySelector('button').disabled=false;
+    if(!stopped&&credentials)retry=setTimeout(connect,2000);return;
+  }finally{clearTimeout(timeout);}
+  if(stopped)return;
   socket.onopen=()=>{
     connected=true;
+    $('host-status').textContent='Hôte joint — identification en cours…';
     if(credentials)send({...credentials,type:role});
     else if(joinDetails)send({type:'join',...joinDetails});
     if(snapshot)render();
@@ -27,6 +41,7 @@ function connect(){
     const message=JSON.parse(data);
     if(message.type==='credentials'){save(message);joinDetails=null;}
     if(message.type==='state'){
+      $('host-status').textContent='Connecté à la partie.';
       if(snapshot?.questionId!==message.questionId){selected='';pending=null;clearTimeout(ackTimeout);$('choices').querySelectorAll('.choice').forEach(node=>node.remove());error('');}
       snapshot=message;anchor=performance.now();
       if(message.ownAnswer){selected=message.ownAnswer.option;pending=null;clearTimeout(ackTimeout);}
@@ -46,7 +61,7 @@ function connect(){
       if(pending)pending.sending=false;clearTimeout(ackTimeout);$('join-form').querySelector('button').disabled=false;if(snapshot)render();
     }
   };
-  socket.onclose=()=>{connected=false;if(pending)pending.sending=false;clearTimeout(ackTimeout);if(snapshot)render();else $('join-form').querySelector('button').disabled=false;
+  socket.onclose=()=>{connected=false;$('host-status').textContent='Hôte déconnecté. Les commandes sont indisponibles jusqu’à la reconnexion.';if(pending)pending.sending=false;clearTimeout(ackTimeout);if(snapshot)render();else $('join-form').querySelector('button').disabled=false;
     if(!stopped&&credentials)retry=setTimeout(connect,2000);
     else if(!credentials&&joinDetails)error('Connexion interrompue. Réessayez de rejoindre la salle.');};
   socket.onerror=()=>error('Connexion interrompue. Vérifiez le serveur et le réseau.');

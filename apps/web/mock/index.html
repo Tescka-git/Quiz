@@ -6,11 +6,15 @@
   <meta name="theme-color" content="#142637">
   <title>Kuikuiz — Trois questions ensemble</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="manifest" href="/manifest.webmanifest">
   <script type="module" src="/app.js"></script>
+  <script type="module" src="/offline.js"></script>
 </head>
 <body>
   <header class="topbar"><a class="brand" href="/">kuikuiz<span class="brand-dot">.</span></a><span class="prototype">Maquette · 3 questions</span></header>
   <main>
+    <aside id="offline-panel" class="footnote"><span id="offline-status" role="status">Cache non vérifié.</span> <button id="check-offline" type="button" class="text-button">Préparer / vérifier l’accès hors ligne</button></aside>
+    <p id="host-status" role="status" class="footnote">Connexion à l’hôte nécessaire pour jouer.</p>
     <section id="welcome" class="welcome">
       <p class="eyebrow">À vous de jouer</p><h1>Trois questions.<br>Tout le monde participe.</h1>
       <p class="intro">Rassemblez les joueurs, lancez le chrono et découvrez les résultats ensemble.</p>

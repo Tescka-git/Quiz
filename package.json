@@ -10,6 +10,8 @@
     "dev:mock": "node tooling/engine-build.mjs && node apps/server-node/mock-server.mjs",
     "test:mock": "node --test tests/integration/mock-server.test.mjs",
     "test:mock:browser": "node tooling/test-mock-browser.mjs",
+    "test:mock:offline": "node tooling/test-mock-offline.mjs",
+    "test:mock:offline-lifecycle": "node tooling/test-offline-lifecycle.mjs",
     "test:mock:live": "node tooling/test-live-quiz.mjs",
     "test:mock:pixel": "node tooling/test-pixel-player.mjs",
     "test:mock:android-recovery": "node tooling/test-android-quiz-recovery.mjs",

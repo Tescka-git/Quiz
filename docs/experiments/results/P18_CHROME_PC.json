@@ -1,0 +1,29 @@
+{
+  "date": "2026-11-22T14:15:48.938Z",
+  "result": "PASS",
+  "browser": "157.0.8103.79",
+  "originType": "HTTP loopback, contexte sécurisé de développement",
+  "cacheName": "kuikuiz-mock-shell-v1",
+  "checks": [
+    "Interface préparée ; aucun état, réponse ou accès API dans le cache",
+    "Serveur réellement arrêté : accueil, animateur et joueur rechargeables ; aucun faux résultat ni création hors ligne ; profil neuf indisponible",
+    "Ressource supprimée hors ligne : préparation signalée incomplète, sans fausse réparation",
+    "Retour de l’hôte : réponse confirmée retrouvée et reprise gelée, sans soumission automatique",
+    "Ressource supprimée : préparation explicite répare le cache avec hôte disponible",
+    "Mise à jour incomplète refusée ; ancienne interface conservée",
+    "Première préparation incomplète non annoncée prête ; récupération après retour de la ressource"
+  ],
+  "limits": [
+    "PC Chrome uniquement ; aucun essai Pixel ou iOS dans ce lot",
+    "Cache des écrans, sans hôte de jeu hors ligne dans le navigateur",
+    "Aucune validation HTTPS/WSS sans Internet ajoutée"
+  ],
+  "nodeTestsPassed": 31,
+  "existingBrowserScenario": "PASS",
+  "localTlsTest": "PASS",
+  "androidBuild": {
+    "version": "0.8-experiment",
+    "result": "PASS",
+    "installedOnPixel": false
+  }
+}

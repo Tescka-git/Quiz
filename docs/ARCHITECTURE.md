@@ -8,6 +8,10 @@ Le parcours HTTP/ws complet depuis le PC client du point d'accès Android a réu
 
 **Complément P17, même date :** [HTTPS/WSS Android de laboratoire](experiments/P17_HTTPS_WSS_ANDROID.md) est positif sur le Wi-Fi habituel, avec clients Node stricts et Chrome du Pixel. Le certificat existant couvre `192.168.1.21` seulement ; pas de validation WSS du point d'accès ni de cache PWA par cette expérience. Clés hors APK dans les fichiers privés de l'application, aucun changement de confiance Windows ; aucune solution de certificats pour les utilisateurs finaux sélectionnée.
 
+**Complément P18, même date :** [cache de l'interface sur PC](experiments/P18_CACHE_INTERFACE_PC.md) testé avec arrêt réel du serveur. Le service worker conserve uniquement l'interface et la configuration de connexion, jamais les réponses ou confirmations. Le jeu reste sous l'autorité de l'hôte ; un retour de celui-ci récupère la réponse durable et l'état en pause. Ressources manquantes, réparation et mise à jour incomplète sont testées. Android 0.8 compile ces ressources ; validation physique du cache encore à faire.
+
+Le complément P18 vérifie la réouverture complète de Chrome PC avec son profil de test conservé et serveur arrêté. Une mise à jour complète reste en attente tant que l'ancienne interface est ouverte, puis remplace son cache après fermeture des clients, sans supprimer les autres caches. La [recette physique P19](experiments/P19_RECETTE_CACHE_PIXEL.md) est préparée mais non exécutée.
+
 ## 8. Architecture et modes réseau — décisions récentes
 - Moteur de jeu commun écrit en **TypeScript**, indépendant du mode d'hébergement ; partage des règles métier et du protocole, avec adaptateurs spécifiques selon l'environnement.
 - Hébergement distant sur serveur **Node.js** pour les joueurs connectés par LTE/4G/5G et Internet.
