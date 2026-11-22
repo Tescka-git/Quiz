@@ -14,6 +14,7 @@
     "test:mock:offline-lifecycle": "node tooling/test-offline-lifecycle.mjs",
     "test:mock:live": "node tooling/test-live-quiz.mjs",
     "test:mock:pixel": "node tooling/test-pixel-player.mjs",
+    "test:mock:pixel-cache": "node tooling/test-pixel-cache.mjs",
     "test:mock:android-recovery": "node tooling/test-android-quiz-recovery.mjs",
     "test:mock:android-tls": "node tooling/test-android-tls.mjs",
     "test:mock:android-modes": "node tooling/test-android-modes.mjs",

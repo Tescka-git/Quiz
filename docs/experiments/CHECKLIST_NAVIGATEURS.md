@@ -8,6 +8,8 @@
 
 ## Périmètre de recette
 
+**P19 — Pixel physique :** APK 0.8 et Chrome 157, onglet normal à `https://192.168.1.21:8443` : préparation de sept ressources, rechargement hôte arrêté, reconnexion et réponse durable, 3 000 points et réparation ciblée positifs par clavier automatisé. L'utilisateur confirme le parcours tactile terminé, sans total chiffré ; ergonomie à retravailler. Hôte et joueur sur le même Pixel ; ni le point d'accès WSS sans Internet ni un deuxième téléphone ne sont validés. Voir [P19](P19_RECETTE_CACHE_PIXEL.md).
+
 **P18 — PC seulement :** cache de l'interface, rechargement serveur arrêté, ressources manquantes et mise à jour incomplète testés dans Chrome PC. Cela ne coche aucune nouvelle case physique Android/iOS de cette matrice. Voir [P18](P18_CACHE_INTERFACE_PC.md).
 
 Ce socle de test vise un nombre limité de navigateurs usuels. Il définit les configurations à éprouver, pas une promesse de support déjà démontrée. Firefox reste une cible : son problème TLS actuel est différé, pas abandonné.

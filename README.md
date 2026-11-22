@@ -25,7 +25,9 @@ Le parcours hébergé sur le Pixel a aussi réussi **sans Internet**, PC connect
 
 [P18 — Cache de l'interface sur PC](docs/experiments/P18_CACHE_INTERFACE_PC.md) permet maintenant de recharger les écrans après arrêt du serveur et de retrouver l'état de jeu à son retour. Le contrôle de préparation, les ressources manquantes et les mises à jour incomplètes sont testés dans Chrome PC : `npm.cmd run test:mock:offline`. Cette version est compilée pour Android, sans nouvel essai Pixel dans ce lot.
 
-Le complément `npm.cmd run test:mock:offline-lifecycle` vérifie aussi la réouverture complète de Chrome sans serveur et l'activation d'une mise à jour après fermeture des anciens onglets. La [recette Pixel P19](docs/experiments/P19_RECETTE_CACHE_PIXEL.md) est préparée, sans résultats physiques ajoutés.
+Le complément `npm.cmd run test:mock:offline-lifecycle` vérifie aussi la réouverture complète de Chrome sans serveur et l'activation d'une mise à jour après fermeture des anciens onglets. La [recette Pixel P19](docs/experiments/P19_RECETTE_CACHE_PIXEL.md) regroupe la procédure physique et ses résultats.
+
+Depuis [P19](docs/experiments/P19_RECETTE_CACHE_PIXEL.md), le cache est aussi testé automatiquement sur le Pixel en HTTPS : rechargement hôte arrêté, réponse durable retrouvée, classement à 3 000 points et réparation ciblée. APK 0.8 installé ; l'utilisateur a aussi terminé le parcours tactile. L'ergonomie reste à retravailler après les risques techniques. Ces essais ne valident pas le mode WSS du point d'accès sans Internet.
 
 L'[expérience SQLite Android](docs/experiments/P14_SQLITE_ANDROID.md) reste la preuve isolée de durabilité. [P16](docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md) assemble maintenant stockage et réseau : reprise en deuxième question après arrêt forcé, réponses confirmées conservées, puis fin du quiz à 3 000 points.
 

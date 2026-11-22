@@ -1,6 +1,12 @@
-# P19 — Recette du cache sur Pixel : à exécuter
+# P19 — Cache sur Pixel : résultats et recette
 
 **Préparée le 22 novembre 2026 pendant l'absence de l'utilisateur. Aucun essai Pixel effectué dans cette préparation.**
+
+**Exécution ultérieure, le même jour :** l'APK 0.8 a été installé avec conservation des données. La recette automatisée est positive sur Chrome Pixel en HTTPS, avec l'hôte sur le même téléphone. L'utilisateur confirme avoir terminé le quiz au toucher ; il demande de reporter les améliorations ergonomiques pour privilégier la faisabilité technique. Le protocole préparé ci-dessous est conservé pour reproduction.
+
+Rapport : [P19_PIXEL7.json](results/P19_PIXEL7.json). Les contrôles automatiques couvrent les sept ressources du cache, le rechargement avec serveur réellement arrêté, l'absence de confirmation reconstruite, la reprise en pause avec réponse conservée, le total de 3 000 points, la réparation de la seule entrée `connection.json`, les trois écrans et la fermeture/réouverture du seul onglet de test. Les autres onglets Chrome sont conservés. Captures et rapport détaillé : `artifacts/mock-preview/`, exclus de Git.
+
+L'automatisation utilise les touches Entrée/Espace via CDP. Le retour tactile est distinct : parcours mené au bout, ergonomie à retravailler, total manuel non chiffré. Les 3 000 points sont vérifiés par automatisation. Le canal Chrome est désormais attendu explicitement après ouverture pour éviter une erreur de connexion au débogueur pendant le démarrage. Le contexte animateur Chrome PC accepte le certificat uniquement pour le test ; aucune désactivation TLS sur le Pixel et aucune confiance Windows ajoutée.
 
 Cette fiche prolonge [P18, cache sur PC](P18_CACHE_INTERFACE_PC.md). Elle sépare disponibilité de l'interface, présence de l'hôte et fonctionnement tactile. Elle ne requiert pas de second téléphone pour ces premiers contrôles, sans remplacer une recette avec plusieurs appareils.
 
@@ -41,7 +47,7 @@ Critère : gestes tactiles utilisables sans décalage ou élément masquant les 
 
 ## C — Contrôle d'une préparation manquante
 
-Utiliser un profil de test isolé si disponible. **Ne pas effacer le profil personnel ni toutes les données Chrome.** L'automatisation peut supprimer une entrée du seul cache `kuikuiz-mock-shell-v1`, puis vérifier l'état incomplet et sa réparation au retour de l'hôte. Cette manipulation sera préparée avec l'utilisateur ; les cases ci-dessous restent non exécutées.
+Utiliser un profil de test isolé si disponible. **Ne pas effacer le profil personnel ni toutes les données Chrome.** L'automatisation a supprimé la seule entrée publique `connection.json` du cache `kuikuiz-mock-shell-v1`, puis vérifié sa réparation explicite avec l'hôte disponible. Le signalement d'une ressource absente avec hôte arrêté reste validé sur PC dans P18 ; cette sous-partie n'a pas été répétée sur le Pixel.
 
 Critère : pas de statut « prêt » lorsque des ressources nécessaires manquent ; message compréhensible et réparation explicite quand l'hôte est disponible. Un cache entièrement effacé avec serveur absent peut empêcher tout chargement : il faut alors se reconnecter pour préparer à nouveau.
 
@@ -49,16 +55,28 @@ Critère : pas de statut « prêt » lorsque des ressources nécessaires manquen
 
 | Champ | Observation |
 |---|---|
-| Date, version du code et APK réellement installé | À relever |
-| Android, Chrome, profil et mode onglet/écran d'accueil | À relever |
-| Origine HTTPS et empreinte du certificat | À relever |
-| Méthode de préparation et état affiché | À relever |
-| Méthode d'arrêt du service et de fermeture des onglets/navigateur | À relever |
-| A : rechargement sans serveur, retour de l'hôte | Non testé |
-| B : touchers, confirmation, restauration et classement | Non testé |
-| C : cache incomplet et réparation ciblée | Non testé |
-| Captures, erreurs et rapports associés | À produire |
+| Date, version du code et APK réellement installé | 22 novembre 2026 ; APK 0.8-experiment |
+| Android, Chrome, profil et mode onglet/écran d'accueil | Pixel 7 / Android 17 / Chrome 157 ; profil normal, onglet ; pas d'installation PWA testée |
+| Origine HTTPS et empreinte du certificat | `https://192.168.1.21:8443` ; même certificat de laboratoire que P17, aucune modification |
+| Méthode de préparation et état affiché | Service worker actif, sept ressources vérifiées ; état prêt |
+| Méthode d'arrêt du service et de fermeture des onglets/navigateur | Bouton natif d'arrêt ; fermeture du seul onglet créé par le test, pas arrêt forcé de Chrome |
+| A : rechargement sans serveur, retour de l'hôte | Positif par automatisation sur Pixel |
+| B : touchers, confirmation, restauration et classement | Confirmation, restauration et 3 000 points positifs au clavier automatisé ; parcours tactile terminé selon l'utilisateur, total manuel non relevé |
+| C : cache incomplet et réparation ciblée | Suppression de la seule entrée publique `connection.json` puis réparation positive sur Pixel ; aucun effacement global |
+| Captures, erreurs et rapports associés | Rapport JSON ci-dessus, capture `pixel-cache-sans-hote.png` dans les artefacts locaux |
+
+## Reproduire l'automatisation
+
+Avec `KUIKUIZ_ADB` et `KUIKUIZ_DEVICE` explicitement définis et la redirection ADB locale 9222 vers `localabstract:chrome_devtools_remote` :
+
+```powershell
+npm.cmd run test:mock:pixel-cache
+```
+
+Ce test vérifie la version 0.8 installée, crée des données fictives, arrête et relance le seul hôte Kuikuiz et répare une entrée de son propre cache. Ne pas le lancer pendant une partie que l'on souhaite garder active. Il restaure le service HTTPS à la fin si le test l'a arrêté et laisse Chrome ouvert. Les fichiers privés TLS et les autres caches/profils ne sont pas modifiés.
 
 ## Hors périmètre de cette recette
+
+**Priorité confirmée par l'utilisateur :** reporter la refonte ergonomique après les risques techniques prioritaires. Corriger au fil des essais les défauts qui bloquent une manipulation ou rendent une observation ambiguë. Les remarques ergonomiques détaillées restent à recueillir ; ne pas déduire de ce parcours une validation de l'ergonomie finale.
 
 Pas de validation iOS/Firefox, d'installation PWA, de veille prolongée, de 30 téléphones ou de certificat pour le point d'accès. La configuration HTTPS/WSS hors Internet sur le point d'accès viendra après : elle doit résoudre la différence d'adresse et de certificat au lieu de transposer automatiquement le résultat HTTP de P16.

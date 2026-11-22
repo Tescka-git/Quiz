@@ -4,6 +4,8 @@ Application expérimentale Java, sans Node.js. Elle conserve les sondes isolées
 
 ## Construction
 
+**Actualisation P19 :** la version 0.8 est maintenant installée sur le Pixel. Cache HTTPS et arrêt/reprise de l'hôte sont positifs par automatisation Chrome ; les détails et la portée sont dans [P19](../../../docs/experiments/P19_RECETTE_CACHE_PIXEL.md). L'utilisateur a aussi terminé le parcours tactile ; l'ergonomie reste à retravailler. Les lignes P18 ci-dessous décrivent le premier lot, limité au PC.
+
 La version **0.8**, compilée mais non installée lors du premier lot P18, embarque les routes du service worker, du manifeste, de l'icône et du contrôle du cache. Le cache n'est disponible que sur une origine reconnue comme sécurisée ; HTTP local ordinaire garde le jeu connecté. La preuve de rechargement serveur arrêté concerne pour l'instant Chrome PC, voir [P18](../../../docs/experiments/P18_CACHE_INTERFACE_PC.md). Les essais physiques de 0.7 restent les relevés historiques P17.
 
 Depuis la version **0.7**, **Héberger en HTTPS/WSS de test** utilise HTTPS 8443 et WSS 8789 avec le certificat de laboratoire déjà créé, préparé dans les fichiers privés de l'application. Arrêter la maquette avant de changer de mode. Aucun secret n'est embarqué ; aucun certificat n'est créé ni installé dans un magasin système par ce bouton. Voir [P17](../../../docs/experiments/P17_HTTPS_WSS_ANDROID.md) pour `prepare:android-tls`, les contrôles et les limites d'adresse/cache PWA.

@@ -10,7 +10,9 @@ Le parcours HTTP/ws complet depuis le PC client du point d'accès Android a réu
 
 **Complément P18, même date :** [cache de l'interface sur PC](experiments/P18_CACHE_INTERFACE_PC.md) testé avec arrêt réel du serveur. Le service worker conserve uniquement l'interface et la configuration de connexion, jamais les réponses ou confirmations. Le jeu reste sous l'autorité de l'hôte ; un retour de celui-ci récupère la réponse durable et l'état en pause. Ressources manquantes, réparation et mise à jour incomplète sont testées. Android 0.8 compile ces ressources ; validation physique du cache encore à faire.
 
-Le complément P18 vérifie la réouverture complète de Chrome PC avec son profil de test conservé et serveur arrêté. Une mise à jour complète reste en attente tant que l'ancienne interface est ouverte, puis remplace son cache après fermeture des clients, sans supprimer les autres caches. La [recette physique P19](experiments/P19_RECETTE_CACHE_PIXEL.md) est préparée mais non exécutée.
+Le complément P18 vérifie la réouverture complète de Chrome PC avec son profil de test conservé et serveur arrêté. Une mise à jour complète reste en attente tant que l'ancienne interface est ouverte, puis remplace son cache après fermeture des clients, sans supprimer les autres caches.
+
+**Complément P19, même date :** [cache sur Pixel](experiments/P19_RECETTE_CACHE_PIXEL.md) positif par automatisation Chrome en HTTPS, avec l'hôte sur ce même téléphone : rechargement serveur arrêté, réponse confirmée retrouvée après reprise gelée, 3 000 points et réparation ciblée. APK 0.8 installé ; parcours tactile terminé selon l'utilisateur. L'ergonomie sera retravaillée après les risques techniques, hors défauts bloquant les essais. Pas de deuxième téléphone, d'arrêt forcé de Chrome, d'installation PWA ou de test WSS hors Internet ajoutés par ce résultat.
 
 ## 8. Architecture et modes réseau — décisions récentes
 - Moteur de jeu commun écrit en **TypeScript**, indépendant du mode d'hébergement ; partage des règles métier et du protocole, avec adaptateurs spécifiques selon l'environnement.

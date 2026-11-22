@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-22",
+  "device": "Pixel 7",
+  "androidVersion": "17",
+  "engineSha256": "672ba13691f39a3411f540f21e92b975d9e8ac084cd04ac7c8db62e7c5a5d11e",
+  "automatic": {
+    "date": "2026-11-22T17:10:14.346Z",
+    "result": "PASS",
+    "origin": "https://192.168.1.21:8443",
+    "apkVersion": "0.8-experiment",
+    "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Mobile Safari/537.36",
+    "cacheName": "kuikuiz-mock-shell-v1",
+    "entries": [
+      "/",
+      "/app.js",
+      "/connection.json",
+      "/icon.svg",
+      "/manifest.webmanifest",
+      "/offline.js",
+      "/style.css"
+    ],
+    "checks": [
+      "Préparation HTTPS normale sur Chrome Pixel : sept ressources présentes et contexte sécurisé",
+      "Réponse confirmée retrouvée après rechargement avec hôte actif",
+      "Hôte réellement arrêté : page joueur rechargeable, cache prêt, aucune confirmation reconstruite",
+      "Retour de l’hôte : question en pause et réponse confirmée retrouvées",
+      "Fin du quiz après reprise : 3 000 points, sans double comptage",
+      "Seule entrée de configuration supprimée du cache Kuikuiz puis réparée explicitement",
+      "Accueil, animateur et joueur rechargeables sans hôte ; création refusée et paramètre de code conservé",
+      "Onglet de test fermé puis rouvert : interface encore disponible sans serveur ; autres onglets conservés"
+    ],
+    "score": 3000,
+    "inputMethod": "Clavier CDP ; gestes tactiles manuels à valider séparément",
+    "limits": [
+      "Wi-Fi habituel avec Internet disponible ; arrêt du seul hôte",
+      "Même Pixel hôte et client, pas de deuxième téléphone",
+      "Fermeture du seul onglet de test, pas arrêt forcé de Chrome",
+      "Exception TLS limitée au contexte PC automatisé ; aucune désactivation TLS sur le Pixel",
+      "Pas de validation iOS/Firefox, installation PWA ou point d’accès WSS hors Internet"
+    ]
+  },
+  "manual": {
+    "status": "Parcours terminé selon retour utilisateur",
+    "source": "Retour utilisateur du 22 novembre 2026",
+    "touchesValidated": true,
+    "quizCompleted": true,
+    "scoreReported": null,
+    "ergonomics": "À retravailler ultérieurement ; aucun détail de défaut consigné, parcours mené au bout",
+    "note": "Le score de 3000 est vérifié par automatisation ; le retour manuel ne fournit pas de total chiffré."
+  },
+  "conclusion": "Cache et reprise testés automatiquement sur Chrome du Pixel avec hôte sur le même téléphone ; Wi-Fi habituel, pas de validation de suppression Internet"
+}
