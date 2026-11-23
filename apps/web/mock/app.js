@@ -83,6 +83,7 @@ function render(){
   $('ranking-title').textContent=snapshot.final?'Le classement final':'Le classement cumulé';
   $('connection').textContent=connected?'Connecté à la partie':'Déconnecté — tentative de reconnexion…';
   $('answer-count').textContent=snapshot.phase==='lobby'?`${snapshot.total} participant${snapshot.total>1?'s':''}`:`${snapshot.answered} / ${snapshot.total} réponses confirmées`;
+  $('answer-count').hidden=role!=='host';
   $('lobby-content').hidden=snapshot.phase!=='lobby';$('question-content').hidden=snapshot.phase==='lobby';
   $('lobby-instruction').textContent=role==='host'?'Partagez le code. Quand tout le monde est là, lancez la question.':'Vous êtes inscrit. La question apparaîtra quand l’animateur la lancera.';
   $('participant-count').textContent=`(${snapshot.total})`;$('players').replaceChildren();

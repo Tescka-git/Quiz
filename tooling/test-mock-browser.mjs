@@ -42,6 +42,8 @@ try{
   await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');
   await host.getByRole('button',{name:'Lancer la question'}).click();
   await player.locator('#question-title').waitFor({state:'visible'});
+  assert.equal(await player.locator('#answer-count').isHidden(),true);
+  assert.equal(await host.locator('#answer-count').isVisible(),true);
   assert.equal(await player.locator('#results').isHidden(),true);
   await host.getByRole('button',{name:'Mettre en pause'}).click();
   await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.');
@@ -54,6 +56,7 @@ try{
   await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
   assert.equal(await player.locator('#answer-wait').isVisible(),true);
   await player.reload();await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
+  assert.equal(await player.locator('#answer-count').isHidden(),true);
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isChecked(),true);
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isDisabled(),true);
   await other.getByRole('radio',{name:'Vénus',exact:true}).check();await other.getByRole('button',{name:'Confirmer ma réponse'}).click();
@@ -82,6 +85,7 @@ try{
   await player.waitForFunction(()=>!document.getElementById('error').hidden);
   await playerContext.setOffline(false);
   await player.waitForFunction(()=>document.getElementById('host-status').textContent==='Connecté à la partie.'&&document.getElementById('error').hidden);
+  assert.equal(await player.locator('#answer-count').isHidden(),true);
   assert.match(await player.locator('#ranking tr').first().innerText(),/3[\s\u202f\u00a0]?000/);
   // Une erreur métier ne doit pas disparaître au prochain simple rafraîchissement d'état.
   await player.evaluate(()=>window.testSocket.send(JSON.stringify({v:1,type:'start'})));

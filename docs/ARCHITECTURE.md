@@ -2,6 +2,10 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**P22 — parcours local 0.14 terminé :** trois questions, révélation automatique avec Tutu sans réponse, reconnexion Redmi sans rafraîchissement et classement final 3 000/0 positifs selon l'utilisateur. Coupures des accès amont des téléphones confirmées avant et après, PC en ligne ; pas de mesure indépendante du trafic. La préparation 0.15 masque le compteur joueur dans les sources, sans installation pendant cet essai. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
+**P22 — 0.14 sans Internet, recette déclarative :** première question sur Redmi joueur/Pixel hôte, Tutu sans réponse, révélation automatique à 1 000/0 points positive. L'utilisateur vérifie les coupures Wi-Fi amont/données mobiles Pixel et données mobiles Redmi avant et après ; PC maintenu en ligne. Pas de télémétrie indépendante après coupure. Compteur de réponses réservé à l'animateur dans les sources de préparation 0.15, non installé sur téléphone. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
 **P22 — recette manuelle 0.14 confirmée :** sur Pixel hôte et Redmi joueur, menu de nouvelle inscription, message d'attente après réponse et révélation automatique à l'échéance avec un joueur sans réponse positifs selon l'utilisateur : 1 000 points et 0 pour Tutu. Pas de nouvelle preuve d'isolement Internet dans ce lot. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
 
 **P22 — parcours d'accueil corrigé en 0.14 :** « Je participe » exprime une nouvelle inscription et ouvre le formulaire sans utiliser l'ancien accès. L'accès précédent n'est remplacé qu'après inscription réussie ; rafraîchir une page de partie conserve la reprise automatique. Même moteur et base v4 que 0.13, cache v5 ; tests navigateur et cache positifs. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).

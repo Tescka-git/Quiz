@@ -8,6 +8,10 @@
 
 ## Périmètre de recette
 
+**P22 — résultat final local 0.14 :** utilisateur confirme les trois questions, reconnexion Redmi sans rafraîchissement, révélations automatiques, 3 000 points pour son joueur et 0 pour Tutu. Coupures amont des téléphones confirmées avant/après, PC maintenu en ligne. Résultat manuel sans mesure indépendante de trafic ; aucune nouvelle veille ni charge physique. Les résultats limités à la première question ci-dessous sont des étapes intermédiaires. Compteur joueur masqué en préparation 0.15 non installée.
+
+**P22 — 0.14, première question locale répétée :** utilisateur confirme message d'attente, révélation à l'échéance et 1 000/0 points sur Pixel/Redmi, puis Wi-Fi amont/données mobiles Pixel et données mobiles Redmi toujours coupés, après confirmation identique avant lancement. Source manuelle, PC en ligne, pas de télémétrie après coupure. Nouvelle reconnexion et veille non testées dans ce lot ; compteur joueur masqué en sources 0.15 seulement. Voir P22.
+
 **P22 — recette tactile 0.14 :** l'utilisateur confirme sur Redmi le menu participant ouvrant le formulaire sans oubli d'accès, puis le parcours à deux joueurs avec message d'attente et révélation automatique à l'échéance, 1 000 points pour Mars et 0 pour Tutu sans réponse. Source manuelle, pas de nouvelle mesure d'isolement Internet ; version exacte de Chrome Redmi non relevée. Voir [P22](P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
 
 **P22 — nouvelle version à recetter :** APK 0.13 installé, moteur de clôture à l'échéance et interface modifiée (attente après réponse, changement de salle joueur). Tests Node/Chrome PC positifs et parcours WSS strict sur l'hôte Android à 3 000 points. Ces résultats ne valident pas encore la nouvelle interface au toucher sur Redmi ni l'activation de son cache v4 ; les preuves P21 restent liées aux versions précédentes. Voir [P22](P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).

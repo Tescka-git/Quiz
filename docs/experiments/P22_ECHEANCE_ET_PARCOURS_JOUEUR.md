@@ -44,3 +44,29 @@ Tests navigateur, cache et cycle de mise à jour positifs sur PC. Compilation Gr
 Après préparation puis fermeture/réouverture des onglets, l'utilisateur confirme que le menu « Je participe » ouvre correctement le formulaire sans demander d'oublier l'accès précédent. Le cache actif n'a pas été inspecté directement sur le Redmi ; le parcours corrigé est observé manuellement.
 
 L'essai demandé comporte deux joueurs : Redmi répond Mars et confirme, Tutu ne répond pas. Consigne de vérifier le message d'attente puis de laisser le temps expirer sans commande de révélation, avec résultats attendus de 1 000 points pour le joueur Redmi et 0 pour Tutu. L'utilisateur répond « C'est parfait ». Retour manuel positif pour ce parcours complet sur hôte Pixel et client Redmi, après les contrôles automatisés. Aucun nouvel isolement Internet ni mesure de délai de révélation documentés par cet essai.
+
+## Recette répétée avec coupures vérifiées avant et après
+
+Avant préparation, relevé ADB : APK 0.14, Pixel sur Wi-Fi habituel `192.168.1.21`, point d'accès `10.186.21.94`, réglages Wi-Fi et données mobiles activés. Nouvelle salle avec Redmi et Tutu. L'utilisateur confirme ensuite la coupure du Wi-Fi habituel et des données mobiles du Pixel, point d'accès maintenu ; Redmi sur ce point d'accès et données mobiles coupées. Le PC conserve Internet pour l'échange.
+
+Sur consigne de répondre Mars depuis le Redmi, laisser Tutu sans réponse et attendre la révélation automatique (1 000 et 0 points), puis vérifier à nouveau ces réglages coupés sur les téléphones, l'utilisateur confirme « Oui, tout est conforme ». Essai manuel positif de cette première question et de ses messages en local ; coupures vérifiées par l'utilisateur avant et après, sans télémétrie ADB après coupure ni mesure indépendante du trafic. Ne pas annoncer trois questions, une nouvelle reconnexion ou une veille dans ce lot.
+
+## Compteur de réponses réservé à l'animateur — préparation 0.15
+
+### Suite du parcours local 0.14, avant installation de cette correction
+
+Après la première question, consigne de couper le Wi-Fi du Redmi dix secondes, revenir au point d'accès Pixel et vérifier sans rafraîchir « Connecté à la partie » ainsi que les 1 000 points ; l'utilisateur confirme « C'est bon ».
+
+Puis consigne de terminer avec Pacifique et Six, Tutu sans réponse, en attendant chaque révélation automatique ; vérifier au final 3 000 points pour le joueur Redmi, 0 pour Tutu et les accès Internet des téléphones toujours coupés. L'utilisateur confirme « C'est parfait, tout est bon ». Le parcours manuel complet à trois questions et la reconnexion sont donc positifs dans ces conditions déclarées. Le relevé précédent limité à la première question décrit une étape intermédiaire, pas le résultat final.
+
+Source : confirmations manuelles des réglages et des résultats ; pas de télémétrie ADB ni de mesure indépendante de trafic pendant la coupure. PC maintenu en ligne pour la conversation, sans rôle d'hôte. Pas de nouvelle preuve de veille, d'arrêt forcé, d'installation PWA ou de capacité physique dans cette recette. La correction de compteur décrite ci-dessous reste non installée pendant ce parcours.
+
+### Modification de l'affichage
+
+Retour utilisateur : le joueur n'a pas besoin du compteur « 1 / 2 réponses confirmées ». Le client masque désormais ce compteur aux joueurs ; il reste affiché à l'animateur. Le reçu de la réponse du joueur et son message d'attente restent disponibles. Le protocole n'est pas modifié : il s'agit d'une règle d'affichage, pas d'une suppression de ces données du réseau.
+
+Préparation APK 0.15 et cache `kuikuiz-mock-shell-v6`, même moteur et base v4 que 0.14. Test navigateur du masquage pendant la question, après rafraîchissement et après reconnexion, avec compteur animateur visible. Cette correction n'est pas installée sur le Pixel encore isolé pour la recette ; mise à jour et contrôle tactile à faire après retour au réseau de préparation.
+
+L'utilisateur demande ensuite de charger cette correction sans recette physique dédiée ; contrôle visuel reporté au prochain essai. Compilation Gradle 0.15 positive, moteur inchangé. Installation en attente du retour du Pixel sur le réseau de préparation et du débogage sans fil (appareil encore hors ligne lors de la compilation). Aucune nouvelle recette fonctionnelle lancée pour cette préparation.
+
+Après nouvelle détection demandée par l'utilisateur, Pixel retrouvé à `192.168.1.21:41715`. Arrêt de la seule application puis `adb install -r` positif ; version installée vérifiée **0.15-experiment**. Données et certificats conservés. Aucune recette fonctionnelle supplémentaire ni relance de l'hôte effectuée ; activation du cache v6 et contrôle visuel reportés au prochain essai conformément à la demande.
