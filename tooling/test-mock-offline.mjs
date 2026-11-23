@@ -9,13 +9,13 @@ import {createMockServer} from '../apps/server-node/mock-server.mjs';
 
 await buildEngine();
 const directory=await mkdtemp(join(tmpdir(),'kuikuiz-offline-'));
-const cacheName='kuikuiz-mock-shell-v1';
+const cacheName='kuikuiz-mock-shell-v2';
 let app,browser,port=0,badStyle=false,badUpdate=false;
 async function start(){
   app=await createMockServer({filename:join(directory,'game.sqlite'),assetReader:async url=>{
     if(badStyle&&url.pathname.endsWith('/style.css'))throw new Error('Ressource indisponible injectée');
     const bytes=await readFile(url);
-    if(badUpdate&&url.pathname.endsWith('/sw.js'))return Buffer.from(bytes.toString().replace('kuikuiz-mock-shell-v1','kuikuiz-mock-shell-v2').replace("'/icon.svg'","'/absent.svg'"));
+    if(badUpdate&&url.pathname.endsWith('/sw.js'))return Buffer.from(bytes.toString().replace('kuikuiz-mock-shell-v2','kuikuiz-mock-shell-v3').replace("'/icon.svg'","'/absent.svg'"));
     return bytes;
   }});
   app.server.listen(port,'127.0.0.1');await once(app.server,'listening');port=app.server.address().port;

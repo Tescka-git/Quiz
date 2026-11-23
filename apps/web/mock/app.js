@@ -9,7 +9,8 @@ const errors={'invalid-message':'Message non reconnu. Rechargez la page.','unkno
   unauthorized:'Cet accès à la partie n’est plus valide. Revenez à l’accueil.',forbidden:'Cette action est réservée à l’animateur.',
   'already-started':'La partie a déjà commencé. Seuls les joueurs inscrits peuvent revenir.', 'no-players':'Un joueur doit rejoindre avant le lancement.',
   'not-started':'La question n’a pas encore commencé.','storage-failed':'La sauvegarde n’a pas abouti. Aucune nouvelle réponse n’est confirmée. Réessayez ou reconnectez-vous.'};
-function error(message){$('error').textContent=message;$('error').hidden=!message;}
+let connectionError=false;
+function error(message,network=false){connectionError=network;$('error').textContent=message;$('error').hidden=!message;}
 function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringify(value));}catch{error('Cet onglet ne peut pas conserver votre accès après fermeture.');}}
 function send(message){if(!connected)return false;socket.send(JSON.stringify({v:1,...message}));return true;}
 async function connect(){
@@ -25,7 +26,7 @@ async function connect(){
   }
   catch{
     $('host-status').textContent='Hôte injoignable. Les écrans restent accessibles ; la partie attend sa connexion.';
-    error('Impossible de joindre l’hôte. Vérifiez le réseau et que la maquette est démarrée.');
+    error('Impossible de joindre l’hôte. Vérifiez le réseau et que la maquette est démarrée.',true);
     $('join-form').querySelector('button').disabled=false;
     if(!stopped&&credentials)retry=setTimeout(connect,2000);return;
   }finally{clearTimeout(timeout);}
@@ -42,6 +43,7 @@ async function connect(){
     if(message.type==='credentials'){save(message);joinDetails=null;}
     if(message.type==='state'){
       $('host-status').textContent='Connecté à la partie.';
+      if(connectionError)error('');
       if(snapshot?.questionId!==message.questionId){selected='';pending=null;clearTimeout(ackTimeout);$('choices').querySelectorAll('.choice').forEach(node=>node.remove());error('');}
       snapshot=message;anchor=performance.now();
       if(message.ownAnswer){selected=message.ownAnswer.option;pending=null;clearTimeout(ackTimeout);}
@@ -63,8 +65,8 @@ async function connect(){
   };
   socket.onclose=()=>{connected=false;$('host-status').textContent='Hôte déconnecté. Les commandes sont indisponibles jusqu’à la reconnexion.';if(pending)pending.sending=false;clearTimeout(ackTimeout);if(snapshot)render();else $('join-form').querySelector('button').disabled=false;
     if(!stopped&&credentials)retry=setTimeout(connect,2000);
-    else if(!credentials&&joinDetails)error('Connexion interrompue. Réessayez de rejoindre la salle.');};
-  socket.onerror=()=>error('Connexion interrompue. Vérifiez le serveur et le réseau.');
+    else if(!credentials&&joinDetails)error('Connexion interrompue. Réessayez de rejoindre la salle.',true);};
+  socket.onerror=()=>error('Connexion interrompue. Vérifiez le serveur et le réseau.',true);
 }
 function remaining(){return snapshot?Math.max(0,snapshot.remainingMs-(snapshot.phase==='open'?performance.now()-anchor:0)):0;}
 function tick(){if(!snapshot)return;const left=remaining();$('timer').textContent=snapshot.phase==='closed'?'Terminé':`${Math.ceil(left/1000)} s`;$('time-progress').value=left;$('time-progress').hidden=snapshot.phase==='closed';

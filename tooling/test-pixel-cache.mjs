@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 const adb=process.env.KUIKUIZ_ADB,device=process.env.KUIKUIZ_DEVICE;
 if(!adb||!device)throw new Error('KUIKUIZ_ADB et KUIKUIZ_DEVICE requis. Ce test arrête puis relance uniquement la maquette.');
 const origin=process.env.KUIKUIZ_ORIGIN||'https://192.168.1.21:8443';
-const cacheName='kuikuiz-mock-shell-v1',execute=promisify(execFile);
+const cacheName='kuikuiz-mock-shell-v2',execute=promisify(execFile);
 const shell=(...args)=>execute(adb,['-s',device,'shell',...args]);
 const ca=await readFile(new URL('../.tools/tls/ca.pem',import.meta.url));
 function probe(){return new Promise((resolve,reject)=>{
@@ -40,7 +40,7 @@ async function chrome(page){await shell('am','start','-a','android.intent.action
 const checks=[];let local,pixel,page,report={result:'FAIL',origin,checks};
 try{
   const pkg=(await shell('dumpsys','package','fr.kuikuiz.probe')).stdout;
-  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.9-experiment');
+  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.11-experiment');
   await stop();await start();await chrome();
   const chromeDeadline=Date.now()+30000;let chromeError;
   while(Date.now()<chromeDeadline&&!pixel){

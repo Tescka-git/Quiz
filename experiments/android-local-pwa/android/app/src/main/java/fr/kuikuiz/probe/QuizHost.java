@@ -167,8 +167,9 @@ final class QuizHost implements AutoCloseable {
             }finally{db.endTransaction();}
             return null;
         }catch(Exception e){throw new java.util.concurrent.CompletionException(e);}}).get(45,TimeUnit.SECONDS);
+        final java.util.concurrent.CompletableFuture<Void> socketReady=new java.util.concurrent.CompletableFuture<>();
         sockets=new WebSocketServer(new InetSocketAddress("0.0.0.0",socketPort)){
-            @Override public void onStart(){setConnectionLostTimeout(15);QuizService.write("WebSocket de jeu actif : port "+socketPort+". Moteur "+engine.sha256);}
+            @Override public void onStart(){setConnectionLostTimeout(15);QuizService.write("WebSocket de jeu actif : port "+socketPort+". Moteur "+engine.sha256);socketReady.complete(null);}
             @Override public void onOpen(WebSocket socket,ClientHandshake handshake){
                 if(closing){socket.close(1001,"Arrêt en cours");return;}
                 String host=handshake.getFieldValue("Host"),origin=handshake.getFieldValue("Origin");
@@ -179,10 +180,12 @@ final class QuizHost implements AutoCloseable {
             }
             @Override public void onMessage(WebSocket socket,String raw){if(!closing)worker.execute(()->message(socket,raw));}
             @Override public void onClose(WebSocket socket,int code,String reason,boolean remote){if(!closing)worker.execute(()->{identities.remove(socket);limits.remove(socket);});}
-            @Override public void onError(WebSocket socket,Exception e){QuizService.write("Erreur réseau : "+e.getClass().getSimpleName());}
+            @Override public void onError(WebSocket socket,Exception e){if(socket==null)socketReady.completeExceptionally(e);QuizService.write("Erreur réseau : "+e.getClass().getSimpleName());}
         };
+        sockets.setReuseAddr(true);
         if(tls!=null)sockets.setWebSocketFactory(new org.java_websocket.server.DefaultSSLWebSocketServerFactory(tls));
         sockets.start();
+        socketReady.get(10,TimeUnit.SECONDS);
         http=new NanoHTTPD("0.0.0.0",httpPort){
             @Override public Response serve(IHTTPSession request){
                 try{

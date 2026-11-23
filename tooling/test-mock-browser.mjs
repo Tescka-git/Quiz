@@ -20,6 +20,12 @@ try{
   const hostContext=await browser.newContext({viewport:{width:1280,height:900},ignoreHTTPSErrors:labTlsException});
   const playerContext=await browser.newContext({viewport:{width:390,height:844},ignoreHTTPSErrors:labTlsException});
   const otherContext=await browser.newContext({viewport:{width:900,height:800},ignoreHTTPSErrors:labTlsException});
+  await playerContext.addInitScript(()=>{
+    const NativeWebSocket=window.WebSocket;
+    window.WebSocket=class extends NativeWebSocket {
+      constructor(...args){super(...args);window.testSocket=this;}
+    };
+  });
   const host=await hostContext.newPage(),player=await playerContext.newPage(),other=await otherContext.newPage();
   const errors=[];for(const page of [host,player,other])page.on('pageerror',e=>errors.push(e.message));
   const outsideRequests=[];
@@ -67,6 +73,25 @@ try{
     await player.locator('#results').waitFor({state:'visible'});
     assert.match(await player.locator('#ranking tr').first().innerText(),new RegExp(`${number}[\\s\\u202f\\u00a0]?000`));
   }
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='La partie est terminée !');
+  // Garder le même écran : une alerte réseau doit disparaître après un état serveur frais.
+  await playerContext.setOffline(true);
+  await player.evaluate(()=>window.testSocket.close());
+  await player.waitForFunction(()=>!document.getElementById('error').hidden);
+  await playerContext.setOffline(false);
+  await player.waitForFunction(()=>document.getElementById('host-status').textContent==='Connecté à la partie.'&&document.getElementById('error').hidden);
+  assert.match(await player.locator('#ranking tr').first().innerText(),/3[\s\u202f\u00a0]?000/);
+  // Une erreur métier ne doit pas disparaître au prochain simple rafraîchissement d'état.
+  await player.evaluate(()=>window.testSocket.send(JSON.stringify({v:1,type:'start'})));
+  await player.waitForFunction(()=>document.getElementById('error').textContent==='Cette action est réservée à l’animateur.');
+  await player.evaluate(()=>new Promise(resolve=>{
+    const ws=window.testSocket;
+    const receive=event=>{if(JSON.parse(event.data).type==='state'){ws.removeEventListener('message',receive);resolve();}};
+    ws.addEventListener('message',receive);ws.send(JSON.stringify({v:1,type:'sync'}));
+  }));
+  await player.waitForFunction(()=>document.getElementById('host-status').textContent==='Connecté à la partie.');
+  assert.equal(await player.locator('#error').isVisible(),true);
+  await player.reload();
   await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='La partie est terminée !');
   assert.equal(await host.locator('#next').isHidden(),true);
   await player.screenshot({path:'artifacts/mock-preview/joueur-final.png',fullPage:true});

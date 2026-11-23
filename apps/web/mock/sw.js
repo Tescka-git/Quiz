@@ -1,5 +1,5 @@
 // Changer cette version à chaque modification des ressources de l'interface.
-const CACHE='kuikuiz-mock-shell-v1';
+const CACHE='kuikuiz-mock-shell-v2';
 const FILES=['/','/app.js','/offline.js','/style.css','/manifest.webmanifest','/icon.svg','/connection.json'];
 const PAGES=['/','/animateur','/joueur'];
 self.addEventListener('install',event=>{

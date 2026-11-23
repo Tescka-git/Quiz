@@ -1,12 +1,20 @@
 # Matrice et checklist de compatibilité des navigateurs
 
-**Référence :** 22 novembre 2026. Document vivant : compléter les résultats à chaque essai, sans transformer un test partiel en compatibilité générale.
+**Référence :** 23 novembre 2026. Document vivant : compléter les résultats à chaque essai, sans transformer un test partiel en compatibilité générale.
 
 **Complément P16 :** Chrome 157 sur Pixel 7 a joué les trois questions depuis le serveur Node PC en HTTPS/WSS local, sans contournement TLS par le script côté téléphone. L'autorité de laboratoire était déjà installée ; `isSecureContext=true`, 3 000 points attendus. Cela valide ce parcours client, sans valider l'hôte Android WSS, Firefox, iOS ou le cache PWA de la maquette. Voir [le rapport](P16_MAQUETTE_TROIS_QUESTIONS.md).
 
 **Complément P17 :** le même Chrome Pixel a aussi joué les trois questions sur **l'hôte Android HTTPS/WSS**, à `192.168.1.21` sur le Wi-Fi habituel : 3 000 points et contexte sécurisé. Hôte et joueur sont sur le même Pixel, animateur automatisé sur PC. Pas de deuxième téléphone, cache PWA, WSS du point d'accès, Firefox ou iOS validés par ce résultat. Voir [P17](P17_HTTPS_WSS_ANDROID.md).
 
 ## Périmètre de recette
+
+**Résultat actualisé P21 / 0.11 :** réponse Mars à 1 000 points du Redmi vérifiée dans le snapshot et le registre SQL avant/après arrêt forcé Pixel ; reprise HTTPS/WSS et résultats attendus confirmés manuellement. Question expirée avant arrêt, donc pas de preuve de gel avant échéance. Sur 0.10, reconnexion sans rafraîchissement et veille courte avec disparition de l'alerte également positives selon l'utilisateur. Réseau non isolé de façon démontrée dans ces essais.
+
+**Réserve réseau P21 :** Pixel retrouvé ensuite sur le Wi-Fi habituel et réglage données mobiles activé ; instant du retour inconnu. Ne pas qualifier reconnexion/rechargement/veille ultérieurs d'essais sans Internet. Le quiz initial garde sa source déclarative explicite ; aucun isolement rétroactif démontré.
+
+**Suite Redmi du 23 novembre :** après reconnexion au bon point d'accès, classement final et 3 000 points retrouvés, puis conservés après rafraîchissement. Après veille pendant la pause repas, affichage conservé avec alerte réseau ; rafraîchissement positif à 3 000 points. Reconnexion automatique après veille non établie. Correctif d'alerte testé sur Chrome PC mais non installé sur téléphone. Voir P21.
+
+**23 novembre — complément P21 :** Chrome Redmi sur `https://10.186.21.94:8443`, point d'accès du Pixel, APK hôte 0.9 vérifié. L'utilisateur confirme affichage sans alerte, puis trois questions, révélation automatique et 3 000 points avec Wi-Fi habituel/données mobiles du Pixel et données mobiles du Redmi coupés. PC resté en ligne pour l'échange. Source manuelle pour les coupures et résultats ; version Chrome Redmi non relevée. La préparation du cache est affichée, mais rechargement hôte arrêté, reconnexion, veille et installation PWA Redmi restent non testés. Voir [P21](P21_REDMI_CLOTURE_AUTOMATIQUE.md).
 
 **P21 — Redmi Note 11 :** utilisateur : Android 13, HyperOS « 1.05.0 », Chrome mis à jour (version non relevée). Autorité de laboratoire installée avec accord ; page HTTPS sans alerte et retour positif après consigne du quiz Pixel animateur / Redmi joueur sur Wi-Fi habituel. Score chiffré non relevé. Clôture automatique ajoutée ensuite dans APK 0.9 : recette tactile Redmi encore à compléter. Voir [P21](P21_REDMI_CLOTURE_AUTOMATIQUE.md). Cache, point d'accès sans Internet et compatibilité générale non validés par ce retour.
 
@@ -20,7 +28,7 @@ Ce socle de test vise un nombre limité de navigateurs usuels. Il définit les c
 
 | ID | Système | Navigateur | Place dans la recette | État actuel |
 |---|---|---|---|---|
-| A-CHR | Android | Chrome stable | Socle prioritaire | Pixel 7 : HTTPS et cache partiellement validés, voir relevé ci-dessous |
+| A-CHR | Android | Chrome stable | Socle prioritaire | Pixel 7 : HTTPS et cache partiellement validés ; Redmi : quiz sur point d'accès sans Internet confirmé manuellement, voir P21 |
 | A-FF | Android | Firefox stable | Socle prioritaire ; résolution requise avant déclaration de compatibilité | Pixel 7 : erreur TLS avec exception manuelle ; non validé |
 | A-SAM | Android | Samsung Browser / Samsung Internet stable | Socle, à tester sur un Galaxy physique | Non testé |
 | I-SAF | iOS | Safari fourni avec iOS | Socle prioritaire | Non testé |
