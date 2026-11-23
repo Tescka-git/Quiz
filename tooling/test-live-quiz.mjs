@@ -36,6 +36,7 @@ try{
   const url=new URL(config.socketPath,origin);if(url.protocol==='http:')url.protocol='ws:';if(url.protocol==='https:')url.protocol='wss:';endpoint=url.href;
   const response=await http('/api/rooms','POST',{Origin:origin});assert.equal(response.status,201);
   const credentials=JSON.parse(response.text);
+  assert.match(credentials.code,/^[0-9]{4}$/,'Code court de laboratoire attendu');
   const host=await client({type:'host',...credentials});await host.next(m=>m.type==='state'&&m.phase==='lobby');
   const player=await client({type:'join',code:credentials.code,name:'Test réseau'});
   const access=await player.next(m=>m.type==='credentials');await player.next(m=>m.type==='state'&&m.phase==='lobby');

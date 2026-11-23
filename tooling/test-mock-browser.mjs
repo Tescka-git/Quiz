@@ -35,6 +35,7 @@ try{
   });
   await host.goto(origin+'/animateur');await host.getByRole('button',{name:'Créer une partie',exact:true}).click();
   await host.locator('#room-code').waitFor({state:'visible'});const code=await host.locator('#room-code').innerText();
+  assert.match(code,/^[0-9]{4}$/);
   for(const [page,name] of [[player,'Camille'],[other,'Alex']]){
     await page.goto(origin+'/joueur');await page.locator('#code').fill(code);await page.locator('#name').fill(name);
     await page.getByRole('button',{name:'Rejoindre la salle'}).click();await page.locator('#room-code').waitFor({state:'visible'});

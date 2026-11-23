@@ -66,7 +66,14 @@ final class QuizHost implements AutoCloseable {
         if(player==null)throw new Exception("unauthorized");return identity.put("playerId",player.getString("id"));
     }
     private JSONObject create() throws Exception {
-        String id=token(24),secret=token(24),code=token(4).toUpperCase(java.util.Locale.ROOT);
+        // Maquette de laboratoire : conserver l'unicité même pour les anciennes salles.
+        String code=null;
+        for(int attempt=0;attempt<10000;attempt++){
+            String candidate=String.format(java.util.Locale.ROOT,"%04d",(1234+attempt)%10000);
+            if(row("SELECT id FROM mock_rooms WHERE code=?",candidate)==null){code=candidate;break;}
+        }
+        if(code==null)throw new Exception("Laboratory room codes exhausted");
+        String id=token(24),secret=token(24);
         db.execSQL("INSERT INTO mock_rooms VALUES (?,?,?,?,?)",new Object[]{id,code,hash(secret),engine.sha256,questions.toString()});
         return new JSONObject().put("role","host").put("roomId",id).put("token",secret).put("code",code);
     }

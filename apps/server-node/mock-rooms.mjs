@@ -28,7 +28,14 @@ export class MockRooms {
   state(id) {try{return this.store.read(id);}catch(error){if(error.message==='Unknown session')return null;throw error;}}
   room(id) {const row=this.db.prepare('SELECT * FROM mock_rooms WHERE id=?').get(id);if(!row)throw new Error('unknown-room');return row;}
   create() {
-    const id=token(),secret=token(),code=randomBytes(4).toString('hex').toUpperCase();
+    // Maquette de laboratoire seulement : codes courts distincts, jamais réattribués.
+    let code;
+    for(let attempt=0;attempt<10000;attempt++){
+      const candidate=String((1234+attempt)%10000).padStart(4,'0');
+      if(!this.db.prepare('SELECT id FROM mock_rooms WHERE code=?').get(candidate)){code=candidate;break;}
+    }
+    if(!code)throw new Error('Laboratory room codes exhausted');
+    const id=token(),secret=token();
     this.db.prepare('INSERT INTO mock_rooms VALUES (?,?,?,?,?)').run(id,code,hash(secret),this.engineHash,JSON.stringify(questions));
     return {role:'host',roomId:id,token:secret,code};
   }

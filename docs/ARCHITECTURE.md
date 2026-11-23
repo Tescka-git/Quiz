@@ -2,6 +2,8 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**P23 — Firefox Redmi :** [recette manuelle](experiments/P23_FIREFOX_ANDROID.md) positive sur Firefox 160.0.1 / Wi-Fi maison après activation explicite de la confiance envers les autorités ajoutées dans Android. Page sans exception puis quiz positif ; cache et hors Internet Firefox encore à tester. Codes de maquette à quatre chiffres en préparation 0.16, jetons secrets et moteur inchangés. La stratégie HTTPS/WSS sans installation d'autorité reste ouverte.
+
 **P22 — parcours local 0.14 terminé :** trois questions, révélation automatique avec Tutu sans réponse, reconnexion Redmi sans rafraîchissement et classement final 3 000/0 positifs selon l'utilisateur. Coupures des accès amont des téléphones confirmées avant et après, PC en ligne ; pas de mesure indépendante du trafic. La préparation 0.15 masque le compteur joueur dans les sources, sans installation pendant cet essai. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
 
 **P22 — 0.14 sans Internet, recette déclarative :** première question sur Redmi joueur/Pixel hôte, Tutu sans réponse, révélation automatique à 1 000/0 points positive. L'utilisateur vérifie les coupures Wi-Fi amont/données mobiles Pixel et données mobiles Redmi avant et après ; PC maintenu en ligne. Pas de télémétrie indépendante après coupure. Compteur de réponses réservé à l'animateur dans les sources de préparation 0.15, non installé sur téléphone. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).

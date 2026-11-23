@@ -8,6 +8,8 @@
 
 ## Périmètre de recette
 
+**P23 — Firefox 160.0.1 sur Redmi :** avertissement TLS initial, puis activation de « Use third-party CA certificates » dans le menu de diagnostic ; page HTTPS sans exception et quiz confirmés manuellement sur le Wi-Fi maison, Pixel hôte 0.15. Autorité Android de laboratoire installée, aucune désactivation TLS. Cache, reconnexion et point d'accès sans Internet Firefox non validés. Incident Pixel historique séparé. Voir [P23](P23_FIREFOX_ANDROID.md).
+
 **P22 — résultat final local 0.14 :** utilisateur confirme les trois questions, reconnexion Redmi sans rafraîchissement, révélations automatiques, 3 000 points pour son joueur et 0 pour Tutu. Coupures amont des téléphones confirmées avant/après, PC maintenu en ligne. Résultat manuel sans mesure indépendante de trafic ; aucune nouvelle veille ni charge physique. Les résultats limités à la première question ci-dessous sont des étapes intermédiaires. Compteur joueur masqué en préparation 0.15 non installée.
 
 **P22 — 0.14, première question locale répétée :** utilisateur confirme message d'attente, révélation à l'échéance et 1 000/0 points sur Pixel/Redmi, puis Wi-Fi amont/données mobiles Pixel et données mobiles Redmi toujours coupés, après confirmation identique avant lancement. Source manuelle, PC en ligne, pas de télémétrie après coupure. Nouvelle reconnexion et veille non testées dans ce lot ; compteur joueur masqué en sources 0.15 seulement. Voir P22.
@@ -37,7 +39,7 @@ Ce socle de test vise un nombre limité de navigateurs usuels. Il définit les c
 | ID | Système | Navigateur | Place dans la recette | État actuel |
 |---|---|---|---|---|
 | A-CHR | Android | Chrome stable | Socle prioritaire | Pixel 7 : HTTPS et cache partiellement validés ; Redmi : quiz sur point d'accès sans Internet confirmé manuellement, voir P21 |
-| A-FF | Android | Firefox stable | Socle prioritaire ; résolution requise avant déclaration de compatibilité | Pixel 7 : erreur TLS avec exception manuelle ; non validé |
+| A-FF | Android | Firefox stable | Socle prioritaire ; résolution requise avant déclaration de compatibilité | Redmi 160.0.1 : HTTPS/WSS et quiz positifs avec confiance Android explicitement activée ; cache/hors Internet restants. Pixel : ancien incident non rejoué |
 | A-SAM | Android | Samsung Browser / Samsung Internet stable | Socle, à tester sur un Galaxy physique | Non testé |
 | I-SAF | iOS | Safari fourni avec iOS | Socle prioritaire | Non testé |
 | I-CHR | iOS | Chrome stable | Socle complémentaire | Non testé |

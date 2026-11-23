@@ -47,6 +47,19 @@ async function joinPlayer(t,app,code,name='Camille'){
   return{connection,credentials};
 }
 
+test('codes laboratoire : 1234 puis 1235, accès distincts et anciennes salles conservées',async t=>{
+  const env=await environment(t);let app=await env.start();
+  const first=await room(t,app),second=await room(t,app);
+  assert.equal(first.credentials.code,'1234');assert.equal(second.credentials.code,'1235');
+  assert.notEqual(first.credentials.token,second.credentials.token);
+  assert.notEqual(first.credentials.roomId,second.credentials.roomId);
+  const {credentials:player}=await joinPlayer(t,app,'1234');
+  assert.equal(player.roomId,first.credentials.roomId);
+  await app.stop();app=await env.start();
+  assert.equal((await room(t,app)).credentials.code,'1236');
+  assert.equal((await joinPlayer(t,app,'1234')).credentials.roomId,first.credentials.roomId);
+});
+
 test('partie réseau complète : droits, pause, réponses durables, classement révélé au bon moment',async t=>{
   const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
   const {connection:p1}=await joinPlayer(t,app,credentials.code,'Camille');
