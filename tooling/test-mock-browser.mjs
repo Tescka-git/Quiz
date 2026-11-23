@@ -8,8 +8,9 @@ import { buildEngine } from './engine-build.mjs';
 import { createMockServer } from '../apps/server-node/mock-server.mjs';
 
 await buildEngine();
+let clockOffset=0;
 const directory=await mkdtemp(join(tmpdir(),'kuikuiz-browser-'));
-const app=process.env.KUIKUIZ_ORIGIN?null:await createMockServer({filename:join(directory,'game.sqlite')});
+const app=process.env.KUIKUIZ_ORIGIN?null:await createMockServer({filename:join(directory,'game.sqlite'),clock:()=>performance.now()+clockOffset});
 let browser;
 try{
   if(app){app.server.listen(0,'127.0.0.1');await once(app.server,'listening');}
@@ -51,6 +52,7 @@ try{
   await host.screenshot({path:'artifacts/mock-preview/animateur-question.png',fullPage:true});
   await player.getByRole('radio',{name:'Mars',exact:true}).check();await player.getByRole('button',{name:'Confirmer ma réponse'}).click();
   await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
+  assert.equal(await player.locator('#answer-wait').isVisible(),true);
   await player.reload();await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isChecked(),true);
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isDisabled(),true);
@@ -119,7 +121,30 @@ try{
   await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.');
   assert.equal(await player.locator('#room-code').innerText(),nextCode);
   assert.equal(await player.locator('#question-number').innerText(),'Question 2 / 3');
-  await player.evaluate(()=>window.testSocket.send(JSON.stringify({v:1,type:'sync'})));
+  const thirdCode=await host.locator('#room-code').innerText();
+  const savedAccess=await player.evaluate(()=>localStorage.getItem('kuikuiz.mock.player'));
+  await player.locator('#forget').click();await player.locator('.player-entry').click();
+  await player.locator('#join-form').waitFor({state:'visible'});
+  assert.equal(await player.locator('#error').isHidden(),true);
+  assert.equal(await player.evaluate(()=>localStorage.getItem('kuikuiz.mock.player')),savedAccess);
+  await player.reload();await player.locator('#join-form').waitFor({state:'visible'});
+  await player.locator('#code').fill(thirdCode);await player.locator('#name').fill('Camille');await player.locator('#join-form button').click();
+  await player.locator('#room-code').waitFor({state:'visible'});
+  assert.equal(new URL(player.url()).searchParams.has('new'),false);
+  await player.reload();await player.locator('#room-code').waitFor({state:'visible'});
+  assert.equal(await player.locator('#room-code').innerText(),thirdCode);
+  await other.goto(origin+'/joueur?code='+thirdCode);await other.locator('#name').fill('Sans réponse');await other.locator('#join-form button').click();
+  await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');
+  await host.locator('#start').click();await player.getByRole('radio',{name:'Mars',exact:true}).check();await player.locator('#submit-answer').click();
+  await player.locator('#answer-wait').waitFor({state:'visible'});
+  if(app)clockOffset+=31000;
+  await player.locator('#results').waitFor({state:'visible',timeout:45000});
+  assert.equal(await player.locator('#answer-wait').isHidden(),true);
+  assert.match(await player.locator('#ranking tr').first().innerText(),/1[\s\u202f\u00a0]?000/);
+  await player.evaluate(()=>localStorage.setItem('kuikuiz.mock.player',JSON.stringify({roomId:'inexistante',token:'ancien-acces',code:'00000000'})));
+  await player.goto(origin+'/');await player.locator('.player-entry').click();
+  await player.locator('#join-form').waitFor({state:'visible'});
+  assert.equal(await player.locator('#error').isHidden(),true);
   assert.deepEqual(errors,[]);
   assert.deepEqual(outsideRequests,[]);
   await writeFile('artifacts/mock-preview/browser-report.json',JSON.stringify({date:new Date().toISOString(),origin,result:'PASS',

@@ -26,6 +26,8 @@ npm test
 - La commande `checkpoint` actualise le temps sans changer la phase ; son enregistrement durable appartient à l'adaptateur. En pause ou après clôture, elle n'ajoute pas de temps.
 - L'appelant est responsable de la validation des données réseau, de l'authentification des commandes animateur, de la sérialisation des commandes et des transactions.
 
+Depuis P22, `applyQuiz` clôture également à l'échéance autoritaire, notamment lors d'un `checkpoint`. Les adaptateurs hôtes doivent continuer les checkpoints jusqu'à la clôture et persister l'état avant publication. Une pause n'accumule pas de temps ; le navigateur ne décide jamais seul de révéler. `next` reste explicite. L'API historique `apply` des sondes de question isolée conserve ses conventions précédentes.
+
 `accepted-in-memory` signifie uniquement que la règle a accepté la réponse dans l'état retourné. Ce résultat n'autorise pas une confirmation durable au joueur : celle-ci exige un commit dans un adaptateur de stockage. Les adaptateurs expérimentaux sont désormais présents sur Node et Android ; voir [P16](../../docs/experiments/P16_MAQUETTE_TROIS_QUESTIONS.md).
 
 Une retransmission strictement identique retrouve sa réponse dans la question courante, même après clôture et sérialisation. Réutiliser son identifiant pour un autre joueur ou une autre option est un conflit. Les identifiants de soumission sont uniques à leur instance de question ; le registre des quiz les indexe par session et question. Après progression, un message de l'ancienne question est refusé sans modifier la nouvelle. Annulation et nouvelle tentative d'une même question restent hors périmètre.

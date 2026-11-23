@@ -3,6 +3,8 @@ const role=location.pathname==='/animateur'?'host':location.pathname==='/joueur'
 const key=role?`kuikuiz.mock.${role}`:null;
 let credentials;try{credentials=key?JSON.parse(localStorage.getItem(key)):null;}catch{}
 const requestedCode=new URLSearchParams(location.search).get('code')?.toUpperCase();
+const joiningNew=role==='player'&&new URLSearchParams(location.search).get('new')==='1';
+if(joiningNew)credentials=null;
 if(role==='player'&&requestedCode&&credentials?.code!==requestedCode)credentials=null;
 let socket,connected=false,retry,stopped=false,snapshot,selected='',pending=null,anchor=0,joinDetails=null,ackTimeout;
 const errors={'invalid-message':'Message non reconnu. Rechargez la page.','unknown-room':'Cette partie est introuvable. Vérifiez le code.',
@@ -11,7 +13,8 @@ const errors={'invalid-message':'Message non reconnu. Rechargez la page.','unkno
   'not-started':'La question n’a pas encore commencé.','storage-failed':'La sauvegarde n’a pas abouti. Aucune nouvelle réponse n’est confirmée. Réessayez ou reconnectez-vous.'};
 let connectionError=false;
 function error(message,network=false){connectionError=network;$('error').textContent=message;$('error').hidden=!message;}
-function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringify(value));}catch{error('Cet onglet ne peut pas conserver votre accès après fermeture.');}}
+function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringify(value));}catch{error('Cet onglet ne peut pas conserver votre accès après fermeture.');}
+  if(role==='player'){const url=new URL(location.href);url.searchParams.delete('new');history.replaceState(null,'',url.pathname+url.search+url.hash);}}
 function send(message){if(!connected)return false;socket.send(JSON.stringify({v:1,...message}));return true;}
 async function connect(){
   clearTimeout(retry);stopped=false;
@@ -100,13 +103,14 @@ function render(){
   $('submit-answer').hidden=role!=='player'||snapshot.phase==='closed';
   $('receipt').textContent=snapshot.ownAnswer?'Réponse confirmée et enregistrée.':pending?(pending.sending?'Envoi en cours…':'Confirmation non reçue. Vous pouvez renvoyer la même réponse.'):
     role==='player'?'Votre réponse sera définitive après confirmation.':'';
+  $('answer-wait').hidden=role!=='player'||!snapshot.ownAnswer||snapshot.phase!=='open';
   $('host-controls').hidden=role!=='host';
   for(const id of ['start','pause','resume','reveal','next']){
     $(id).hidden=id==='next'?snapshot.phase!=='closed'||snapshot.final:id==='start'?snapshot.phase!=='lobby':id==='pause'?snapshot.phase!=='open':id==='resume'?snapshot.phase!=='paused':['lobby','closed'].includes(snapshot.phase);
     $(id).disabled=!connected||(id==='start'&&!snapshot.total);
   }
   $('results').hidden=snapshot.phase!=='closed';$('new-room').hidden=role!=='host';
-  $('join-another').hidden=role!=='player'||!snapshot.final;
+  $('join-another').hidden=role!=='player';
   if(snapshot.phase==='closed'){
     $('correction').textContent=`La bonne réponse : ${snapshot.question.choices.find(c=>c.id===snapshot.correctOption).text}.`;
     $('ranking').replaceChildren();snapshot.ranking.forEach(row=>{const tr=document.createElement('tr');[row.rank,row.name,`${row.points.toLocaleString('fr-FR')} pts`].forEach(value=>{const td=document.createElement('td');td.textContent=value;tr.append(td);});$('ranking').append(tr);});
@@ -124,10 +128,11 @@ $('submit-answer').onclick=()=>{
   ackTimeout=setTimeout(()=>{if(pending){pending.sending=false;send({type:'sync'});render();}},8000);
 };
 $('forget').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();location.href='/';};
-$('reset-access').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();localStorage.removeItem(key);location.reload();};
-$('join-another').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();localStorage.removeItem(key);location.href='/joueur';};
+$('reset-access').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();if(role==='player'){location.href='/joueur?new=1';return;}localStorage.removeItem(key);location.reload();};
+$('join-another').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();location.href='/joueur?new=1';};
 $('new-room').onclick=()=>{stopped=true;clearTimeout(retry);socket?.close();localStorage.removeItem(key);location.reload();};
 if(role){$('welcome').hidden=true;$('setup').hidden=false;$('forget').hidden=false;
+  if(role==='player')$('reset-access').textContent='Rejoindre une autre partie';
   $('setup-eyebrow').textContent=role==='host'?'À vous de mener le jeu':'Bienvenue dans la salle';
   $('setup-title').textContent=role==='host'?'On lance une partie ?':'Prêt à jouer ?';
   $('create-panel').hidden=role!=='host';$('join-form').hidden=role!=='player';

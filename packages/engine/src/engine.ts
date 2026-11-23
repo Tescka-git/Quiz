@@ -118,6 +118,9 @@ namespace KuikuizEngine {
         status: 'next', questionId };
     }
     const result = apply(input.current, command, nowMs);
+    // L'échéance est décidée par l'hôte, jamais par l'horloge du navigateur.
+    if ((input.current.phase === 'open' || result.state.phase === 'open')
+      && result.state.elapsedMs >= result.state.question.durationMs) result.state.phase = 'closed';
     // La liste initiale reste identique entre questions et malgré les déconnexions.
     // L'adaptateur persiste cette clôture avec la dernière réponse avant confirmation.
     if (result.status === 'accepted-in-memory'

@@ -65,7 +65,23 @@ test('quiz : clôture automatique uniquement après toutes les réponses initial
   assert.equal(state.current.phase,'open');
   assert.equal(state.current.answers.length,0);
   const late=engine.applyQuiz(state,answer(),10000,'q2');
-  assert.equal(late.status,'late');assert.equal(late.state.current.phase,'open');
+  assert.equal(late.status,'late');assert.equal(late.state.current.phase,'closed');
+});
+
+test('quiz : échéance autoritaire, pause gelée et retransmission après clôture automatique', () => {
+  let state=engine.createQuiz([question],['p1','p2'],0);
+  state=engine.applyQuiz(state,answer(),1000,'q1').state;
+  const paused=engine.applyQuiz(state,{type:'pause'},2000,'q1').state;
+  assert.equal(engine.applyQuiz(paused,{type:'checkpoint'},20000,'q1').state.current.phase,'paused');
+  state=engine.applyQuiz(paused,{type:'resume'},20000,'q1').state;
+  state=engine.applyQuiz(state,{type:'checkpoint'},27999,'q1').state;
+  assert.equal(state.current.phase,'open');
+  const result=engine.applyQuiz(state,{type:'checkpoint'},28000,'q1');
+  assert.equal(result.state.current.phase,'closed');
+  assert.equal(result.state.current.answers.length,1);
+  assert.equal(engine.applyQuiz(result.state,answer(),29000,'q1').status,'duplicate');
+  assert.equal(engine.recoverQuiz(result.state,0).current.phase,'closed');
+  assert.equal(engine.applyQuiz(engine.createQuiz([question],['p1'],0),{type:'pause'},10000,'q1').state.current.phase,'closed');
 });
 
 test('artefact autonome : score attendu, aucun effet sur les entrées', () => {

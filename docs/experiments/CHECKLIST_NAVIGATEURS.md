@@ -8,6 +8,10 @@
 
 ## Périmètre de recette
 
+**P22 — recette tactile 0.14 :** l'utilisateur confirme sur Redmi le menu participant ouvrant le formulaire sans oubli d'accès, puis le parcours à deux joueurs avec message d'attente et révélation automatique à l'échéance, 1 000 points pour Mars et 0 pour Tutu sans réponse. Source manuelle, pas de nouvelle mesure d'isolement Internet ; version exacte de Chrome Redmi non relevée. Voir [P22](P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
+**P22 — nouvelle version à recetter :** APK 0.13 installé, moteur de clôture à l'échéance et interface modifiée (attente après réponse, changement de salle joueur). Tests Node/Chrome PC positifs et parcours WSS strict sur l'hôte Android à 3 000 points. Ces résultats ne valident pas encore la nouvelle interface au toucher sur Redmi ni l'activation de son cache v4 ; les preuves P21 restent liées aux versions précédentes. Voir [P22](P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
 **Résultat actualisé P21 / 0.11 :** réponse Mars à 1 000 points du Redmi vérifiée dans le snapshot et le registre SQL avant/après arrêt forcé Pixel ; reprise HTTPS/WSS et résultats attendus confirmés manuellement. Question expirée avant arrêt, donc pas de preuve de gel avant échéance. Sur 0.10, reconnexion sans rafraîchissement et veille courte avec disparition de l'alerte également positives selon l'utilisateur. Réseau non isolé de façon démontrée dans ces essais.
 
 **Réserve réseau P21 :** Pixel retrouvé ensuite sur le Wi-Fi habituel et réglage données mobiles activé ; instant du retour inconnu. Ne pas qualifier reconnexion/rechargement/veille ultérieurs d'essais sans Internet. Le quiz initial garde sa source déclarative explicite ; aucun isolement rétroactif démontré.

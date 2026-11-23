@@ -173,6 +173,30 @@ test('déconnexion : effectif initial conservé, dernière réponse clôturée d
   assert.deepEqual(closed.ranking.map(row=>row.points),[1000,0]);
 });
 
+test('échéance : clôture et résultats durables sans réponse de tous, rollback puis reconnexion',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  await joinPlayer(t,app,credentials.code,'Sans réponse');
+  host.send({type:'start'});await player.next(state('open'));
+  player.send({type:'answer',questionId:'planete',submissionId:'kept',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  env.setNow(31000);
+  const db=new DatabaseSync(env.filename);
+  try{
+    db.exec("CREATE TRIGGER fail_expiry BEFORE UPDATE ON quiz_sessions BEGIN SELECT RAISE(ABORT,'injected'); END");
+    assert.throws(()=>app.rooms.checkpoint());
+    assert.equal(JSON.parse(db.prepare('SELECT state_json FROM quiz_sessions').get().state_json).current.phase,'open');
+    db.exec('DROP TRIGGER fail_expiry');app.rooms.checkpoint();
+  }finally{db.close();}
+  host.send({type:'sync'});const closed=await host.next(state('closed',1));
+  assert.deepEqual(closed.ranking.map(row=>row.points),[1000,0]);
+  player.send({type:'answer',questionId:'planete',submissionId:'kept',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).status,'duplicate');
+  await app.stop();env.setNow(0);app=await env.start();
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  assert.equal((await returning.next(state('closed',1))).ownAnswer.option,'mars');
+});
+
 test('30 joueurs simulés : trois questions et 90 réponses confirmées sans doublon',async t=>{
   const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
   const players=[];for(let i=0;i<30;i++)players.push((await joinPlayer(t,app,credentials.code,`Joueur ${i+1}`)).connection);

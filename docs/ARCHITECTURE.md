@@ -2,6 +2,12 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**P22 — recette manuelle 0.14 confirmée :** sur Pixel hôte et Redmi joueur, menu de nouvelle inscription, message d'attente après réponse et révélation automatique à l'échéance avec un joueur sans réponse positifs selon l'utilisateur : 1 000 points et 0 pour Tutu. Pas de nouvelle preuve d'isolement Internet dans ce lot. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
+**P22 — parcours d'accueil corrigé en 0.14 :** « Je participe » exprime une nouvelle inscription et ouvre le formulaire sans utiliser l'ancien accès. L'accès précédent n'est remplacé qu'après inscription réussie ; rafraîchir une page de partie conserve la reprise automatique. Même moteur et base v4 que 0.13, cache v5 ; tests navigateur et cache positifs. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).
+
+**P22 — échéance et parcours joueur :** [nouvelle règle partagée](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md) de clôture à l'échéance autoritaire, persistée par les adaptateurs avant révélation. Message d'attente après confirmation et changement de salle joueur accessibles. 35 tests Node et parcours navigateur/cache positifs ; préparation Android 0.13, base v4 séparée conservant les anciennes bases, cache v4. La reprise manuelle P21 depuis le temps restant et les scores attendus a été confirmée avant ce changement de moteur.
+
 **P21 — interruption avant échéance sur 0.12 :** contrôle automatique après une réponse SQL vérifiée, arrêt forcé estimé à 2,675 s, reprise en pause au checkpoint 2,389 s avec 27,611 s restantes. Réponse et registre inchangés, 1 000 points, temps de pause stable ; HTTPS/WSS vérifiés. L'écart de checkpoint observé est de 286 ms, sans mesure de l'instant exact de mort du processus. Reprise au dernier point durable, pas gel exact à la milliseconde. Confirmation visuelle et reprise depuis Redmi encore attendues ; voir P21.
 
 **Résultat P21 après correction 0.11 :** réponse Redmi/Mars à 1 000 points mesurée dans le snapshot et le registre SQL avant arrêt forcé, puis retrouvée identique après redémarrage HTTPS/WSS. L'utilisateur confirme la récupération et les résultats attendus. Question déjà expirée avant l'arrêt : le gel avant échéance reste à tester. Reconnexion et veille courte Redmi également positives sur 0.10 ; conditions sans Internet non établies pour ces derniers essais. Les compléments ci-dessous conservent la chronologie.

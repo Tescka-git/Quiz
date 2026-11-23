@@ -15,7 +15,7 @@ const run=(...args)=>execute(adb,['-s',device,...args],{encoding:'utf8',timeout:
 const directory='artifacts/recovery-inspection';await mkdir(directory,{recursive:true});
 const ca=await readFile(new URL('../.tools/tls/ca.pem',import.meta.url));
 async function snapshot(name,roomId){
-  const {stdout}=await execute(adb,['-s',device,'exec-out','run-as','fr.kuikuiz.probe','cat','databases/kuikuiz-playable-v3.db'],{encoding:'buffer',maxBuffer:20*1024*1024,timeout:10000});
+  const {stdout}=await execute(adb,['-s',device,'exec-out','run-as','fr.kuikuiz.probe','cat','databases/kuikuiz-playable-v4.db'],{encoding:'buffer',maxBuffer:20*1024*1024,timeout:10000});
   const filename=`${directory}/${name}.sqlite`;await writeFile(filename,stdout);
   const db=new DatabaseSync(filename,{readOnly:true});
   try{
