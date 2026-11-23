@@ -111,3 +111,23 @@ Nouvel arrêt forcé puis relance HTTPS/WSS sur APK 0.11 : PID 12687 → 13304. 
 **Conservation durable après arrêt validée pour cette réponse dont la présence avant arrêt est mesurée.** La question était déjà expirée : cette expérience ne prouve pas le gel d'un chronomètre avant échéance et ne doit pas redonner du temps pour répondre. Réception de la confirmation restaurée et publication du score sur Redmi à confirmer manuellement ; utiliser la révélation, pas une reprise pour répondre à cette question expirée.
 
 Après consigne de vérifier la confirmation restaurée puis de révéler les résultats (1 000 points pour Titi, 0 pour Tutu), l'utilisateur confirme « Ouais, c'est bon ». Retour manuel positif qui complète la comparaison SQL avant/après ; aucune mesure de délai de reconnexion ni nouvelle preuve d'isolement Internet.
+
+### Préparation du prochain essai — nouvelle salle en cours de partie
+
+Le retour à l'accueil puis « J'anime » réutilise l'accès animateur local et rouvre l'ancienne partie. Le bouton « Créer une nouvelle partie » était uniquement disponible à la fin, dans le panneau des résultats : l'instruction initiale de passer par l'accueil ne permettait pas de créer une autre salle.
+
+Interface 0.12 : bouton déplacé hors des résultats, disponible à tout moment pour l'animateur seulement. Il quitte l'accès animateur local courant puis affiche la création d'une nouvelle salle. Ce n'est ni l'arrêt de l'ancienne session, ni son effacement ; ses joueurs peuvent y rester. L'interface ne fournit pas de sélecteur pour reprendre l'ancien accès animateur après l'avoir quitté. Une véritable commande d'arrêt de partie reste hors de ce correctif.
+
+Cache porté à `kuikuiz-mock-shell-v3` ; fermer les onglets après préparation pour activer la mise à jour, sans effacer les données du site. Test Chrome PC positif : trois questions, nouvelle salle, question suivante en pause, création d'une troisième salle avec code distinct ; l'ancien joueur retrouve encore son ancienne question en pause après rechargement. Bouton caché aux joueurs. Recettes du cache et de son cycle de mise à jour positives. Moteur, base v3 et certificats conservés ; essai d'arrêt pendant chronomètre actif toujours à réaliser.
+
+APK 0.12 compilé et installé avec `install -r`, hôte relancé par le bouton natif vérifié. Client HTTPS avec autorité explicite : ressources servies contenant un seul bouton `new-room`, visibilité animateur sans condition de fin et cache v3. Activation de ce cache sur les téléphones encore à effectuer par fermeture/réouverture des onglets après préparation.
+
+### Interruption automatique avant échéance — salle 9D16BFBF
+
+L'utilisateur confirme le nouveau bouton côté animateur. Côté Redmi, le retour accueil/participation rouvre l'ancienne salle ; rejoindre une autre salle reste masqué hors fin de partie. Contournement de recette : ouvrir `/joueur?code=NOUVEAU_CODE`, ce qui propose l'inscription sur la nouvelle salle sans effacer les données du site. Accessibilité du changement de salle joueur à corriger ultérieurement.
+
+`tooling/test-android-live-interruption.mjs` est armé sur la nouvelle salle à deux joueurs avant lancement. Après la réponse Mars, il vérifie un snapshot et une ligne de registre SQL concordants, exige une marge d'au moins cinq secondes avant échéance, puis arrête de force la seule application et redémarre HTTPS/WSS par le bouton natif vérifié. Les copies de laboratoire en lecture seule restent locales et exclues de Git ; ce n'est pas une API de sauvegarde en production.
+
+**Résultat automatisé positif le 23 novembre :** temps estimé avant arrêt 2 675 ms sur 30 000 ms, PID 14706 → 16449 ; réponse et registre strictement identiques après relance, 1 000 points ; phase restaurée `paused`, checkpoint à 2 389 ms, donc **27 611 ms restants**. Un second relevé après 1,2 seconde retrouve le même temps en pause. HTTPS et ouverture WSS vérifiés avec autorité explicite. Rapport local `artifacts/recovery-inspection/live-interruption-report.json`.
+
+La reprise se fait au dernier checkpoint : l'écart observé entre estimation avant arrêt et checkpoint restauré est de 286 ms, auquel le temps entre mesure et mort effective du processus n'est pas quantifié. Ne pas annoncer un gel exact à la milliseconde ou une absence de recul du chronomètre. L'arrêt ne consomme pas le temps restant, et la durée totale n'est pas remise à zéro. Ce test ne couvre ni panne pendant commit ni isolement Internet. Observation de l'écran Redmi et reprise du chronomètre après cette interruption encore à confirmer manuellement.

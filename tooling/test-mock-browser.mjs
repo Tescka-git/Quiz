@@ -103,6 +103,23 @@ try{
   await player.locator('#join-form').waitFor({state:'visible'});
   await player.locator('#name').fill('Camille');await player.getByRole('button',{name:'Rejoindre la salle'}).click();
   await player.locator('#room-code').waitFor({state:'visible'});assert.equal(await player.locator('#room-code').innerText(),nextCode);
+  // Quitter une question en pause pour une autre salle doit préserver l'ancienne.
+  await host.locator('#start').click();
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='À vous de jouer !');
+  await player.getByRole('radio',{name:'Mars',exact:true}).check();await player.locator('#submit-answer').click();
+  await player.locator('#results').waitFor({state:'visible'});
+  await host.locator('#next').click();
+  await host.locator('#pause').click();
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.');
+  assert.equal(await player.locator('#new-room').isHidden(),true);
+  await host.locator('#new-room').click();
+  await host.locator('#create').click();await host.locator('#room-code').waitFor({state:'visible'});
+  assert.notEqual(await host.locator('#room-code').innerText(),nextCode);
+  await player.reload();
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.');
+  assert.equal(await player.locator('#room-code').innerText(),nextCode);
+  assert.equal(await player.locator('#question-number').innerText(),'Question 2 / 3');
+  await player.evaluate(()=>window.testSocket.send(JSON.stringify({v:1,type:'sync'})));
   assert.deepEqual(errors,[]);
   assert.deepEqual(outsideRequests,[]);
   await writeFile('artifacts/mock-preview/browser-report.json',JSON.stringify({date:new Date().toISOString(),origin,result:'PASS',

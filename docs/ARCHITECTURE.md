@@ -2,6 +2,8 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**P21 — interruption avant échéance sur 0.12 :** contrôle automatique après une réponse SQL vérifiée, arrêt forcé estimé à 2,675 s, reprise en pause au checkpoint 2,389 s avec 27,611 s restantes. Réponse et registre inchangés, 1 000 points, temps de pause stable ; HTTPS/WSS vérifiés. L'écart de checkpoint observé est de 286 ms, sans mesure de l'instant exact de mort du processus. Reprise au dernier point durable, pas gel exact à la milliseconde. Confirmation visuelle et reprise depuis Redmi encore attendues ; voir P21.
+
 **Résultat P21 après correction 0.11 :** réponse Redmi/Mars à 1 000 points mesurée dans le snapshot et le registre SQL avant arrêt forcé, puis retrouvée identique après redémarrage HTTPS/WSS. L'utilisateur confirme la récupération et les résultats attendus. Question déjà expirée avant l'arrêt : le gel avant échéance reste à tester. Reconnexion et veille courte Redmi également positives sur 0.10 ; conditions sans Internet non établies pour ces derniers essais. Les compléments ci-dessous conservent la chronologie.
 
 **Suite P21 — redémarrage de l'hôte :** APK 0.11 corrige le démarrage partiel observé après arrêt forcé (HTTPS actif, WSS refusé avec `BindException`) : adresse réutilisable et attente du WebSocket prêt avant lancement HTTP. Trois arrêts forcés/redémarrages HTTPS et WSS vérifiés sur Pixel, même moteur et base v3. Réponse du Redmi après cette interruption encore à confirmer ; voir [P21](experiments/P21_REDMI_CLOTURE_AUTOMATIQUE.md).

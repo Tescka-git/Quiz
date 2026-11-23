@@ -14,7 +14,7 @@ let app,context,port=0,version='v1';
 async function start(){
   app=await createMockServer({filename:join(directory,'game.sqlite'),assetReader:async url=>{
     let body=(await readFile(url)).toString();
-    if(version==='v2')body=body.replaceAll('kuikuiz-mock-shell-v2','kuikuiz-mock-shell-v3');
+    if(version==='v2')body=body.replaceAll('kuikuiz-mock-shell-v3','kuikuiz-mock-shell-v4');
     if(url.pathname.endsWith('/index.html'))body=body.replace('<body>',`<body data-shell-version="${version}">`);
     return Buffer.from(body);
   }});
@@ -51,7 +51,7 @@ try{
   assert.equal(await page.locator('body').getAttribute('data-shell-version'),'v1');
   await page.reload();await ready(page);
   assert.equal(await page.locator('body').getAttribute('data-shell-version'),'v1');
-  assert.ok(await page.evaluate(async()=>Boolean(await caches.has('kuikuiz-mock-shell-v2'))));
+  assert.ok(await page.evaluate(async()=>Boolean(await caches.has('kuikuiz-mock-shell-v3'))));
   checks.push('Mise à jour complète en attente : onglet existant et rechargement restent sur v1');
 
   // Tous les clients contrôlés sont fermés, sans commande skipWaiting.
@@ -59,7 +59,7 @@ try{
   let activated=false;const deadline=Date.now()+15000;
   while(Date.now()<deadline&&!activated){
     for(const worker of context.serviceWorkers())try{
-      activated=await worker.evaluate(async()=>CACHE==='kuikuiz-mock-shell-v3'&&!(await caches.has('kuikuiz-mock-shell-v2'))&&await caches.has('kuikuiz-mock-shell-v3'));
+      activated=await worker.evaluate(async()=>CACHE==='kuikuiz-mock-shell-v4'&&!(await caches.has('kuikuiz-mock-shell-v3'))&&await caches.has('kuikuiz-mock-shell-v4'));
       if(activated)break;
     }catch{}
     if(!activated)await new Promise(resolve=>setTimeout(resolve,100));
@@ -69,7 +69,7 @@ try{
   page=await context.newPage();await page.goto(origin+'/joueur?code=ABCDEF12');await ready(page);
   assert.equal(await page.locator('body').getAttribute('data-shell-version'),'v2');
   assert.equal(await page.locator('#code').inputValue(),'ABCDEF12');
-  assert.deepEqual(await page.evaluate(async()=>(await caches.keys()).sort()),['kuikuiz-diagnostic-keep','kuikuiz-mock-shell-v3']);
+  assert.deepEqual(await page.evaluate(async()=>(await caches.keys()).sort()),['kuikuiz-diagnostic-keep','kuikuiz-mock-shell-v4']);
   assert.equal(await page.evaluate(async()=>await (await (await caches.open('kuikuiz-diagnostic-keep')).match('/keep')).text()),'conserver');
   checks.push('Après fermeture des onglets : v2 activée, v1 supprimée, cache étranger conservé ; nouvelle page v2 disponible serveur arrêté');
   await context.close();context=null;

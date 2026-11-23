@@ -105,7 +105,7 @@ function render(){
     $(id).hidden=id==='next'?snapshot.phase!=='closed'||snapshot.final:id==='start'?snapshot.phase!=='lobby':id==='pause'?snapshot.phase!=='open':id==='resume'?snapshot.phase!=='paused':['lobby','closed'].includes(snapshot.phase);
     $(id).disabled=!connected||(id==='start'&&!snapshot.total);
   }
-  $('results').hidden=snapshot.phase!=='closed';$('new-room').hidden=role!=='host'||!snapshot.final;
+  $('results').hidden=snapshot.phase!=='closed';$('new-room').hidden=role!=='host';
   $('join-another').hidden=role!=='player'||!snapshot.final;
   if(snapshot.phase==='closed'){
     $('correction').textContent=`La bonne réponse : ${snapshot.question.choices.find(c=>c.id===snapshot.correctOption).text}.`;
