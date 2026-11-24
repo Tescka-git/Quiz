@@ -28,6 +28,7 @@ final class QuizHost implements AutoCloseable {
     private final ScheduledThreadPoolExecutor worker = new ScheduledThreadPoolExecutor(1);
     private final Map<WebSocket,JSONObject> identities = new HashMap<>();
     private final Map<WebSocket,long[]> limits = new HashMap<>();
+    private final Map<String,Double> reveals = new HashMap<>();
     private final SecureRandom random = new SecureRandom();
     private EngineBridge engine;
     private SQLiteDatabase db;
@@ -86,13 +87,22 @@ final class QuizHost implements AutoCloseable {
     private JSONObject snapshot(JSONObject identity) throws Exception {
         String id=identity.getString("roomId");JSONObject r=room(id),quiz=state(id);
         JSONObject view=new JSONObject().put("id",id).put("code",r.getString("code")).put("questions",new JSONArray(r.getString("question_json")));
-        return engine.json("kuikuizSnapshot("+(quiz==null?"null":EngineBridge.value(quiz))+","+EngineBridge.value(view)+","+players(id).toString()+","+EngineBridge.value(identity)+","+now()+")");
+        JSONObject presence=new JSONObject();
+        for(Map.Entry<WebSocket,JSONObject> entry:identities.entrySet()){
+            JSONObject peer=entry.getValue();
+            if(entry.getKey().isOpen()&&"player".equals(peer.optString("role"))&&id.equals(peer.optString("roomId")))presence.put(peer.getString("playerId"),"connected");
+        }
+        Double revealedAt=quiz==null?null:reveals.get(id+":"+quiz.getJSONObject("current").getJSONObject("question").getString("id"));
+        return engine.json("kuikuizSnapshot("+(quiz==null?"null":EngineBridge.value(quiz))+","+EngineBridge.value(view)+","+players(id).toString()+","+EngineBridge.value(identity)+","+now()+","+presence+","+(revealedAt==null?"null":revealedAt)+")");
     }
     private JSONObject dispatch(String id,JSONObject command,String questionId) throws Exception {
         JSONObject output;
+        boolean newlyClosed=false;
         db.beginTransaction();
         try {
-            output=engine.json("KuikuizEngine.applyQuiz("+EngineBridge.value(state(id))+","+EngineBridge.value(command)+","+now()+","+JSONObject.quote(questionId)+")");
+            JSONObject previous=state(id);
+            output=engine.json("KuikuizEngine.applyQuiz("+EngineBridge.value(previous)+","+EngineBridge.value(command)+","+now()+","+JSONObject.quote(questionId)+")");
+            newlyClosed=!"closed".equals(previous.getJSONObject("current").getString("phase"))&&"closed".equals(output.getJSONObject("state").getJSONObject("current").getString("phase"));
             String status=output.getString("status");
             if("accepted-in-memory".equals(status)){
                 JSONObject answer=output.getJSONObject("answer");
@@ -104,6 +114,7 @@ final class QuizHost implements AutoCloseable {
                 if(stored==null||!stored.getString("answer_json").equals(answer.toString()))throw new Exception("Inconsistent stored answer");}
             output.put("confirmed",confirmed);db.setTransactionSuccessful();
         } finally { db.endTransaction(); }
+        if(newlyClosed)reveals.put(id+":"+questionId,now());
         return output; // endTransaction a effectué le COMMIT avant toute confirmation réseau.
     }
     private JSONObject command(JSONObject identity,JSONObject message) throws Exception {
@@ -186,7 +197,7 @@ final class QuizHost implements AutoCloseable {
                 worker.schedule(()->{if(!identities.containsKey(socket))socket.close(1008,"Identification requise");},10,TimeUnit.SECONDS);
             }
             @Override public void onMessage(WebSocket socket,String raw){if(!closing)worker.execute(()->message(socket,raw));}
-            @Override public void onClose(WebSocket socket,int code,String reason,boolean remote){if(!closing)worker.execute(()->{identities.remove(socket);limits.remove(socket);});}
+            @Override public void onClose(WebSocket socket,int code,String reason,boolean remote){if(!closing)worker.execute(()->{identities.remove(socket);limits.remove(socket);publish();});}
             @Override public void onError(WebSocket socket,Exception e){if(socket==null)socketReady.completeExceptionally(e);QuizService.write("Erreur réseau : "+e.getClass().getSimpleName());}
         };
         sockets.setReuseAddr(true);

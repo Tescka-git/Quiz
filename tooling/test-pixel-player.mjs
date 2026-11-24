@@ -22,7 +22,7 @@ try{
     await player.waitForFunction(n=>document.getElementById('question-number').textContent===`Question ${n} / 3`,number);
     const radio=player.getByRole('radio',{name:choice,exact:true});
     await radio.focus();await radio.press('Space');assert.equal(await radio.isChecked(),true);
-    await player.locator('#submit-answer').press('Enter');
+
     await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
     await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 1 réponses confirmées');
     await player.locator('#results').waitFor({state:'visible'});

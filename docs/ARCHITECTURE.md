@@ -2,6 +2,10 @@
 
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
+**P24 — interface intégrée :** la structure validée de l'atelier est appliquée au vrai quiz, avec soumission au toucher, présence WebSocket réservée à l'animateur, révélation et podium. Moteur et base v4 inchangés ; Android 0.17 compilé, recette physique restante. Voir [P24](experiments/P24_INTERFACE_INTEGREE.md).
+
+**24 novembre — maquettes de structure :** [atelier autonome téléphone/PC](MAQUETTES_INTERFACE.md), servi localement sur 4181. Vues animateur/joueur, panneaux, réponse au toucher, révélation et podium avec ex æquo. Données et connexions simulées ; aucune modification du moteur ni preuve de présence/synchronisation réelle ajoutée. Quiz technique sur 4180 conservé.
+
 **P23 — Firefox Redmi :** [recette manuelle](experiments/P23_FIREFOX_ANDROID.md) positive sur Firefox 160.0.1 / Wi-Fi maison après activation explicite de la confiance envers les autorités ajoutées dans Android. Page sans exception puis quiz positif ; cache et hors Internet Firefox encore à tester. Codes de maquette à quatre chiffres en préparation 0.16, jetons secrets et moteur inchangés. La stratégie HTTPS/WSS sans installation d'autorité reste ouverte.
 
 **P22 — parcours local 0.14 terminé :** trois questions, révélation automatique avec Tutu sans réponse, reconnexion Redmi sans rafraîchissement et classement final 3 000/0 positifs selon l'utilisateur. Coupures des accès amont des téléphones confirmées avant et après, PC en ligne ; pas de mesure indépendante du trafic. La préparation 0.15 masque le compteur joueur dans les sources, sans installation pendant cet essai. Voir [P22](experiments/P22_ECHEANCE_ET_PARCOURS_JOUEUR.md).

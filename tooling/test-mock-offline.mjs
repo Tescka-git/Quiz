@@ -9,13 +9,13 @@ import {createMockServer} from '../apps/server-node/mock-server.mjs';
 
 await buildEngine();
 const directory=await mkdtemp(join(tmpdir(),'kuikuiz-offline-'));
-const cacheName='kuikuiz-mock-shell-v7';
+const cacheName='kuikuiz-mock-shell-v8';
 let app,browser,port=0,badStyle=false,badUpdate=false;
 async function start(){
   app=await createMockServer({filename:join(directory,'game.sqlite'),assetReader:async url=>{
     if(badStyle&&url.pathname.endsWith('/style.css'))throw new Error('Ressource indisponible injectée');
     const bytes=await readFile(url);
-    if(badUpdate&&url.pathname.endsWith('/sw.js'))return Buffer.from(bytes.toString().replace('kuikuiz-mock-shell-v7','kuikuiz-mock-shell-v8').replace("'/icon.svg'","'/absent.svg'"));
+    if(badUpdate&&url.pathname.endsWith('/sw.js'))return Buffer.from(bytes.toString().replace('kuikuiz-mock-shell-v8','kuikuiz-mock-shell-v9').replace("'/icon.svg'","'/absent.svg'"));
     return bytes;
   }});
   app.server.listen(port,'127.0.0.1');await once(app.server,'listening');port=app.server.address().port;
@@ -34,9 +34,9 @@ try{
   const waitingContext=await browser.newContext();
   const waiting=await waitingContext.newPage();await waiting.goto(origin+'/joueur?code='+code);
   await waiting.locator('#name').fill('Joueur en attente');await waiting.locator('#join-form button').click();
-  await waiting.locator('#room-code').waitFor({state:'visible'});
+  await waiting.locator('#game').waitFor({state:'visible'});
   await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');
-  await host.locator('#start').click();await player.getByRole('radio',{name:'Mars',exact:true}).check();await player.locator('#submit-answer').click();
+  await host.locator('#start').click();await player.getByRole('radio',{name:'Mars',exact:true}).check();
   await player.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
   const cached=await player.evaluate(async name=>(await (await caches.open(name)).keys()).map(request=>new URL(request.url).pathname).sort(),cacheName);
   assert.deepEqual(cached,['/','/app.js','/connection.json','/icon.svg','/manifest.webmanifest','/offline.js','/style.css']);
@@ -55,7 +55,7 @@ try{
   assert.match(await host.locator('#error').innerText(),/Impossible de créer/);
   await host.goto(origin+'/');await ready(host);assert.equal(await host.locator('#welcome').isVisible(),true);
   await host.evaluate(async name=>(await caches.open(name)).delete('/connection.json'),cacheName);
-  await host.locator('#check-offline').click();
+  await host.locator('#diagnostics').evaluate(el=>el.open=true);await host.locator('#check-offline').click();await host.locator('#diagnostics').evaluate(el=>el.open=false);
   await host.waitForFunction(()=>document.getElementById('offline-status').dataset.ready==='false'&&document.getElementById('offline-status').textContent.includes('Préparation incomplète'));
   const cold=await browser.newContext();const coldPage=await cold.newPage();
   await assert.rejects(coldPage.goto(origin+'/joueur'));await cold.close();
@@ -63,14 +63,14 @@ try{
   checks.push('Ressource supprimée hors ligne : préparation signalée incomplète, sans fausse réparation');
 
   await start();
-  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.',null,{timeout:15000});
+  await player.waitForFunction(()=>document.getElementById('phase-title').textContent==='⌛ Jeu en pause',null,{timeout:15000});
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isChecked(),true);
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isDisabled(),true);
   assert.equal(await player.locator('#receipt').innerText(),'Réponse confirmée et enregistrée.');
   checks.push('Retour de l’hôte : réponse confirmée retrouvée et reprise gelée, sans soumission automatique');
 
   await host.evaluate(async name=>{const cache=await caches.open(name);await cache.delete('/connection.json');},cacheName);
-  await host.locator('#check-offline').click();
+  await host.locator('#diagnostics').evaluate(el=>el.open=true);await host.locator('#check-offline').click();await host.locator('#diagnostics').evaluate(el=>el.open=false);
   await host.waitForFunction(async name=>Boolean(await (await caches.open(name)).match('/connection.json')),cacheName);
   await ready(host);
   assert.ok(await host.evaluate(async name=>Boolean(await (await caches.open(name)).match('/connection.json')),cacheName));

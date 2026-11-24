@@ -60,6 +60,34 @@ test('codes laboratoire : 1234 puis 1235, accès distincts et anciennes salles c
   assert.equal((await joinPlayer(t,app,'1234')).credentials.roomId,first.credentials.roomId);
 });
 
+test('présence réelle : plusieurs connexions du même joueur et fermeture de la dernière',async t=>{
+  const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  const online=await host.next(m=>m.type==='state'&&m.players.some(p=>p.connection==='connected'));
+  assert.equal(online.players[0].connection,'connected');
+  player.send({type:'sync'});assert.equal((await player.next(m=>m.type==='state'&&m.playerName==='Camille')).players[0].connection,undefined);
+  const second=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});await second.next(state('lobby'));
+  player.ws.terminate();host.send({type:'sync'});
+  assert.equal((await host.next(m=>m.type==='state'&&m.players.length===1)).players[0].connection,'connected');
+  second.ws.terminate();
+  await host.next(m=>m.type==='state'&&m.players[0]?.connection==='disconnected');
+});
+
+test('révélation : durée partagée, doublon sans relance, reprise sans animation',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  env.setNow(2000);player.send({type:'answer',questionId:'planete',submissionId:'one',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).confirmed,true);
+  const closed=await player.next(state('closed'));assert.equal(closed.revealRemainingMs,3500);assert.equal(closed.ownAnswer.points,1000);
+  env.setNow(3000);player.send({type:'answer',questionId:'planete',submissionId:'one',option:'mars'});
+  assert.equal((await player.next(m=>m.type==='answer-result')).status,'duplicate');
+  assert.equal((await player.next(m=>m.type==='state'&&m.revealRemainingMs===2500)).revealRemainingMs,2500);
+  await app.stop();env.setNow(0);app=await env.start();
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  assert.equal((await returning.next(state('closed'))).revealRemainingMs,0);
+});
+
 test('partie réseau complète : droits, pause, réponses durables, classement révélé au bon moment',async t=>{
   const env=await environment(t),app=await env.start(),{host,credentials}=await room(t,app);
   const {connection:p1}=await joinPlayer(t,app,credentials.code,'Camille');

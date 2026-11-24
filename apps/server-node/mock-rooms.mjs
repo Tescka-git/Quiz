@@ -14,6 +14,7 @@ export class MockRooms {
   constructor(filename, store, engine, engineHash, clock,project) {
     this.store=store;this.engine=engine;this.clock=clock;this.engineHash=engineHash;
     this.project=project;
+    this.reveals=new Map();
     this.db=new DatabaseSync(filename);
     this.db.exec(`PRAGMA foreign_keys=ON; PRAGMA synchronous=EXTRA;
       CREATE TABLE IF NOT EXISTS mock_rooms(id TEXT PRIMARY KEY,code TEXT UNIQUE NOT NULL,host_hash TEXT NOT NULL,engine_hash TEXT NOT NULL,question_json TEXT NOT NULL);
@@ -63,18 +64,28 @@ export class MockRooms {
       return this.store.create(id,frozenQuestion.map(q=>({id:q.id,options:q.choices.map(c=>c.id),correctOption:q.correctOption,
         durationMs:q.durationMs,maxPoints:q.maxPoints,scoring:q.scoring})),roster.map(p=>p.id),this.clock());
     }
-    return this.store.dispatch(id,command,this.clock(),message.questionId);
+    const previous=this.state(id);
+    const result=this.store.dispatch(id,command,this.clock(),message.questionId);
+    this.noteReveal(id,previous,result.state);return result;
   }
-  snapshot(identity) {
+  noteReveal(id,previous,current){
+    if(previous?.current.phase!=='closed'&&current.current.phase==='closed')
+      this.reveals.set(`${id}:${current.current.question.id}`,this.clock());
+  }
+  snapshot(identity,presence={}) {
     const room=this.room(identity.roomId);
-    return this.project.snapshot(this.state(room.id),{id:room.id,code:room.code,questions:JSON.parse(room.question_json)},
-      this.players(room.id),identity,this.clock());
+    const state=this.state(room.id);
+    return this.project.snapshot(state,{id:room.id,code:room.code,questions:JSON.parse(room.question_json)},
+      this.players(room.id),identity,this.clock(),presence,this.reveals.get(`${room.id}:${state?.current.question.id}`)??null);
   }
   checkpoint() {
     for(const room of this.db.prepare('SELECT id FROM mock_rooms').all()) {
       const state=this.state(room.id)?.current;
-      if(state?.phase==='open'&&state.elapsedMs<state.question.durationMs)
-        this.store.dispatch(room.id,{type:'checkpoint'},this.clock(),state.question.id);
+      if(state?.phase==='open'&&state.elapsedMs<state.question.durationMs){
+        const previous=this.state(room.id);
+        const result=this.store.dispatch(room.id,{type:'checkpoint'},this.clock(),state.question.id);
+        this.noteReveal(room.id,previous,result.state);
+      }
     }
   }
   close(){this.db.close();}

@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Kuikuiz — Maquette des écrans</title>
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <div class="workbench">
+    <div class="workbench-title"><strong>Atelier Kuikuiz</strong><span>Maquette interactive · données fictives · aucun serveur de jeu</span></div>
+    <div class="tools">
+      <div class="segmented" aria-label="Interface"><button data-role="host" aria-pressed="true">Animateur</button><button data-role="player" aria-pressed="false">Joueur</button></div>
+      <div class="segmented" aria-label="Format"><button data-layout="phone" aria-pressed="true">Téléphone</button><button data-layout="desktop" aria-pressed="false">PC</button></div>
+      <label>Scène <select id="scene-picker"><option value="lobby">Salle d’attente</option><option value="open">Question</option><option value="paused">Pause</option><option value="reveal">Révélation</option><option value="ranking">Classement</option><option value="podium">Podium final</option></select></label>
+      <label>Réponse <select id="type-picker"><option value="single">QCM unique</option><option value="boolean">Vrai / faux</option><option value="blind">Blind test unique</option><option value="multi">QCM multiple</option><option value="text">Texte libre</option></select></label>
+      <label>Connexion <select id="network-picker"><option value="connected">Connecté</option><option value="reconnecting">Reconnexion</option><option value="disconnected">Déconnecté</option></select></label>
+      <label class="check"><input type="checkbox" id="ties"> Ex æquo</label>
+      <button id="reset" class="tool-reset">Recommencer</button>
+    </div>
+  </div>
+  <div id="device" class="device" data-layout="phone" data-role="host">
+    <header class="topbar"><a href="/" class="brand" aria-label="Kuikuiz, recommencer la démonstration">kuikuiz<span>.</span></a><span id="role-label" class="role-label">Espace animateur</span><span id="connection" class="connection" role="status"><span aria-hidden="true">✓</span> Connecté</span></header>
+    <nav id="panel-nav" class="panel-nav" aria-label="Panneaux de la partie"></nav>
+    <main id="panels" class="panels" aria-label="Partie de démonstration">
+      <section id="play-panel" class="scene" aria-label="Question et pilotage"><div id="play" class="scene-body"></div><div id="host-dock" class="host-dock" hidden></div></section>
+      <section id="ranking-panel" class="scene" aria-labelledby="ranking-title"><div class="section-heading"><p class="eyebrow">Les résultats</p><h1 id="ranking-title">Classement cumulé</h1></div><div id="ranking-scroll" class="scene-body"><div id="ranking-content"></div></div><div id="ranking-dock" class="host-dock ranking-dock" hidden></div></section>
+      <section id="room-panel" class="scene" aria-labelledby="room-title"><div class="scene-body"><div class="section-heading"><p class="eyebrow">La salle</p><h1 id="room-title">Les participants</h1></div><p id="room-summary" class="muted"></p><ul id="participants" class="participants"></ul><p class="muted small">Les connexions présentées sont simulées.</p></div></section>
+    </main>
+    <footer class="device-footer"><span>Culture générale</span><span id="footer-state">Salle d’attente · 1234</span></footer>
+  </div>
+  <p class="atelier-note">Changez de rôle pour explorer la même scène. Sur téléphone : glissez verticalement ou utilisez les onglets. Les statistiques viendront plus tard.</p>
+</body>
+</html>

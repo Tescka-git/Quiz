@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 const adb=process.env.KUIKUIZ_ADB,device=process.env.KUIKUIZ_DEVICE;
 if(!adb||!device)throw new Error('KUIKUIZ_ADB et KUIKUIZ_DEVICE requis. Ce test arrête puis relance uniquement la maquette.');
 const origin=process.env.KUIKUIZ_ORIGIN||'https://192.168.1.21:8443';
-const cacheName='kuikuiz-mock-shell-v7',execute=promisify(execFile);
+const cacheName='kuikuiz-mock-shell-v8',execute=promisify(execFile);
 const shell=(...args)=>execute(adb,['-s',device,'shell',...args]);
 const ca=await readFile(new URL('../.tools/tls/ca.pem',import.meta.url));
 function probe(){return new Promise((resolve,reject)=>{
@@ -40,7 +40,7 @@ async function chrome(page){await shell('am','start','-a','android.intent.action
 const checks=[];let local,pixel,page,report={result:'FAIL',origin,checks};
 try{
   const pkg=(await shell('dumpsys','package','fr.kuikuiz.probe')).stdout;
-  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.16-experiment');
+  const version=pkg.match(/versionName=([^\s]+)/)?.[1];assert.equal(version,'0.17-experiment');
   await stop();await start();await chrome();
   const chromeDeadline=Date.now()+30000;let chromeError;
   while(Date.now()<chromeDeadline&&!pixel){
@@ -65,10 +65,10 @@ try{
   const waitingContext=await local.newContext({ignoreHTTPSErrors:true});
   const waiting=await waitingContext.newPage();await waiting.goto(origin+'/joueur?code='+code);
   await waiting.locator('#name').fill('Joueur en attente');await waiting.locator('#join-form button').click();
-  await waiting.locator('#room-code').waitFor({state:'visible'});
+  await waiting.locator('#game').waitFor({state:'visible'});
   await host.waitForFunction(()=>document.getElementById('participant-count').textContent==='(2)');await host.locator('#start').click();
   const answer=async choice=>{const radio=page.getByRole('radio',{name:choice,exact:true});await radio.focus();await radio.press('Space');assert.equal(await radio.isChecked(),true);
-    await page.locator('#submit-answer').press('Enter');await page.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');};
+    await page.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');};
   await answer('Mars');await page.reload();await page.waitForFunction(()=>document.getElementById('receipt').textContent==='Réponse confirmée et enregistrée.');
   checks.push('Réponse confirmée retrouvée après rechargement avec hôte actif');
   await stop();await chrome(page);await page.reload();await ready();
@@ -76,7 +76,7 @@ try{
   assert.equal(await page.locator('#game').isHidden(),true);assert.equal(await page.locator('#receipt').innerText(),'');
   checks.push('Hôte réellement arrêté : page joueur rechargeable, cache prêt, aucune confirmation reconstruite');
   await start();await chrome(page);
-  await page.waitForFunction(()=>document.getElementById('phase-title').textContent==='On fait une pause.',null,{timeout:20000});
+  await page.waitForFunction(()=>document.getElementById('phase-title').textContent==='⌛ Jeu en pause',null,{timeout:20000});
   assert.equal(await page.getByRole('radio',{name:'Mars',exact:true}).isChecked(),true);
   assert.equal(await page.locator('#receipt').innerText(),'Réponse confirmée et enregistrée.');
   checks.push('Retour de l’hôte : question en pause et réponse confirmée retrouvées');
@@ -89,7 +89,7 @@ try{
   checks.push('Fin du quiz après reprise : 3 000 points, sans double comptage');
 
   await page.evaluate(async name=>(await caches.open(name)).delete('/connection.json'),cacheName);
-  await page.locator('#check-offline').press('Enter');
+  await page.locator('#diagnostics').evaluate(el=>el.open=true);await page.locator('#check-offline').press('Enter');await page.locator('#diagnostics').evaluate(el=>el.open=false);
   await page.waitForFunction(async name=>Boolean(await (await caches.open(name)).match('/connection.json')),cacheName);await ready();
   checks.push('Seule entrée de configuration supprimée du cache Kuikuiz puis réparée explicitement');
 

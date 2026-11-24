@@ -7,6 +7,8 @@
     "node": ">=24"
   },
   "scripts": {
+    "dev:layout": "node tooling/serve-layout.mjs",
+    "test:layout": "node tooling/test-layout.mjs",
     "dev:mock": "node tooling/engine-build.mjs && node apps/server-node/mock-server.mjs",
     "test:mock": "node --test tests/integration/mock-server.test.mjs",
     "test:mock:browser": "node tooling/test-mock-browser.mjs",

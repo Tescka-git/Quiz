@@ -14,6 +14,8 @@
 - Sessions indépendantes et illimitées pour un même quiz ; chacune fige la version exacte du quiz à son lancement.
 
 ## 2. Déroulement, résultats et scores
+- **Interaction validée le 24 novembre :** pour un choix unique (QCM simple, vrai/faux ou blind test à choix unique), toucher la réponse la soumet sans confirmation supplémentaire ; QCM multiple et texte conservent une validation explicite. L'envoi reste distinct de l'accusé durable de l'hôte. Une retransmission après incident porte la même réponse et demande une action explicite.
+- **Présentation validée le 24 novembre :** question principale séparée des panneaux de classement ; participants avec état de connexion réservés à l'animateur. Révélation personnelle animée environ 3–4 secondes avant présentation du classement autorisé et action suivante. Fin de partie : podium du troisième au premier, respectant les ex æquo, puis classement complet ; statistiques détaillées différées. Première illustration dans [les maquettes de structure](MAQUETTES_INTERFACE.md), puis intégration aux trois questions à choix unique du prototype dans [P24](experiments/P24_INTERFACE_INTEGREE.md). Les autres types illustrés restent à implémenter.
 - Correction révélée après chaque question. Pendant une manche, scores et classement restent masqués ; affichage animé des scores de manche et du classement cumulé en fin de manche.
 - Une question isolée affiche sa correction et ses résultats immédiatement. Classement final animé en fin de quiz.
 - L'animateur choisit animation automatique (intervalle paramétrable) ou progression manuelle, synchronisée avec les écrans joueurs.

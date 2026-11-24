@@ -50,14 +50,19 @@ export async function createMockServer({filename,clock=()=>performance.now(),tim
   const send=(socket,data)=>{if(socket.readyState===WebSocket.OPEN)socket.send(JSON.stringify(data));};
   const publish=()=>{
     for(const socket of wss.clients)if(socket.identity) {
-      try {send(socket,rooms.snapshot(socket.identity));}catch{send(socket,{v:1,type:'error',code:'storage-failed'});}
+      try {
+        const presence={};
+        for(const peer of wss.clients)if(peer.readyState===WebSocket.OPEN&&peer.identity?.role==='player'&&peer.identity.roomId===socket.identity.roomId)
+          presence[peer.identity.playerId]='connected';
+        send(socket,rooms.snapshot(socket.identity,presence));
+      }catch{send(socket,{v:1,type:'error',code:'storage-failed'});}
     }
   };
   const knownErrors=new Set(['invalid-message','unknown-room','unauthorized','already-started','forbidden','no-players','not-started']);
   wss.on('connection',socket=>{
     let count=0,windowStart=clock();
     const authenticationTimeout=setTimeout(()=>{if(!socket.identity)socket.close(1008,'Identification requise');},10000);
-    socket.on('close',()=>clearTimeout(authenticationTimeout));
+    socket.on('close',()=>{clearTimeout(authenticationTimeout);publish();});
     socket.on('error',()=>{});
     socket.on('message',raw=>{
       try {
