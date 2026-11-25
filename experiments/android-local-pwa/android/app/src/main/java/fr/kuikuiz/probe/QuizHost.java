@@ -84,6 +84,7 @@ final class QuizHost implements AutoCloseable {
         String id=token(24),secret=token(24);db.execSQL("INSERT INTO mock_players VALUES (?,?,?,?)",new Object[]{id,roomId,message.getString("name"),hash(secret)});
         return new JSONObject().put("v",1).put("type","credentials").put("role","player").put("roomId",roomId).put("playerId",id).put("token",secret).put("code",room.getString("code"));
     }
+    private boolean podiumShown(String id){try(Cursor c=db.rawQuery("SELECT room_id FROM mock_podium WHERE room_id=?",new String[]{id})){return c.moveToFirst();}}
     private JSONObject snapshot(JSONObject identity) throws Exception {
         String id=identity.getString("roomId");JSONObject r=room(id),quiz=state(id);
         JSONObject view=new JSONObject().put("id",id).put("code",r.getString("code")).put("questions",new JSONArray(r.getString("question_json")));
@@ -93,7 +94,7 @@ final class QuizHost implements AutoCloseable {
             if(entry.getKey().isOpen()&&"player".equals(peer.optString("role"))&&id.equals(peer.optString("roomId")))presence.put(peer.getString("playerId"),"connected");
         }
         Double revealedAt=quiz==null?null:reveals.get(id+":"+quiz.getJSONObject("current").getJSONObject("question").getString("id"));
-        return engine.json("kuikuizSnapshot("+(quiz==null?"null":EngineBridge.value(quiz))+","+EngineBridge.value(view)+","+players(id).toString()+","+EngineBridge.value(identity)+","+now()+","+presence+","+(revealedAt==null?"null":revealedAt)+")");
+        return engine.json("kuikuizSnapshot("+(quiz==null?"null":EngineBridge.value(quiz))+","+EngineBridge.value(view)+","+players(id).toString()+","+EngineBridge.value(identity)+","+now()+","+presence+","+(revealedAt==null?"null":revealedAt)+","+podiumShown(id)+")");
     }
     private JSONObject dispatch(String id,JSONObject command,String questionId) throws Exception {
         JSONObject output;
@@ -123,6 +124,11 @@ final class QuizHost implements AutoCloseable {
         if(command.has("error"))throw new Exception(command.getString("error"));
         String type=command.getString("type");
         if("sync".equals(type))return null;
+        if("podium".equals(type)){
+            JSONObject quiz=state(id),current=quiz.getJSONObject("current");
+            if(!"closed".equals(current.getString("phase"))||quiz.getJSONArray("completed").length()+1!=quiz.getJSONArray("questions").length()||!message.getString("questionId").equals(current.getJSONObject("question").getString("id")))throw new Exception("forbidden");
+            db.execSQL("INSERT OR IGNORE INTO mock_podium VALUES (?)",new Object[]{id});return null;
+        }
         if("start".equals(type)){
             JSONArray roster=players(id);if(roster.length()==0)throw new Exception("no-players");
             JSONArray ids=new JSONArray();for(int i=0;i<roster.length();i++)ids.put(roster.getJSONObject(i).getString("id"));
@@ -174,6 +180,7 @@ final class QuizHost implements AutoCloseable {
             try(Cursor journal=db.rawQuery("PRAGMA journal_mode=DELETE",null)){if(!journal.moveToFirst()||!"delete".equalsIgnoreCase(journal.getString(0)))throw new Exception("Mode de journal SQLite indisponible");}
             if(android.os.Build.VERSION.SDK_INT>=30)db.execPerConnectionSQL("PRAGMA synchronous=EXTRA",null);else db.execSQL("PRAGMA synchronous=EXTRA");
             db.execSQL("CREATE TABLE IF NOT EXISTS mock_rooms(id TEXT PRIMARY KEY,code TEXT UNIQUE NOT NULL,host_hash TEXT NOT NULL,engine_hash TEXT NOT NULL,question_json TEXT NOT NULL)");
+            db.execSQL("CREATE TABLE IF NOT EXISTS mock_podium(room_id TEXT PRIMARY KEY REFERENCES mock_rooms(id))");
             db.execSQL("CREATE TABLE IF NOT EXISTS mock_players(id TEXT PRIMARY KEY,room_id TEXT NOT NULL REFERENCES mock_rooms(id),name TEXT NOT NULL,token_hash TEXT UNIQUE NOT NULL)");
             db.execSQL("CREATE TABLE IF NOT EXISTS quiz_sessions(id TEXT PRIMARY KEY,state_json TEXT NOT NULL)");
             db.execSQL("CREATE TABLE IF NOT EXISTS quiz_answers(session_id TEXT NOT NULL REFERENCES quiz_sessions(id),question_id TEXT NOT NULL,submission_id TEXT NOT NULL,player_id TEXT NOT NULL,answer_json TEXT NOT NULL,PRIMARY KEY(session_id,question_id,submission_id),UNIQUE(session_id,question_id,player_id))");

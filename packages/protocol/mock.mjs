@@ -9,7 +9,7 @@ export function parseClientMessage(raw) {
   if ((type === 'host' || type === 'player') && text(message.roomId) && text(message.token))
     return {v:1,type,roomId:message.roomId,token:message.token};
   if (['start','sync'].includes(type)) return {v:1,type};
-  if (['pause','resume','reveal','next'].includes(type) && text(message.questionId,32)) return {v:1,type,questionId:message.questionId};
+  if (['pause','resume','reveal','next','podium'].includes(type) && text(message.questionId,32)) return {v:1,type,questionId:message.questionId};
   if (type === 'answer' && text(message.questionId,32) && text(message.submissionId,64) && text(message.option,32))
     return {v:1,type,questionId:message.questionId,submissionId:message.submissionId,option:message.option};
   throw new Error('invalid-message');

@@ -68,6 +68,7 @@ async function connect(){
         }else revealUntil=Math.min(revealUntil,performance.now()+left);
       }
       render();if(changed)navigate('play-panel');
+      if(message.podium){if(podiumMode==='ready')startPodium();else if(changed)navigate('ranking-panel');}
     }
     if(message.type==='answer-result'){
       if(message.questionId!==snapshot?.questionId||message.submissionId!==pending?.id)return;
@@ -232,8 +233,8 @@ $('join-form').onsubmit=event=>{event.preventDefault();error('');joinDetails={co
 $('create').onclick=async()=>{error('');$('create').disabled=true;try{const response=await fetch('/api/rooms',{method:'POST'});if(!response.ok)throw Error();save(await response.json());connect();}catch{error('Impossible de créer la partie. Vérifiez le serveur.');}finally{$('create').disabled=false;}};
 for(const id of ['start','pause','resume','reveal','next'])$(id).onclick=()=>{error('');send({type:id,questionId:snapshot?.questionId});};
 $('submit-answer').onclick=submitAnswer;
-$('show-ranking').onclick=()=>snapshot.final?startPodium():navigate('ranking-panel');
-$('show-podium').onclick=startPodium;
+$('show-ranking').onclick=()=>snapshot.final?send({type:'podium',questionId:snapshot.questionId}):navigate('ranking-panel');
+$('show-podium').onclick=()=>role==='host'?send({type:'podium',questionId:snapshot.questionId}):startPodium();
 $('full-ranking').onclick=()=>{podiumMode='full';remember(podiumKey(),'full');renderPresentation();};
 $('players-summary').onclick=()=>navigate('room-panel');
 $('forget').onclick=()=>{leave();location.href='/';};

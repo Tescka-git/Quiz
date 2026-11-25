@@ -32,3 +32,7 @@ Le client conserve aussi un marqueur de présentation par salle/question dans se
 ## Recette physique restante
 
 Le Pixel n'était pas connecté lors de cette intégration : la version 0.17 n'est pas encore installée ni validée au toucher. Reprendre le parcours Pixel hôte / Redmi joueur sur Chrome puis Firefox, contrôler le cache v8, la reprise après coupure et les boutons sur petit écran. Les preuves précédentes de réseau local et de persistance ne remplacent pas cette recette de la nouvelle interface. iOS, veille prolongée de l'hôte, charge sur téléphones physiques et stratégie HTTPS/WSS de production restent ouverts.
+
+## Actualisation du 25 novembre
+
+Recette utilisateur 0.17 positive sur Pixel/Redmi Chrome : parcours complet, 3 000 points, podium animateur et reconnexion après coupure Wi-Fi courte. Wi-Fi maison, sans nouvelle preuve d’isolement Internet. Synchronisation du podium ajoutée en préparation 0.18 ; test physique différé. Voir [état des lieux](../ETAT_DES_LIEUX.md). Les mentions de recette restante ci-dessus décrivent la situation du 24 novembre.

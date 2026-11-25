@@ -1,5 +1,5 @@
 const status=document.getElementById('offline-status'),button=document.getElementById('check-offline');
-const CACHE='kuikuiz-mock-shell-v8';
+const CACHE='kuikuiz-mock-shell-v9';
 const FILES=['/','/app.js','/offline.js','/style.css','/manifest.webmanifest','/icon.svg','/connection.json'];
 async function check(){
   try{

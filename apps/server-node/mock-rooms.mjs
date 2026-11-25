@@ -18,6 +18,7 @@ export class MockRooms {
     this.db=new DatabaseSync(filename);
     this.db.exec(`PRAGMA foreign_keys=ON; PRAGMA synchronous=EXTRA;
       CREATE TABLE IF NOT EXISTS mock_rooms(id TEXT PRIMARY KEY,code TEXT UNIQUE NOT NULL,host_hash TEXT NOT NULL,engine_hash TEXT NOT NULL,question_json TEXT NOT NULL);
+      CREATE TABLE IF NOT EXISTS mock_podium(room_id TEXT PRIMARY KEY REFERENCES mock_rooms(id));
       CREATE TABLE IF NOT EXISTS mock_players(id TEXT PRIMARY KEY,room_id TEXT NOT NULL REFERENCES mock_rooms(id),name TEXT NOT NULL,token_hash TEXT UNIQUE NOT NULL);`);
     try {
       for(const room of this.db.prepare('SELECT * FROM mock_rooms').all()) {
@@ -59,6 +60,11 @@ export class MockRooms {
     const id=identity.roomId;const frozenQuestion=JSON.parse(this.room(id).question_json);
     const command=this.project.command(identity,message,Boolean(this.state(id)));if(command.error)throw new Error(command.error);
     if(command.type==='sync')return;
+    if(command.type==='podium'){
+      const state=this.state(id);
+      if(state.current.phase!=='closed'||state.completed.length+1!==state.questions.length||message.questionId!==state.current.question.id)throw new Error('forbidden');
+      this.db.prepare('INSERT OR IGNORE INTO mock_podium VALUES (?)').run(id);return;
+    }
     if(command.type==='start') {
       const roster=this.players(id);if(!roster.length)throw new Error('no-players');
       return this.store.create(id,frozenQuestion.map(q=>({id:q.id,options:q.choices.map(c=>c.id),correctOption:q.correctOption,
@@ -76,7 +82,7 @@ export class MockRooms {
     const room=this.room(identity.roomId);
     const state=this.state(room.id);
     return this.project.snapshot(state,{id:room.id,code:room.code,questions:JSON.parse(room.question_json)},
-      this.players(room.id),identity,this.clock(),presence,this.reveals.get(`${room.id}:${state?.current.question.id}`)??null);
+      this.players(room.id),identity,this.clock(),presence,this.reveals.get(`${room.id}:${state?.current.question.id}`)??null,Boolean(this.db.prepare('SELECT room_id FROM mock_podium WHERE room_id=?').get(room.id)));
   }
   checkpoint() {
     for(const room of this.db.prepare('SELECT id FROM mock_rooms').all()) {

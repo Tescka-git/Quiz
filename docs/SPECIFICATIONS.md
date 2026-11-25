@@ -88,3 +88,7 @@
 - **À approfondir** : choix reportés, notamment l'hébergement distant et les certificats HTTPS/WSS locaux.
 - Les exemples de technologies (Kotlin, SQLite, PostgreSQL, etc.) ne constituent **pas** des choix imposés lorsqu'ils sont présentés comme pistes.
 - La conception fonctionnelle est considérée comme **suffisamment définie pour lancer les prototypes**, sans être figée définitivement.
+
+## Précision validée le 25 novembre — podium
+
+Le déclenchement du podium par l’animateur bascule automatiquement les joueurs vers leur onglet Classement et lance le dévoilement. Ce choix est conservé pour les clients reconnectés. La durée des animations reste une présentation locale, sans garantie de synchronisation à la milliseconde.

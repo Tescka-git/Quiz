@@ -14,7 +14,7 @@ function kuikuizCommand(identity,message,started) {
 function kuikuizAdmission(started){return started?{error:'already-started'}:{allowed:true};}
 
 /** Jamais d'état moteur brut au client. */
-function kuikuizSnapshot(quiz,room,players,identity,now,presence={},revealedAt=null) {
+function kuikuizSnapshot(quiz,room,players,identity,now,presence={},revealedAt=null,podium=false) {
   const state=quiz?quiz.current:null;
   const question=room.questions[quiz?quiz.completed.length:0];
   const visiblePlayers=players.map(player=>identity.role==='host'?{...player,connection:presence[player.id]||'disconnected'}:player);
@@ -33,6 +33,7 @@ function kuikuizSnapshot(quiz,room,players,identity,now,presence={},revealedAt=n
   if(state.phase==='closed'){
     output.revealRemainingMs=revealedAt===null?0:Math.max(0,3500-Math.max(0,now-revealedAt));
     output.final=quiz.completed.length+1===quiz.questions.length;
+    output.podium=output.final&&podium;
     output.correctOption=state.question.correctOption;
     if(own)output.ownAnswer.points=own.points;
     output.ranking=KuikuizEngine.quizRanking(quiz).map(row=>({...row,name:players.find(p=>p.id===row.playerId).name}));

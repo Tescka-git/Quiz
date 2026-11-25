@@ -119,6 +119,9 @@ try{
   await host.setViewportSize({width:320,height:640});
   await host.locator('#show-ranking').click();
   await host.locator('#full-ranking').waitFor({state:'visible'});
+  await player.locator('#full-ranking').waitFor({state:'visible'});
+  assert.equal(await player.locator('#podium').isVisible(),true);
+  await player.reload();await player.locator('#podium').waitFor({state:'visible'});
   assert.equal(await host.locator('#podium').isVisible(),true);
   const podiumFit=await host.evaluate(()=>{
     const p=document.getElementById('podium').getBoundingClientRect(),b=document.getElementById('full-ranking').getBoundingClientRect();

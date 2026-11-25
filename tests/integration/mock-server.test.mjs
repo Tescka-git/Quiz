@@ -275,3 +275,20 @@ test('échec SQL pendant la progression : question et score précédents conserv
     const revealed=await player.next(m=>m.type==='state'&&m.questionId==='ocean'&&m.phase==='closed');assert.equal(revealed.ranking[0].points,1000);
   }finally{db.close();}
 });
+
+test('podium : réservé à l’animateur, final seulement, durable et idempotent',async t=>{
+  const env=await environment(t);let app=await env.start();const {host,credentials}=await room(t,app);
+  const {connection:player,credentials:identity}=await joinPlayer(t,app,credentials.code);
+  host.send({type:'start'});await player.next(state('open'));
+  host.send({type:'podium',questionId:'planete'});assert.equal((await host.next(m=>m.type==='error')).code,'forbidden');
+  for(const questionId of ['planete','ocean','hexagone']){
+    host.send({type:'reveal',questionId});await player.next(m=>m.type==='state'&&m.phase==='closed'&&m.questionId===questionId);
+    if(questionId!=='hexagone'){host.send({type:'next',questionId});await player.next(m=>m.type==='state'&&m.phase==='open');}
+  }
+  player.send({type:'podium',questionId:'hexagone'});assert.equal((await player.next(m=>m.type==='error')).code,'forbidden');
+  host.send({type:'podium',questionId:'hexagone'});const first=await player.next(m=>m.type==='state'&&m.podium===true);
+  host.send({type:'podium',questionId:'hexagone'});assert.deepEqual((await player.next(m=>m.type==='state'&&m.podium===true)).ranking,first.ranking);
+  await app.stop();app=await env.start();
+  const returning=await client(t,app,{type:'player',roomId:identity.roomId,token:identity.token});
+  assert.equal((await returning.next(m=>m.type==='state')).podium,true);
+});

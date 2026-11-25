@@ -1,5 +1,7 @@
 # Kuikuiz — Architecture technique (v0.2)
 
+**25 novembre — podium partagé (préparation 0.18) :** commande animateur après clôture finale, état durable dans la table additive `mock_podium` des deux adaptateurs ; bascule des joueurs au classement et animation locale. Moteur et scores inchangés. 39 tests Node et parcours navigateur positifs, compilation Android réussie ; recette physique différée. Voir [état des lieux](ETAT_DES_LIEUX.md).
+
 > Ce document sépare les orientations validées des solutions encore expérimentales. La faisabilité n'est pas démontrée à ce stade.
 
 **P24 — interface intégrée :** la structure validée de l'atelier est appliquée au vrai quiz, avec soumission au toucher, présence WebSocket réservée à l'animateur, révélation et podium. Moteur et base v4 inchangés ; Android 0.17 compilé, recette physique restante. Voir [P24](experiments/P24_INTERFACE_INTEGREE.md).
