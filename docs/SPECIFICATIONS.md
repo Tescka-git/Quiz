@@ -1,6 +1,6 @@
 # Kuikuiz — Cahier des charges et décisions de conception (v0.2)
 
-**Sauvegarde : 21 novembre 2026**
+**Dernière mise à jour : 25 novembre 2026**
 **Nom du produit :** Kuikuiz (favori provisoire, disponibilité juridique et commerciale à confirmer)
 **Statut :** décisions fonctionnelles et principes d'architecture validés ; faisabilités techniques encore à éprouver.
 
@@ -92,3 +92,30 @@
 ## Précision validée le 25 novembre — podium
 
 Le déclenchement du podium par l’animateur bascule automatiquement les joueurs vers leur onglet Classement et lance le dévoilement. Ce choix est conservé pour les clients reconnectés. La durée des animations reste une présentation locale, sans garantie de synchronisation à la milliseconde.
+
+## Mode buzzer — règles validées le 25 novembre 2026
+
+Statut : exigences validées, non implémentées dans le prototype actuel.
+
+### Buzzer intégré au quiz
+
+- Activation pour toute la partie ou pour une question donnée ; utilisable pour questions ouvertes, QCM, blind tests et questions de rapidité.
+- L'animateur arme le buzzer. Le premier buzz accepté par le serveur donne la parole au joueur et bloque la prise de parole des autres.
+- L'ordre est celui de réception par le serveur hôte, sans utiliser les heures déclarées par les téléphones. Un réseau Wi-Fi commun ne garantit pas des latences identiques.
+- La prise de parole suspend le chronomètre éventuel et la lecture audio/vidéo ; une image est masquée ou floutée. Il s'agit d'une suspension de l'interface, sans garantie d'arrêt simultané à la milliseconde sur tous les appareils ni protection absolue contre la triche.
+- Le mode peut fonctionner sans chronomètre ou avec une durée longue configurable. La reprise après un buzz est une action explicite de l'animateur ; aucun redémarrage automatique du média ou du chronomètre.
+- Un léger signal sonore répétitif configurable indique le temps écoulé depuis le buzz pendant la prise de parole. Il n'impose pas de délai de déblocage.
+- L'animateur juge la réponse. Une bonne réponse entraîne l'attribution des points prévus et la révélation ; une mauvaise réponse rend temporairement ce joueur inéligible.
+- Après une mauvaise réponse, le joueur redevient éligible lorsqu'un autre joueur a proposé une réponse, ou lorsque l'animateur le réarme manuellement. Un autre buzz seul ne suffit pas.
+- **Aucun déblocage automatique après un délai.** Si personne ne propose de réponse ou si tous les joueurs sont bloqués, l'animateur garde la main pour réarmer.
+- Une proposition orale en mode buzzer est distincte d'une réponse soumise définitive en mode classique. Une reconnexion ne doit pas effacer une exclusion ni créer une seconde prise de parole.
+
+### Buzzer autonome hors quiz
+
+- Une salle avec animateur et joueurs, sans questions ni scores obligatoires.
+- Affichage côté animateur du premier buzz et de l'ordre des buzz arrivés dans la foulée, pendant une courte séquence de collecte.
+- Réarmement par l'animateur pour la séquence suivante. La collecte des buzz suivants n'accorde pas plusieurs prises de parole simultanées dans le mode quiz.
+
+### Développement progressif et points techniques ouverts
+
+Commencer par le buzzer autonome pour éprouver l'ordre des réceptions, les buzz rapprochés, le réarmement et les reconnexions ; intégrer ensuite questions, scores et médias. Le format des commandes, la durée de collecte des buzz suivants, le signal explicite de proposition orale, les règles de points propres aux quiz buzzer et les mécanismes de synchronisation des médias restent à concevoir. Aucune nouvelle technologie n'est sélectionnée par ces exigences.

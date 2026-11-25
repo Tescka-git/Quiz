@@ -14,16 +14,32 @@ Préparation 0.18 : commande podium réservée à l'animateur après clôture fi
 
 Pas encore de création de quiz, comptes, médias, QCM multiple/texte dans le moteur, vrai QR code ou statistiques détaillées. Les types supplémentaires de l'atelier visuel sont des simulations. Certificats et installation d'autorité restent une solution de laboratoire. iOS hôte non validé ; recette iPhone joueur indisponible. Firefox Redmi validé auparavant, nouvelle interface/cache à retester. Charge automatisée de 30 joueurs distincte des essais physiques à plusieurs téléphones. Veille prolongée de l'hôte encore ouverte.
 
-## Ménage proposé
+## Reste à faire — ordre retenu le 25 novembre
 
-| Ensemble | Proposition | Précaution |
+1. Recetter le podium partagé 0.18 sur Pixel/Redmi ; l'essai a été différé, pas validé physiquement.
+2. Reprendre Firefox Android avec la nouvelle interface : parcours de jeu, cache, reconnexion et fonctionnement local hors Internet. L'essai iPhone est séparé et ne bloque pas cette étape.
+3. Étudier et expérimenter le parcours HTTPS/WSS hors laboratoire : confiance, adressage et renouvellement. Présenter les options et leurs contraintes avant de choisir une solution de distribution ; mesurer avant de fixer les seuils.
+4. Développer une expérience de buzzer autonome suivant [les règles validées](SPECIFICATIONS.md#mode-buzzer--règles-validées-le-25-novembre-2026), puis l'intégration au quiz et aux médias. Ce lot n'est pas commencé.
+5. Élargir les essais à quelques téléphones, puis environ dix ; garder les 30 téléphones physiques pour un prototype suffisamment mature. Veille prolongée de l'hôte à garder au programme sans en faire le prochain blocage.
+
+**Essai iPhone joueur prévu ce week-end (28–29 novembre 2026), sous réserve de disponibilité** : commencer par Safari, vérifier l'accès sécurisé, l'inscription, le quiz, puis cache et reconnexion. Cet essai ne concerne pas l'hébergement sur iOS. Aucune validation iPhone n'est acquise à ce stade. Les étapes 1 à 3 peuvent avancer sans cet appareil.
+
+Création de quiz, types de questions supplémentaires, vrai QR code, statistiques, comptes et relais de projection restent des développements fonctionnels distincts à ordonner selon les besoins. La priorité demeure la fiabilité et la portabilité.
+
+## Ménage documentaire effectué
+
+L'architecture présente désormais les composants et contraintes actuels ; son ancien contenu est conservé intégralement dans [une archive datée](archives/ARCHITECTURE_HISTORIQUE_2026-11-25.md), avec liens ajustés. Un [index des expériences](experiments/README.md) permet de retrouver les preuves. Les règles du buzzer sont ajoutées au cahier des charges sans implémentation. Les questions ouvertes sont maintenant regroupées par risque et fonction ; leur ancienne chronologie est conservée dans [une seconde archive](archives/QUESTIONS_OUVERTES_HISTORIQUE_2026-11-25.md). Les limites résolues ne sont plus présentées comme des tâches à reprendre.
+
+## Rangement technique différé — facultatif
+
+Le rangement documentaire est terminé. Ces propositions techniques ne bloquent ni les essais ni le reste à faire :
+
+| Ensemble | Proposition différée | Précaution |
 |---|---|---|
-| apps/web/mock, serveur, moteur, protocole | Conserver comme chemin jouable principal ; clarifier progressivement les noms « mock » | Renommage séparé avec tests et mise à jour des scripts |
-| apps/web/layout | Conserver comme atelier pour les prochains échanges visuels | Éviter de maintenir deux interfaces produit ; reporter les décisions dans le vrai quiz |
-| docs/experiments | Conserver les preuves historiques ; ajouter un index avec statut, résultat et limites | Ne pas supprimer les échecs utiles à la compréhension des risques |
-| ARCHITECTURE, QUESTIONS_OUVERTES | Remplacer à terme les longs préambules chronologiques par une synthèse actuelle et des liens | Préserver les décisions validées et les inconnues |
-| tooling | Classer les scripts par rôle : tests courants, outils Android, sondes historiques | Identifier leurs appels dans package.json et les docs avant déplacement |
-| Application Android | Distinguer progressivement l'écran d'hébergement des boutons de sondes | Garder les tests moteur, stockage et récupération accessibles pendant la faisabilité |
-| .tools et artifacts | Laisser hors Git ; inventorier avant tout nettoyage | Contiennent notamment SDK, certificats et bases locales : aucune suppression automatique |
+| Chemin jouable apps/web/mock, serveur et protocole | Clarifier les noms « mock » | Renommage séparé, avec mise à jour des références et tests |
+| tooling | Classer les scripts par rôle : tests courants, outils Android, sondes historiques | Vérifier les appels dans package.json et la documentation avant déplacement |
+| Application Android | Séparer l'écran d'hébergement des boutons de sondes | Garder les diagnostics utiles pendant la faisabilité |
 
-Aucune suppression ni réorganisation globale effectuée dans ce lot. Prochaine étape recommandée : recueillir les nouvelles remarques fonctionnelles, mettre à jour les spécifications, puis faire un petit lot documentaire (index et synthèse) avant les renommages techniques. Garder chaque lot indépendant et vérifiable.
+L'atelier apps/web/layout est conservé pour discuter les écrans. L'actualisation des synthèses après les essais relève de l'entretien documentaire habituel. Aucun nettoyage immédiat de .tools ou artifacts n'est prévu ; ces dossiers restent hors Git et contiennent notamment SDK, certificats et bases locales.
+
+Aucun code, script, certificat ni base locale supprimé ou déplacé. Toute réorganisation technique sera un lot indépendant et vérifiable.
