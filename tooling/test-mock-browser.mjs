@@ -76,6 +76,8 @@ try{
   assert.equal(await player.getByRole('radio',{name:'Mars',exact:true}).isDisabled(),true);
   await other.getByRole('radio',{name:'Vénus',exact:true}).check();
   await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='2 / 2 réponses confirmées');
+  await host.locator('#show-ranking').waitFor({state:'visible',timeout:2000});
+  assert.equal(await player.locator('#results').isHidden(),true);
   await player.locator('#results').waitFor({state:'visible'});
   assert.equal(await player.locator('#ranking tr').count(),2);
   assert.match(await player.locator('#ranking tr').first().innerText(),/Camille/);
@@ -90,6 +92,7 @@ try{
 
     await host.waitForFunction(()=>document.getElementById('answer-count').textContent==='1 / 2 réponses confirmées');
     await host.getByRole('button',{name:'Révéler les résultats'}).click();
+    if(number===3){await host.locator('#show-ranking').click();await player.waitForFunction(()=>document.getElementById('podium').hidden===false);}
     await player.locator('#results').waitFor({state:'visible'});
     assert.match(await player.locator('#ranking tr').first().innerText(),new RegExp(`${number}[\\s\\u202f\\u00a0]?000`));
   }
@@ -98,6 +101,9 @@ try{
   await playerContext.setOffline(true);
   await player.evaluate(()=>window.testSocket.close());
   await player.waitForFunction(()=>!document.getElementById('error').hidden);
+  await player.waitForTimeout(6500);
+  assert.equal(await player.locator('#error').isHidden(),true);
+  assert.equal(await player.locator('#connection').isVisible(),true);
   await playerContext.setOffline(false);
   await player.waitForFunction(()=>document.getElementById('host-status').textContent==='Connecté à la partie.'&&document.getElementById('error').hidden);
   assert.equal(await player.locator('#answer-count').isHidden(),true);
@@ -121,8 +127,11 @@ try{
   await host.locator('#full-ranking').waitFor({state:'visible'});
   await player.locator('#full-ranking').waitFor({state:'visible'});
   assert.equal(await player.locator('#podium').isVisible(),true);
+  await player.waitForFunction(()=>Math.abs(document.getElementById('ranking-panel').getBoundingClientRect().top-document.getElementById('game').getBoundingClientRect().top)<3);
+  assert.match(await player.locator('#interface-version').textContent(),/0.21-experiment/);
   await player.reload();await player.locator('#podium').waitFor({state:'visible'});
   assert.equal(await host.locator('#podium').isVisible(),true);
+  await host.waitForFunction(()=>Math.abs(document.getElementById('ranking-panel').getBoundingClientRect().top-document.getElementById('game').getBoundingClientRect().top)<3);
   const podiumFit=await host.evaluate(()=>{
     const p=document.getElementById('podium').getBoundingClientRect(),b=document.getElementById('full-ranking').getBoundingClientRect();
     return {bottom:p.bottom,button:b.bottom,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth};

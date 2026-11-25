@@ -119,3 +119,7 @@ Statut : exigences validées, non implémentées dans le prototype actuel.
 ### Développement progressif et points techniques ouverts
 
 Commencer par le buzzer autonome pour éprouver l'ordre des réceptions, les buzz rapprochés, le réarmement et les reconnexions ; intégrer ensuite questions, scores et médias. Le format des commandes, la durée de collecte des buzz suivants, le signal explicite de proposition orale, les règles de points propres aux quiz buzzer et les mécanismes de synchronisation des médias restent à concevoir. Aucune nouvelle technologie n'est sélectionnée par ces exigences.
+
+### Accès animateur au classement — précision du 25 novembre
+
+Dès la clôture autoritaire (toutes les réponses initiales fournies, échéance ou révélation manuelle), le bouton de classement est disponible pour l’animateur. Les 3,5 secondes de correction concernent le joueur et ne bloquent pas les commandes animateur. Si le podium est demandé pendant cette correction, le joueur termine son animation avant d’afficher le podium partagé.

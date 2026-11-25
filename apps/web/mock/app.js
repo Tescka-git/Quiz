@@ -7,7 +7,13 @@ if(role==='player'&&(params.get('new')==='1'||requestedCode&&credentials?.code!=
 let socket,connected=false,identified=false,retry,stopped=false,generation=0,snapshot,selected='',pending=null,accepted=null,anchor=0,joinDetails=null,ackTimeout;
 let connectionError=false,closedKey='',revealUntil=0,animateCorrection=false,presentationReady=false,podiumMode='ready',podiumStart=0,podiumStep=-1;
 const messages={'invalid-message':'Message non reconnu. Rechargez la page.','unknown-room':'Cette partie est introuvable. Rejoignez une autre salle.',unauthorized:'Cet accès à la partie n’est plus valide.',forbidden:'Cette action est réservée à l’animateur.','already-started':'La partie a déjà commencé. Seuls les joueurs inscrits peuvent revenir.','no-players':'Un joueur doit rejoindre avant le lancement.','not-started':'La question n’a pas encore commencé.','storage-failed':'La sauvegarde n’a pas abouti. Aucune nouvelle réponse n’est confirmée. Réessayez ou reconnectez-vous.'};
-function error(message,network=false){connectionError=network;$('error').textContent=message;$('error').hidden=!message;}
+let networkNoticeTimer;
+function error(message,network=false){
+  if(network&&connectionError)return;
+  if(network&&!$('error').hidden&&!connectionError)return;
+  clearTimeout(networkNoticeTimer);connectionError=network;$('error').textContent=message;$('error').hidden=!message;
+  if(network){setHidden('connection',false);renderConnection();networkNoticeTimer=setTimeout(()=>{if(connectionError)$('error').hidden=true;},4000);}
+}
 function save(value){credentials=value;try{localStorage.setItem(key,JSON.stringify(value));}catch{error('Cet onglet ne peut pas conserver votre accès après fermeture.');}
   if(role==='player'){const url=new URL(location.href);url.searchParams.delete('new');history.replaceState(null,'',url.pathname+url.search+url.hash);}}
 function remember(key,value){try{sessionStorage.setItem(key,value);}catch{}}
@@ -20,7 +26,7 @@ function remaining(){return snapshot?Math.max(0,snapshot.remainingMs-(snapshot.p
 function setHidden(id,hidden){$(id).hidden=hidden;}
 function navigate(panel){
   if($(panel).hidden)return;
-  if($('device').classList.contains('compact'))$('game').scrollTo({top:$(panel).offsetTop-$('play-panel').offsetTop,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+  if($('device').classList.contains('compact'))$('game').scrollTo({top:$('game').scrollTop+$(panel).getBoundingClientRect().top-$('game').getBoundingClientRect().top,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
   for(const button of $('panel-nav').querySelectorAll('button'))button.setAttribute('aria-current',String(button.dataset.panel===panel));
 }
 function resetPresentation(){closedKey='';revealUntil=0;animateCorrection=false;presentationReady=false;podiumMode='ready';podiumStep=-1;}
@@ -106,7 +112,7 @@ function buildChoices(){
 function renderConnection(){
   const status=connected&&identified?'connected':stopped?'disconnected':'reconnecting';
   $('connection').dataset.state=status;$('connection').textContent=({connected:'✓ Connecté',reconnecting:'… Reconnexion',disconnected:'✕ Déconnecté'})[status];
-  if(role!=='host')return;
+  if(role!=='host'||!snapshot)return;
   const offline=snapshot.players.filter(player=>player.connection!=='connected').length;
   $('players-summary').classList.toggle('warning',offline>0||!connected||!identified);
   $('players-summary').textContent=!connected||!identified?'⚠ Connexion des joueurs à vérifier':!snapshot.total?'Aucun joueur inscrit':offline?`⚠ ${offline} joueur${offline>1?'s':''} déconnecté${offline>1?'s':''}`:'✓✓ Tous les joueurs sont connectés';
@@ -143,7 +149,7 @@ function startPodium(){
 }
 function renderPresentation(){
   if(!snapshot)return;
-  const closed=snapshot.phase==='closed';presentationReady=closed&&performance.now()>=revealUntil;
+  const closed=snapshot.phase==='closed';presentationReady=closed&&(role==='host'||performance.now()>=revealUntil);
   const feedback=closed&&animateCorrection&&!presentationReady&&role==='player';
   setHidden('feedback',!feedback);
   const own=snapshot.ownAnswer,correct=Boolean(closed&&own&&own.option===snapshot.correctOption);
@@ -224,7 +230,7 @@ function submitAnswer(){
 function tick(){
   if(!snapshot)return;
   const left=remaining();$('timer').textContent=`${Math.ceil(left/1000)} s`;$('time-progress').value=left;
-  if(snapshot.phase==='closed'&&!presentationReady&&performance.now()>=revealUntil)renderPresentation();
+  if(snapshot.phase==='closed'&&!presentationReady&&performance.now()>=revealUntil){renderPresentation();if(snapshot.podium&&podiumMode==='ready')startPodium();}
   if(snapshot.phase==='open'&&left<=0){for(const input of $('choices').querySelectorAll('input'))input.disabled=true;$('submit-answer').disabled=true;}
   if(podiumMode==='podium'&&podiumStep<3){const step=Math.min(3,Math.floor((performance.now()-podiumStart)/1200));if(step!==podiumStep){podiumStep=step;renderPodium();renderPresentation();}}
 }
@@ -233,7 +239,7 @@ $('join-form').onsubmit=event=>{event.preventDefault();error('');joinDetails={co
 $('create').onclick=async()=>{error('');$('create').disabled=true;try{const response=await fetch('/api/rooms',{method:'POST'});if(!response.ok)throw Error();save(await response.json());connect();}catch{error('Impossible de créer la partie. Vérifiez le serveur.');}finally{$('create').disabled=false;}};
 for(const id of ['start','pause','resume','reveal','next'])$(id).onclick=()=>{error('');send({type:id,questionId:snapshot?.questionId});};
 $('submit-answer').onclick=submitAnswer;
-$('show-ranking').onclick=()=>snapshot.final?send({type:'podium',questionId:snapshot.questionId}):navigate('ranking-panel');
+$('show-ranking').onclick=()=>snapshot.final?(snapshot.podium?startPodium():send({type:'podium',questionId:snapshot.questionId})):navigate('ranking-panel');
 $('show-podium').onclick=()=>role==='host'?send({type:'podium',questionId:snapshot.questionId}):startPodium();
 $('full-ranking').onclick=()=>{podiumMode='full';remember(podiumKey(),'full');renderPresentation();};
 $('players-summary').onclick=()=>navigate('room-panel');

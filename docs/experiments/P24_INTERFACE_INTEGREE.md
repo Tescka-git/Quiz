@@ -36,3 +36,13 @@ Le Pixel n'était pas connecté lors de cette intégration : la version 0.17 n'e
 ## Actualisation du 25 novembre
 
 Recette utilisateur 0.17 positive sur Pixel/Redmi Chrome : parcours complet, 3 000 points, podium animateur et reconnexion après coupure Wi-Fi courte. Wi-Fi maison, sans nouvelle preuve d’isolement Internet. Synchronisation du podium ajoutée en préparation 0.18 ; test physique différé. Voir [état des lieux](../ETAT_DES_LIEUX.md). Les mentions de recette restante ci-dessus décrivent la situation du 24 novembre.
+
+## Recette manuelle 0.20 — 25 novembre
+
+L’utilisateur confirme la version 0.20/cache v11 dans Diagnostic sur les deux téléphones, puis le parcours Chrome Pixel animateur / Redmi joueur : bouton podium disponible dès la clôture, lancement pendant la correction joueur, fin de cette correction puis bascule automatique sur Classement et dévoilement du podium sans action sur le Redmi. Résultat positif. Pas de nouvelle validation Firefox, iOS ou hors Internet dans cet essai.
+
+## Firefox Redmi — recette 0.20 du 25 novembre
+
+Selon l’utilisateur : accès sans alerte TLS avec confiance de laboratoire existante, version correcte, quiz complet et podium partagé positifs ; reconnexion sans recharge avec statut connecté et 3 000 points conservés. Diagnostic « Écran disponible hors ligne », puis Wi-Fi et données mobiles du Redmi coupés selon le protocole : après recharge, interface disponible mais formulaire d’inscription affiché et alerte réseau persistante ; retour du réseau retrouve la partie. Ce contrôle valide le cache de l’interface, pas la disponibilité du serveur sans réseau.
+
+Préparation 0.21 : notification réseau masquée après quatre secondes, sans réapparition à chaque tentative automatique ; indicateur de connexion conservé. Les erreurs métier et de sauvegarde restent persistantes. Le formulaire lors d’une reprise sans réseau reste une limite ergonomique distincte.

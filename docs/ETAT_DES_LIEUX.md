@@ -8,6 +8,13 @@ Le 25 novembre, l'utilisateur valide la 0.17 sur Pixel hôte/animateur et Redmi 
 
 ## Dernier ajustement
 
+Préparation 0.20 : version de l’interface et cache visibles dans Diagnostic ; navigation vers le classement calculée depuis la position réelle des panneaux. Le test navigateur couvre une demande de podium pendant la correction et vérifie le panneau effectivement visible. La cause de l’absence de podium rapportée sur le Redmi reste à confirmer avec la version affichée ; recette physique validée le 25 novembre sur Pixel/Redmi Chrome : version affichée correcte, accès animateur immédiat et bascule automatique du joueur vers le podium après correction.
+
+
+Préparation 0.19 : accès immédiat au classement côté animateur dès la clôture ; les 3,5 secondes de correction restent côté joueur. Une demande de podium reçue pendant cette animation est prise en compte après sa fin. Cache v10 remplacé par v11 en 0.20 ; correction validée manuellement dans la recette 0.20.
+
+### Podium partagé
+
 Préparation 0.18 : commande podium réservée à l'animateur après clôture finale. Déclenchement enregistré dans une petite table SQLite additive mock_podium, commune aux deux adaptateurs, sans migration des scores ni changement du moteur. Tous les clients reçoivent cet état : passage automatique au classement et animation locale. Un doublon ne relance pas une animation déjà vue ; reconnexion et redémarrage conservent la demande. Les animations ne sont pas synchronisées à la milliseconde. Cache v9. Recette physique de ce changement différée à la demande de l'utilisateur.
 
 ## Limites actuelles
@@ -16,8 +23,8 @@ Pas encore de création de quiz, comptes, médias, QCM multiple/texte dans le mo
 
 ## Reste à faire — ordre retenu le 25 novembre
 
-1. Recetter le podium partagé 0.18 sur Pixel/Redmi ; l'essai a été différé, pas validé physiquement.
-2. Reprendre Firefox Android avec la nouvelle interface : parcours de jeu, cache, reconnexion et fonctionnement local hors Internet. L'essai iPhone est séparé et ne bloque pas cette étape.
+1. **Terminé en 0.20** : podium partagé validé sur Pixel/Redmi Chrome, avec bouton animateur immédiat et animation joueur conservée.
+2. **Firefox Redmi 0.20 validé** : quiz, podium, reconnexion et cache de l’interface après coupure/recharge. Pas de nouvelle preuve de partie jouable sans Internet avec réseau local conservé. Notification réseau corrigée en préparation 0.21 ; recette physique restante. L’essai iPhone reste séparé.
 3. Étudier et expérimenter le parcours HTTPS/WSS hors laboratoire : confiance, adressage et renouvellement. Présenter les options et leurs contraintes avant de choisir une solution de distribution ; mesurer avant de fixer les seuils.
 4. Développer une expérience de buzzer autonome suivant [les règles validées](SPECIFICATIONS.md#mode-buzzer--règles-validées-le-25-novembre-2026), puis l'intégration au quiz et aux médias. Ce lot n'est pas commencé.
 5. Élargir les essais à quelques téléphones, puis environ dix ; garder les 30 téléphones physiques pour un prototype suffisamment mature. Veille prolongée de l'hôte à garder au programme sans en faire le prochain blocage.
