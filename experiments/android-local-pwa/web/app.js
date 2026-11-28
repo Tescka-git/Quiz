@@ -13,6 +13,19 @@ function environment() {
   element('environment').textContent = `Origine : ${location.origin} ; contexte sécurisé : ${isSecureContext} ; indicateur réseau : ${navigator.onLine} (ne prouve pas un accès Internet).`;
 }
 environment();
+element('permissions').onclick = async () => {
+  const observations = [];
+  for (const name of ['local-network', 'loopback-network']) {
+    try {
+      const permission = await navigator.permissions.query({ name });
+      observations.push({ name, state: permission.state });
+    } catch {
+      observations.push({ name, state: 'API non prise en charge ; ne prouve pas un refus réseau' });
+    }
+  }
+  element('permission-status').textContent = observations.map(p => `${p.name} : ${p.state}`).join(' ; ');
+  log('permissions', { observations });
+};
 for (const name of ['online', 'offline']) addEventListener(name, () => { environment(); log(name); });
 element('prepare').onclick = async () => {
   try {

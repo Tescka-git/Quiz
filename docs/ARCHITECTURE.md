@@ -7,6 +7,10 @@
 - [Questions ouvertes](QUESTIONS_OUVERTES.md) : inconnues actuelles regroupées ; chronologie conservée dans une archive séparée.
 - [Historique archivé de l'architecture](archives/ARCHITECTURE_HISTORIQUE_2026-11-25.md) et [index des expériences](experiments/README.md) : preuves, incidents et limites détaillés.
 
+## Étude de distribution sécurisée
+
+[P25](experiments/P25_HTTPS_WSS_HORS_LABORATOIRE.md) compare les options hors laboratoire. Domaine et certificat public propres à l'hôte avec résolution locale sont proposés à l'étude ; les permissions réseau local modernes méritent une sonde distincte mais ne chiffrent pas ws. Aucun achat, déploiement ni changement des certificats existants effectué.
+
 ## Composants actuels
 
 | Composant | Responsabilité |

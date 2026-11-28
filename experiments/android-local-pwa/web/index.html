@@ -14,6 +14,9 @@ pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #edf3f5; paddi
 <h1>Diagnostic Android / PWA</h1>
 <p>Outil expérimental : aucun résultat ici ne valide à lui seul la faisabilité Android.</p>
 <p id="environment"></p>
+<p>Sonde permissions v1 — Le canal ws:// testé ici n'est pas chiffré. Une réussite ne valide pas la distribution HTTPS/WSS du produit.</p>
+<button id="permissions">Lire les permissions réseau local</button>
+<p id="permission-status" role="status">Permissions non vérifiées.</p>
 <button id="prepare">Préparer le cache hors ligne</button>
 <p id="cache" role="status">Cache non vérifié.</p>
 <label for="endpoint">Adresse du serveur WebSocket à tester</label>

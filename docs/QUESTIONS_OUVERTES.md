@@ -19,6 +19,8 @@ Le suivi détaillé des navigateurs reste dans [la checklist](experiments/CHECKL
 
 ## HTTPS/WSS et préparation hors ligne
 
+Étude initiale et protocole comparatif dans [P25](experiments/P25_HTTPS_WSS_HORS_LABORATOIRE.md). Premier contrôle sur PC seulement : HTTP/IP privée permet ws mais pas une origine PWA sécurisée. Résolution locale d'un domaine certifié et permissions depuis une origine HTTPS restent à démontrer sur téléphones.
+
 - Choisir un parcours de confiance utilisable hors laboratoire : certificat reconnu, adressage, changement d'IP et renouvellement, sans installer manuellement une autorité sur chaque appareil joueur.
 - Vérifier les contraintes de contexte sécurisé, permissions réseau local et service workers sur les navigateurs visés. Installer une PWA ne résout pas à lui seul ces contraintes.
 - Clarifier l'expérience de mise à jour du cache et le diagnostic d'ancienne version ; distinguer interface disponible hors ligne et partie jouable avec son hôte.

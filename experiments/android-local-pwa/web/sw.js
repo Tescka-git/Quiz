@@ -1,4 +1,4 @@
-const CACHE = 'kuikuiz-diagnostic-v1';
+const CACHE = 'kuikuiz-diagnostic-v2';
 const FILES = ['./', './index.html', './app.js', './manifest.webmanifest', './icon.svg'];
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((cache) => cache.addAll(FILES)));

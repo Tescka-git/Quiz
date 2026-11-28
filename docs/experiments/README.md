@@ -13,6 +13,8 @@ L'ancien registre des questions ouvertes est aussi conservé dans [une archive d
 - P21–P23 : deuxième téléphone, incidents/reprise, échéance et Firefox.
 - P24 : interface intégrée, recette 0.17 et préparation du podium partagé 0.18.
 
+- P25 : comparaison des accès locaux sans autorité de laboratoire et première sonde de contexte sécurisé.
+
 ## Tous les documents
 
 - [CHECKLIST_NAVIGATEURS ](CHECKLIST_NAVIGATEURS.md)
@@ -38,3 +40,7 @@ L'ancien registre des questions ouvertes est aussi conservé dans [une archive d
 - [PREPARATION_HTTPS_LOCAL ](PREPARATION_HTTPS_LOCAL.md)
 - [PROTOCOLE_ANDROID_PWA ](PROTOCOLE_ANDROID_PWA.md)
 - [TLS_LOCAL_MODE_EMPLOI ](TLS_LOCAL_MODE_EMPLOI.md)
+
+- [P25 — HTTPS/WSS hors laboratoire](P25_HTTPS_WSS_HORS_LABORATOIRE.md)
+
+- [P26 — Jeu et DNS de sonde sur Raspberry](P26_RASPBERRY_JEU_DNS.md)
